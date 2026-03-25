@@ -59,7 +59,7 @@ Descriptions support `\n` newlines as GrblHAL encodes them - multi-line descript
 
 ## Usage
 
-1. Download `grblhal-sender-3d.html`
+1. Download `flexisender.html`
 2. Serve it locally (required to avoid mixed-content blocking on `ws://`):
    ```bash
    python3 -m http.server 8080
