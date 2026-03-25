@@ -84,7 +84,7 @@ open('flexisender-offline.html', 'w').write(html)
 
 ## Requirements
 
-- A GrblHAL controller with WebSocket support (ESP32-based boards, FluidNC, Teensy with networking)
+- A GrblHAL controller with WebSocket support
 - Any modern browser (Chrome, Firefox, Edge, Safari)
 - GrblHAL firmware build date ≥ 20210819 for full settings enumeration support
 
