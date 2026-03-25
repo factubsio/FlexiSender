@@ -451,18 +451,18 @@
       <div class="jog-row">
         <div class="jog-grid">
           <div></div>
-          <button class="jog-btn" onmousedown="startJog('Y+')">↑</button>
+          <button class="jog-btn" onmousedown="startJog('Y+')" onmouseup="stopJog()" ontouchstart="startJog('Y+')" ontouchend="stopJog()">↑</button>
           <div></div>
-          <button class="jog-btn" onmousedown="startJog('X-')">←</button>
+          <button class="jog-btn" onmousedown="startJog('X-')" onmouseup="stopJog()" ontouchstart="startJog('X-')" ontouchend="stopJog()">←</button>
           <button class="jog-btn center" onclick="goToXY0()">XY0</button>
-          <button class="jog-btn" onmousedown="startJog('X+')">→</button>
+          <button class="jog-btn" onmousedown="startJog('X+')" onmouseup="stopJog()" ontouchstart="startJog('X+')" ontouchend="stopJog()">→</button>
           <div></div>
-          <button class="jog-btn" onmousedown="startJog('Y-')">↓</button>
+          <button class="jog-btn" onmousedown="startJog('Y-')" onmouseup="stopJog()" ontouchstart="startJog('Y-')" ontouchend="stopJog()">↓</button>
           <div></div>
         </div>
         <div class="jog-z-col">
-          <button class="jog-btn z-up" style="width:48px;height:48px" onmousedown="startJog('Z+')">Z↑</button>
-          <button class="jog-btn z-down" style="width:48px;height:48px" onmousedown="startJog('Z-')">Z↓</button>
+          <button class="jog-btn z-up" style="width:48px;height:48px" onmousedown="startJog('Z+')" onmouseup="stopJog()" ontouchstart="startJog('Z+')" ontouchend="stopJog()">Z↑</button>
+          <button class="jog-btn z-down" style="width:48px;height:48px" onmousedown="startJog('Z-')" onmouseup="stopJog()" ontouchstart="startJog('Z-')" ontouchend="stopJog()">Z↓</button>
         </div>
       </div>
     </div>
@@ -1089,6 +1089,20 @@ function updateExecutedPath(segIdx) {
 // ═══════════════════════════════════════════════
 let ws = null, connected = false;
 let jogStep = 1, statusInterval = null;
+let _isJogging = false;   // true while any jog is active (button held or keyboard)
+const POLL_JOG  = 50;     // ms — 20 Hz while jogging for crisp DRO response
+const POLL_NORM = 100;    // ms — 10 Hz at idle / running
+
+function setPollRate(ms) {
+  if (statusInterval) clearInterval(statusInterval);
+  statusInterval = setInterval(() => { if (connected) rtSend('?'); }, ms);
+}
+
+function setJogging(active) {
+  if (_isJogging === active) return;
+  _isJogging = active;
+  if (connected) setPollRate(active ? POLL_JOG : POLL_NORM);
+}
 let cmdHistory = [], histIdx = -1;
 let machineX = 0, machineY = 0, machineZ = 0;
 
@@ -1146,8 +1160,8 @@ function onOpen() {
   setStatus('connected');
   log('info', 'WebSocket connected');
   document.getElementById('connectBtn').textContent = 'DISCONNECT';
-  // Poll status at 5 Hz
-  statusInterval = setInterval(() => { if (connected) rtSend('?'); }, 200);
+  // Poll status at 10 Hz normally; ramps to 20 Hz during jog
+  setPollRate(POLL_NORM);
   // Soft-reset, then after dust settles query build info.
   // Clear sentQueue after reset so startup ok responses don't pollute job tracking.
   rtSend('\x18');
@@ -1216,7 +1230,6 @@ function parseResponse(raw) {
       onSettingWriteErr(raw);
       if (running) { running = false; updateRunButtons(); log('alarm', 'Stream halted on error. Fix G-code and restart.'); }
     } else {
-      // ok: route to the right handler based on what was last sent
       if (pendingSettingWrite) { onSettingWriteOk(); }
     }
     pumpQueue();
@@ -1336,23 +1349,27 @@ function startJob() {
   if (running && !paused) return;
   if (paused) {
     paused = false;
-    rtSend('~'); // cycle-start real-time command
+    rtSend('~');
     log('info', 'Resumed');
     updateRunButtons();
     return;
   }
   running = true; paused = false;
   lineHead = 0; rxInFlight = 0; sentQueue.length = 0; segmentIndex = 0;
+  esPhase = 'idle';   // ensure settings load can't intercept job oks
   updateRunButtons();
   log('info', 'Starting job: ' + gcodeLines.length + ' lines  (RX buffer: ' + RX_BUFFER_SIZE + ' bytes)');
   pumpQueue();
 }
 
+function stripComment(line) { return line.replace(/\(.*?\)/g, '').replace(/;.*/, '').trim(); }
+
 function pumpQueue() {
   if (!running || paused) return;
+  try { _pumpQueue(); } catch(e) { log('err', 'pumpQueue: ' + e.message); running = false; updateRunButtons(); }
+}
 
-  // Headroom: leave at least 1 byte free so controller is never truly full.
-  // IOSender uses RX_BUFFER_SIZE - 1 as the high-water mark.
+function _pumpQueue() {
   const hwm = RX_BUFFER_SIZE - 1;
 
   while (lineHead < gcodeLines.length) {
@@ -1372,7 +1389,7 @@ function pumpQueue() {
 
     // Send — cmdSend appends '\n' exactly once.
     cmdSend(stripped);
-    log('tx', '[' + (lineHead + 1) + '] ' + stripped);
+    log('tx', stripped);
     lineHead++;
     updateProgress(lineHead, gcodeLines.length);
   }
@@ -1456,7 +1473,14 @@ function startJog(dir) {
   if (!connected) return;
   const f = document.getElementById('jogFeed').value;
   const axis = dir[0], sign = dir[1] === '+' ? '' : '-';
+  setJogging(true);
   sendCmd('$J=G91 ' + axis + sign + jogStep + ' F' + f);
+}
+
+function stopJog() {
+  if (!_isJogging) return;
+  rtSend('\x85');           // jog cancel real-time byte
+  setJogging(false);
 }
 
 // ── Continuous keyboard jogging (IOSender style) ───────────────────────────
@@ -1491,6 +1515,7 @@ document.addEventListener('keydown', e => {
 
   kbJogActive = true;
   kbJogKey = e.key;
+  setJogging(true);
 
   const f    = document.getElementById('jogFeed').value;
   const axis = dir[0], sign = dir[1] === '+' ? '' : '-';
@@ -1512,8 +1537,7 @@ function cancelKbJog() {
   highlightJogBtn(KB_JOG_MAP[kbJogKey], false);
   kbJogActive = false;
   kbJogKey    = null;
-  // 0x85 is the GrblHAL jog cancel real-time command
-  rtSend('\x85');
+  stopJog();
 }
 
 function highlightJogBtn(dir, on) {
@@ -1529,7 +1553,11 @@ function highlightJogBtn(dir, on) {
   });
 }
 
-function stripComment(line) { return line.replace(/\(.*?\)/g, '').replace(/;.*/, '').trim(); }
+// Safety net — if the pointer is released anywhere outside the button
+// (common on touch screens), still cancel the jog and restore poll rate.
+document.addEventListener('mouseup',      () => { if (_isJogging && !kbJogActive) stopJog(); });
+document.addEventListener('touchend',     () => { if (_isJogging && !kbJogActive) stopJog(); });
+document.addEventListener('touchcancel',  () => { if (_isJogging && !kbJogActive) stopJog(); });
 
 // ═══════════════════════════════════════════════
 // FILE LOADING
@@ -1588,7 +1616,8 @@ function log(type,msg) {
   div.innerHTML='<span class="'+cls+'">'+pre+' '+esc(msg)+'</span>';
   out.appendChild(div);
   if(++conLines>500){out.removeChild(out.firstChild);conLines--;}
-  out.scrollTop=out.scrollHeight;
+  // Use rAF to scroll — avoids forcing a synchronous layout on every log line
+  requestAnimationFrame(() => { out.scrollTop = out.scrollHeight; });
 }
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function clearConsole(){document.getElementById('consoleOut').innerHTML='';conLines=0;}
@@ -1731,8 +1760,9 @@ function settingsIntercept(raw) {
     return true;
   }
 
-  // ok — advance phases
+  // ok — advance phases (never intercept during a running job — those oks belong to the pump)
   if (raw === 'ok') {
+    if (running) return false;
     esPendingOks--;
     if (esPendingOks > 0) return true;
 
