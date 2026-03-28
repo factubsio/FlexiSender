@@ -363,6 +363,38 @@
 
   .settings-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text3); font-family: var(--cond); letter-spacing: 2px; font-size: 12px; text-transform: uppercase; gap: 12px; }
   .settings-placeholder-icon { font-size: 36px; opacity: 0.25; }
+
+  /* TOOL TABLE */
+  .tt-th {
+    font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text3); text-align: left;
+    padding: 8px 12px; border-bottom: 1px solid var(--border2); white-space: nowrap;
+  }
+  .tt-row { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  .tt-row:last-child { border-bottom: none; }
+  .tt-row.in-carousel { background: rgba(255,140,66,0.08); }
+  .tt-row.in-carousel:hover { background: rgba(255,140,66,0.15); }
+  .tt-row.current-tool { background: rgba(34,197,94,0.10); }
+  .tt-row.current-tool:hover { background: rgba(34,197,94,0.18); }
+  .tt-row:not(.in-carousel):not(.current-tool):hover { background: var(--surface2); }
+  .tt-td {
+    font-family: var(--mono); font-size: 12px; color: var(--text2);
+    padding: 9px 12px; white-space: nowrap;
+  }
+  .tt-td.pocket-badge {
+    font-weight: 700; font-size: 13px;
+  }
+  .tt-td.tool-id { color: var(--text); font-weight: 700; }
+  .tt-td.tool-name { font-family: var(--sans); color: var(--text); font-size: 12px; min-width: 120px; }
+  .tt-td.zero-val { color: var(--text3); }
+  .tt-status-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 20px;
+  }
+  .tt-status-pill.carousel { background: rgba(255,140,66,0.18); color: var(--accent); border: 1px solid var(--accent2); }
+  .tt-status-pill.hand { background: var(--surface3); color: var(--text3); border: 1px solid var(--border2); }
+  .tt-status-pill.active { background: rgba(34,197,94,0.18); color: var(--green); border: 1px solid var(--green2); }
 </style>
 </head>
 <body>
@@ -394,6 +426,7 @@
   <button class="tab-btn active" id="tab-run" onclick="switchTab('run')">RUN</button>
   <button class="tab-btn" id="tab-settings" onclick="switchTab('settings')">SETTINGS: GRBL</button>
   <button class="tab-btn" id="tab-camera" onclick="switchTab('camera')">CAMERA</button>
+  <button class="tab-btn" id="tab-tooltable" onclick="switchTab('tooltable')">TOOL TABLE</button>
 </div>
 
 <!-- TAB: RUN -->
@@ -830,6 +863,59 @@
   </div>
 </div><!-- /tab-panel-camera -->
 
+<!-- TAB: TOOL TABLE -->
+<div class="tab-panel" id="tabpanel-tooltable" style="flex-direction:column;overflow:hidden;background:var(--bg);">
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;">
+    <span style="font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">TOOL TABLE</span>
+    <span style="flex:1"></span>
+    <span id="ttToolCount" style="font-family:var(--mono);font-size:11px;color:var(--text3)"></span>
+    <button class="tb-btn" onclick="loadToolTable()" id="btnTTRefresh">↻ REFRESH</button>
+  </div>
+
+  <!-- Status / empty state -->
+  <div id="ttStatus" style="padding:10px 16px;font-family:var(--mono);font-size:11px;color:var(--accent);flex-shrink:0;display:none;"></div>
+
+  <!-- Table -->
+  <div style="flex:1;overflow-y:auto;padding:12px 16px;">
+    <table id="ttTable" style="width:100%;border-collapse:collapse;display:none;">
+      <thead>
+        <tr style="background:var(--surface2);">
+          <th class="tt-th">POCKET</th>
+          <th class="tt-th">TOOL</th>
+          <th class="tt-th">NAME</th>
+          <th class="tt-th">X OFF</th>
+          <th class="tt-th">Y OFF</th>
+          <th class="tt-th">Z OFF</th>
+          <th class="tt-th">DIA</th>
+          <th class="tt-th">STATUS</th>
+        </tr>
+      </thead>
+      <tbody id="ttTableBody"></tbody>
+    </table>
+
+    <div id="ttEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--text3);gap:12px;">
+      <div style="font-size:32px;opacity:0.2">⚙</div>
+      <div style="font-family:var(--cond);font-size:12px;letter-spacing:2px;text-transform:uppercase;">Connect and click Refresh to load tool table</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div style="display:flex;gap:20px;padding:8px 16px;background:var(--surface);border-top:1px solid var(--border);flex-shrink:0;align-items:center;">
+    <div style="display:flex;align-items:center;gap:7px;font-family:var(--cond);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
+      <div style="width:12px;height:12px;border-radius:3px;background:rgba(255,140,66,0.18);border:1px solid var(--accent2)"></div>
+      IN CAROUSEL (Pn ≥ 1)
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;font-family:var(--cond);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
+      <div style="width:12px;height:12px;border-radius:3px;background:var(--surface3);border:1px solid var(--border2)"></div>
+      NOT IN CAROUSEL (P0)
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;font-family:var(--cond);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
+      <div style="width:12px;height:12px;border-radius:3px;background:rgba(34,197,94,0.18);border:1px solid var(--green2)"></div>
+      CURRENT TOOL
+    </div>
+  </div>
+</div><!-- /tab-panel-tooltable -->
+
 
 <script>
 // ═══════════════════════════════════════════════
@@ -867,17 +953,21 @@ scene.add(makeAxis(new THREE.Vector3(0,1,0), 0x33ff66));
 scene.add(makeAxis(new THREE.Vector3(0,0,1), 0x3399ff));
 
 // Toolhead marker
+// CylinderGeometry(0, 1.5, 4, 8) has its centre at y=0, tip at y=+2, base at y=-2.
+// After rotation.x = PI the tip flips to y=-2. We shift the mesh up by 2 so the
+// tip lands exactly at y=0 (the group origin), which is placed on the toolpath.
 const toolGeo = new THREE.CylinderGeometry(0, 1.5, 4, 8);
 const toolMat = new THREE.MeshPhongMaterial({ color: 0xff8c42, emissive: 0x2a1000 });
 const toolMesh = new THREE.Mesh(toolGeo, toolMat);
 toolMesh.rotation.x = Math.PI;
+toolMesh.position.y = 2; // shift up so tip is at y=0
 const toolGroup = new THREE.Group();
 toolGroup.add(toolMesh);
-// Tool body cylinder
+// Tool body cylinder — sits on top of the cone base (cone base is at y=4)
 const bodyGeo = new THREE.CylinderGeometry(1, 1, 6, 8);
 const bodyMat = new THREE.MeshPhongMaterial({ color: 0x778899 });
 const bodyMesh = new THREE.Mesh(bodyGeo, bodyMat);
-bodyMesh.position.y = 3;
+bodyMesh.position.y = 7; // cone tip at 0, cone base at 4, body centre at 4+3=7
 toolGroup.add(bodyMesh);
 toolGroup.position.set(0, 0, 0);
 scene.add(toolGroup);
@@ -1219,6 +1309,10 @@ function parseResponse(raw) {
   // Settings engine gets first look at every line during load phases
   if (esPhase !== 'idle' && settingsIntercept(raw)) return;
 
+  // Tool table accumulator — must run BEFORE the generic ok handler so it
+  // can catch the terminating 'ok' that closes the $TTLIST response stream.
+  if (ttPhase === 'loading' && toolTableIntercept(raw)) return;
+
   // ok / error — consume the oldest entry from sentQueue and free its bytes
   if (raw === 'ok' || raw.startsWith('error:')) {
     const sent = sentQueue.shift();
@@ -1303,6 +1397,13 @@ function parseStatus(s) {
       document.getElementById('feedVal').textContent = (vals[0] || 0) + ' mm/m';
       document.getElementById('spindleVal').textContent = (vals[1] || 0) + ' RPM';
     }
+    if (key === 'T') {
+      const tn = parseInt(vals[0]);
+      if (!isNaN(tn) && tn !== currentToolNumber) {
+        currentToolNumber = tn;
+        if (ttEntries.length) renderToolTable();
+      }
+    }
     if (key === 'Ln') {
       const ln = parseInt(vals[0]);
       document.getElementById('lineVal').textContent = ln;
@@ -1314,6 +1415,15 @@ function parseStatus(s) {
       // The Bf: value arrives asynchronously and reflects a past state;
       // adjusting rxInFlight from it causes the exact desync bugs we are fixing.
       document.getElementById('bufVal').textContent = vals[0] + ' blk / ' + vals[1] + ' B';
+    }
+    if (key === 'Ct') {
+      const ct = parseInt(vals[0]);
+      if (!isNaN(ct) && ct !== currentToolNumber) {
+        currentToolNumber = ct;
+        if (document.getElementById('tabpanel-tooltable').classList.contains('active')) {
+          renderToolTableRows();
+        }
+      }
     }
   }
   document.getElementById('vpStats').innerHTML =
@@ -1676,6 +1786,7 @@ function switchTab(tab) {
   document.getElementById('tabpanel-' + tab).classList.add('active');
   if (tab === 'settings' && !settingsLoaded && connected) loadSettings();
   if (tab === 'camera' && !_camTabInited) { _camTabInited = true; initCameraTab(); }
+  if (tab === 'tooltable') loadToolTable();
 }
 
 function loadSettings() {
@@ -2418,6 +2529,170 @@ function toggleCoolant(type) {
 log('info','FlexiSender ready — IOSender-compatible character-counting stream.');
 log('info','Open a G-code file to preview the toolpath, then connect and run.');
 updateRunButtons();
+
+// ═══════════════════════════════════════════════
+// TOOL TABLE
+// Sends $TTLIST and parses LinuxCNC-format lines:
+//   P<pocket> T<tool> [X<off>] [Y<off>] [Z<off>] [D<dia>] [; name]
+// Pocket > 0 → tool physically in carousel slot.
+// Pocket = 0 → tool known but hand-loaded / stored.
+// Current tool number is tracked from Ct: in status reports.
+// ═══════════════════════════════════════════════
+
+let ttEntries       = [];     // parsed entries from last $TTLIST response
+let currentToolNumber = 0;   // updated from Ct: status field
+let ttPhase         = 'idle'; // 'idle' | 'loading'
+let _ttLines        = [];     // raw lines accumulating during load
+
+// ── Parse one LinuxCNC tool-table line ────────────────────────────────────────
+function parseToolTableLine(line) {
+  const semi  = line.indexOf(';');
+  const name  = semi >= 0 ? line.slice(semi + 1).trim() : '';
+  const body  = semi >= 0 ? line.slice(0, semi) : line;
+  const entry = { pocket: 0, tool: 0, x: null, y: null, z: null, d: null, name };
+  const re    = /([PTXYZD])([+-]?[\d.]+)/gi;
+  let m;
+  while ((m = re.exec(body)) !== null) {
+    const k = m[1].toUpperCase(), v = parseFloat(m[2]);
+    if      (k === 'P') entry.pocket = v;
+    else if (k === 'T') entry.tool   = v;
+    else if (k === 'X') entry.x      = v;
+    else if (k === 'Y') entry.y      = v;
+    else if (k === 'Z') entry.z      = v;
+    else if (k === 'D') entry.d      = v;
+  }
+  return entry;
+}
+
+// ── Format an offset value for display ───────────────────────────────────────
+function fmtOffset(v) {
+  if (v === null || v === undefined) return '<span style="color:var(--text3)">—</span>';
+  const s = v.toFixed(3);
+  if (v === 0) return '<span style="color:var(--text3)">' + s + '</span>';
+  return s;
+}
+
+// ── Re-render just the table body rows (called on Ct: updates too) ────────────
+function renderToolTableRows() {
+  const tbody = document.getElementById('ttTableBody');
+  if (!tbody) return;
+
+  const sorted = [...ttEntries].sort((a, b) => {
+    if (a.pocket > 0 && b.pocket > 0) return a.pocket - b.pocket;
+    if (a.pocket > 0) return -1;
+    if (b.pocket > 0) return 1;
+    return a.tool - b.tool;
+  });
+
+  tbody.innerHTML = sorted.map(e => {
+    const inCarousel = e.pocket > 0;
+    const isCurrent  = e.tool === currentToolNumber && currentToolNumber !== 0;
+    let rowClass = 'tt-row';
+    if (isCurrent)        rowClass += ' current-tool';
+    else if (inCarousel)  rowClass += ' in-carousel';
+
+    const pocketCell = inCarousel
+      ? `<span style="color:var(--accent);font-weight:700">P${e.pocket}</span>`
+      : `<span style="color:var(--text3)">P0</span>`;
+
+    let statusPill;
+    if (isCurrent) {
+      statusPill = `<span class="tt-status-pill active">▶ ACTIVE</span>`;
+    } else if (inCarousel) {
+      statusPill = `<span class="tt-status-pill carousel">⬡ POCKET ${e.pocket}</span>`;
+    } else {
+      statusPill = `<span class="tt-status-pill hand">○ STORED</span>`;
+    }
+
+    return `<tr class="${rowClass}">
+      <td class="tt-td pocket-badge">${pocketCell}</td>
+      <td class="tt-td tool-id">T${e.tool}</td>
+      <td class="tt-td tool-name">${e.name || '<span style="color:var(--text3)">—</span>'}</td>
+      <td class="tt-td">${fmtOffset(e.x)}</td>
+      <td class="tt-td">${fmtOffset(e.y)}</td>
+      <td class="tt-td">${fmtOffset(e.z)}</td>
+      <td class="tt-td">${fmtOffset(e.d)}</td>
+      <td class="tt-td">${statusPill}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Full render — shows/hides table vs empty state ────────────────────────────
+function renderToolTable() {
+  const table = document.getElementById('ttTable');
+  const empty = document.getElementById('ttEmpty');
+  const count = document.getElementById('ttToolCount');
+
+  if (!ttEntries.length) {
+    table.style.display = 'none';
+    empty.style.display = 'flex';
+    count.textContent = '';
+    return;
+  }
+
+  renderToolTableRows();
+  const carouselCount = ttEntries.filter(e => e.pocket > 0).length;
+  count.textContent = `${ttEntries.length} tool${ttEntries.length !== 1 ? 's' : ''} · ${carouselCount} in carousel`;
+  table.style.display = '';
+  empty.style.display = 'none';
+}
+
+// ── Status bar helper ─────────────────────────────────────────────────────────
+function ttSetStatus(msg) {
+  const el = document.getElementById('ttStatus');
+  if (msg) { el.textContent = msg; el.style.display = ''; }
+  else      { el.style.display = 'none'; }
+}
+
+// ── Called when the tab is opened or Refresh is clicked ──────────────────────
+function loadToolTable() {
+  if (!connected) {
+    ttSetStatus('');
+    document.getElementById('ttTable').style.display = 'none';
+    const empty = document.getElementById('ttEmpty');
+    empty.style.display = 'flex';
+    empty.querySelector('div:last-child').textContent = 'Connect to a controller and click Refresh.';
+    document.getElementById('ttToolCount').textContent = '';
+    return;
+  }
+  ttSetStatus('Loading tool table…');
+  ttEntries  = [];
+  _ttLines   = [];
+  ttPhase    = 'loading';
+  document.getElementById('btnTTRefresh').disabled = true;
+  sendCmd('$TTLIST');
+}
+
+// ── Intercept $TTLIST response lines inside parseResponse ─────────────────────
+function toolTableIntercept(raw) {
+  // $TTLIST output: one LinuxCNC-format line per tool, terminated by 'ok'
+  if (raw === 'ok' || raw === 'OK') {
+    ttPhase   = 'idle';
+    ttEntries = _ttLines.map(parseToolTableLine).filter(e => e.tool > 0);
+    _ttLines  = [];
+    renderToolTable();
+    ttSetStatus('');
+    document.getElementById('btnTTRefresh').disabled = false;
+    log('info', 'Tool table: ' + ttEntries.length + ' entr' + (ttEntries.length === 1 ? 'y' : 'ies'));
+    return true;
+  }
+  if (raw.startsWith('error:')) {
+    ttPhase  = 'idle';
+    _ttLines = [];
+    ttSetStatus('⚠ ' + raw);
+    document.getElementById('btnTTRefresh').disabled = false;
+    log('err', '$TTLIST: ' + raw);
+    return true;
+  }
+  // Accumulate any data line — $TTLIST emits one LinuxCNC-format entry per tool
+  // then terminates with 'ok'. We accept every non-empty line rather than
+  // second-guessing the exact format; parseToolTableLine filters junk out.
+  if (raw.length > 0) {
+    _ttLines.push(raw);
+    return true;
+  }
+  return false;
+}
 </script>
 <script>
 // ── Touch Keyboard ────────────────────────────────────────────────────────────
