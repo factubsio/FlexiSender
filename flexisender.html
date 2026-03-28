@@ -994,7 +994,7 @@ let executedLine = null;
 // Orbit controls (manual implementation)
 let isOrbiting = false, isPanning = false;
 let lastMouse = {x:0,y:0};
-let spherical = {theta: 0.8, phi: 0.7, radius: 180};
+let spherical = {theta: -0.8, phi: 0.7, radius: 180};
 let target = new THREE.Vector3(0, 0, 0);
 
 function updateCamera() {
@@ -1041,7 +1041,7 @@ function setView(v) {
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   const r = spherical.radius;
-  if (v==='iso') { spherical.theta=0.8; spherical.phi=0.7; }
+  if (v==='iso') { spherical.theta=-0.8; spherical.phi=0.7; }
   else if (v==='top') { spherical.theta=0; spherical.phi=0.01; }
   else if (v==='front') { spherical.theta=0; spherical.phi=Math.PI/2; }
   else if (v==='side') { spherical.theta=Math.PI/2; spherical.phi=Math.PI/2; }
@@ -1116,8 +1116,8 @@ function parseGcodeToToolpath(lines) {
     if (!hasMove) continue;
 
     const nx = 'X' in words ? words['X'] : x;
-    const ny = 'Z' in words ? words['Z'] : y; // map Z→vertical in Three.js
-    const nz = 'Y' in words ? words['Y'] : z; // map Y→depth in Three.js
+    const ny = 'Z' in words ? words['Z'] : y;  // map machine Z → Three.js Y (up)
+    const nz = 'Y' in words ? -words['Y'] : z; // map machine Y → Three.js -Z (away from viewer)
 
     const from = new THREE.Vector3(x, y, z);
     const to   = new THREE.Vector3(nx, ny, nz);
@@ -1391,7 +1391,7 @@ function parseStatus(s) {
       const mxEl=document.getElementById('droMX'); if(mxEl) mxEl.textContent='M: '+fmtPos(vals[0]);
       const myEl=document.getElementById('droMY'); if(myEl) myEl.textContent='M: '+fmtPos(vals[1]);
       const mzEl=document.getElementById('droMZ'); if(mzEl) mzEl.textContent='M: '+fmtPos(vals[2]);
-      toolGroup.position.set(machineX, machineZ, machineY);
+      toolGroup.position.set(machineX, machineZ, -machineY);
     }
     if (key === 'FS' || key === 'F') {
       document.getElementById('feedVal').textContent = (vals[0] || 0) + ' mm/m';
