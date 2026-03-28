@@ -1037,6 +1037,66 @@ canvas.addEventListener('wheel', e => {
   e.preventDefault();
 }, {passive:false});
 
+// ── Touch support ─────────────────────────────────────────────────────────────
+let _lastTouches = null;
+
+function _touchMidpoint(t0, t1) {
+  return { x: (t0.clientX + t1.clientX) / 2, y: (t0.clientY + t1.clientY) / 2 };
+}
+function _touchDist(t0, t1) {
+  const dx = t0.clientX - t1.clientX, dy = t0.clientY - t1.clientY;
+  return Math.sqrt(dx*dx + dy*dy);
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  _lastTouches = Array.from(e.touches);
+}, {passive: false});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const touches = Array.from(e.touches);
+  if (!_lastTouches || _lastTouches.length === 0) { _lastTouches = touches; return; }
+
+  if (touches.length === 1 && _lastTouches.length === 1) {
+    // Single finger — orbit
+    const dx = touches[0].clientX - _lastTouches[0].clientX;
+    const dy = touches[0].clientY - _lastTouches[0].clientY;
+    spherical.theta -= dx * 0.007;
+    spherical.phi = Math.max(0.05, Math.min(Math.PI - 0.05, spherical.phi - dy * 0.007));
+    updateCamera();
+
+  } else if (touches.length === 2 && _lastTouches.length === 2) {
+    // Two fingers — pan + pinch zoom
+    const midNow  = _touchMidpoint(touches[0], touches[1]);
+    const midPrev = _touchMidpoint(_lastTouches[0], _lastTouches[1]);
+    const dx = midNow.x - midPrev.x;
+    const dy = midNow.y - midPrev.y;
+
+    // Pan
+    const right = new THREE.Vector3();
+    const dir   = new THREE.Vector3();
+    camera.getWorldDirection(dir); right.crossVectors(dir, camera.up).normalize();
+    const panSpeed = spherical.radius * 0.001;
+    target.addScaledVector(right, -dx * panSpeed);
+    target.y += dy * panSpeed;
+
+    // Pinch zoom
+    const distNow  = _touchDist(touches[0], touches[1]);
+    const distPrev = _touchDist(_lastTouches[0], _lastTouches[1]);
+    if (distPrev > 0) {
+      spherical.radius = Math.max(1, Math.min(2000, spherical.radius * (distPrev / distNow)));
+    }
+    updateCamera();
+  }
+
+  _lastTouches = touches;
+}, {passive: false});
+
+canvas.addEventListener('touchend', e => {
+  _lastTouches = Array.from(e.touches);
+}, {passive: false});
+
 function setView(v) {
   document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
