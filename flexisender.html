@@ -235,6 +235,8 @@
   .ovr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
   .ovr-row:last-child { margin-bottom: 0; }
   .ovr-label { font-family: var(--cond); font-size: 11px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; width: 44px; flex-shrink: 0; }
+  .ovr-reset-btn { font-family: var(--cond); font-size: 11px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; width: 44px; flex-shrink: 0; background: none; border: none; cursor: pointer; padding: 0; text-align: left; transition: color 0.15s; }
+  .ovr-reset-btn:hover { color: var(--accent); }
   .ovr-slider { flex: 1; -webkit-appearance: none; height: 4px; background: var(--border2); outline: none; cursor: pointer; border-radius: 2px; }
   .ovr-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--yellow); cursor: pointer; border-radius: 50%; }
   .ovr-val { font-family: var(--mono); font-size: 12px; color: var(--yellow); width: 40px; text-align: right; font-weight: 700; }
@@ -648,18 +650,18 @@
     <div class="panel-title">OVERRIDES</div>
     <div class="override-section">
       <div class="ovr-row">
-        <span class="ovr-label">FEED</span>
-        <input type="range" class="ovr-slider" min="10" max="200" value="100" oninput="document.getElementById('ovrFeedVal').textContent=this.value+'%'" />
+        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('feed')" title="Reset to 100%">FEED</button>
+        <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" oninput="applyOverride('feed', parseInt(this.value))" />
         <span class="ovr-val" id="ovrFeedVal">100%</span>
       </div>
       <div class="ovr-row">
-        <span class="ovr-label">RAPID</span>
-        <input type="range" class="ovr-slider" min="25" max="100" value="100" oninput="document.getElementById('ovrRapidVal').textContent=this.value+'%'" />
+        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('rapid')" title="Reset to 100%">RAPID</button>
+        <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" oninput="applyOverride('rapid', parseInt(this.value))" />
         <span class="ovr-val" id="ovrRapidVal">100%</span>
       </div>
       <div class="ovr-row">
-        <span class="ovr-label">SPIN</span>
-        <input type="range" class="ovr-slider" min="10" max="200" value="100" oninput="document.getElementById('ovrSpinVal').textContent=this.value+'%'" />
+        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('spindle')" title="Reset to 100%">SPIN</button>
+        <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" oninput="applyOverride('spindle', parseInt(this.value))" />
         <span class="ovr-val" id="ovrSpinVal">100%</span>
       </div>
     </div>
@@ -1475,6 +1477,13 @@ function parseStatus(s) {
       // The Bf: value arrives asynchronously and reflects a past state;
       // adjusting rxInFlight from it causes the exact desync bugs we are fixing.
       document.getElementById('bufVal').textContent = vals[0] + ' blk / ' + vals[1] + ' B';
+    }
+    if (key === 'Ov') {
+      // Ov:feed,rapid,spindle  — actual values from controller, update sliders
+      const feed = parseInt(vals[0]), rapid = parseInt(vals[1]), spin = parseInt(vals[2]);
+      if (!isNaN(feed))  updateOvrDisplay('feed',    feed);
+      if (!isNaN(rapid)) updateOvrDisplay('rapid',   rapid);
+      if (!isNaN(spin))  updateOvrDisplay('spindle', spin);
     }
     if (key === 'Ct') {
       const ct = parseInt(vals[0]);
@@ -2555,6 +2564,84 @@ document.getElementById('camZoom').addEventListener('change', saveCamSettings);
 // Hook switchTab to init camera list on first open
 const _origSwitchTab = switchTab;
 // (switchTab already handles camera tab opening via the inline check)
+
+// ═══════════════════════════════════════════════
+// REAL-TIME OVERRIDES
+// grblHAL override bytes (sent via rtSend — bypass RX buffer, no \n):
+//   Feed:    0x90=reset100  0x91=+10%  0x92=-10%  0x93=+1%  0x94=-1%
+//   Rapid:   0x95=reset100  0x96=50%   0x97=25%
+//   Spindle: 0x99=reset100  0x9A=+10%  0x9B=-10%  0x9C=+1%  0x9D=-1%
+// ═══════════════════════════════════════════════
+
+// Current known controller values (updated from Ov: status field)
+let ovrCurrent = { feed: 100, rapid: 100, spindle: 100 };
+
+function updateOvrDisplay(type, value) {
+  ovrCurrent[type] = value;
+  const sliderMap = { feed: 'ovrFeedSlider', rapid: 'ovrRapidSlider', spindle: 'ovrSpinSlider' };
+  const valMap    = { feed: 'ovrFeedVal',    rapid: 'ovrRapidVal',    spindle: 'ovrSpinVal'    };
+  const slider = document.getElementById(sliderMap[type]);
+  const valEl  = document.getElementById(valMap[type]);
+  if (slider) slider.value = value;
+  if (valEl)  valEl.textContent = value + '%';
+}
+
+function resetOverride(type) {
+  if (!connected) return;
+  const resetByte = { feed: '\x90', rapid: '\x95', spindle: '\x99' }[type];
+  if (!resetByte) return;
+  rtSend(resetByte);
+  // Optimistically update UI — Ov: in next status will confirm
+  updateOvrDisplay(type, 100);
+}
+
+// Called by slider oninput — drives the controller from current value to target
+// using the minimum set of +10/-10/+1/-1 increment bytes.
+function applyOverride(type, target) {
+  // Update display immediately for responsive feel
+  const valMap = { feed: 'ovrFeedVal', rapid: 'ovrRapidVal', spindle: 'ovrSpinVal' };
+  const valEl  = document.getElementById(valMap[type]);
+  if (valEl) valEl.textContent = target + '%';
+
+  if (!connected) return;
+
+  if (type === 'rapid') {
+    // Rapid only has three discrete steps: 100, 50, 25
+    // Pick the closest and send the matching byte
+    const steps = [100, 50, 25];
+    const closest = steps.reduce((a, b) => Math.abs(b - target) < Math.abs(a - target) ? b : a);
+    const byteMap = { 100: '\x95', 50: '\x96', 25: '\x97' };
+    rtSend(byteMap[closest]);
+    // Snap slider to the discrete value
+    const slider = document.getElementById('ovrRapidSlider');
+    if (slider) slider.value = closest;
+    if (valEl)  valEl.textContent = closest + '%';
+    ovrCurrent.rapid = closest;
+    return;
+  }
+
+  // Feed and spindle: use increment bytes to reach target from current controller value.
+  // We use the last known controller value (ovrCurrent) as the starting point.
+  const incBig  = { feed: '\x91', spindle: '\x9A' }[type]; // +10%
+  const decBig  = { feed: '\x92', spindle: '\x9B' }[type]; // -10%
+  const incSmall= { feed: '\x93', spindle: '\x9C' }[type]; // +1%
+  const decSmall= { feed: '\x94', spindle: '\x9D' }[type]; // -1%
+
+  let current = ovrCurrent[type];
+  let delta = target - current;
+
+  // Cap commands to avoid flooding — max 20 bytes per slider move
+  let cmds = 0;
+  const MAX = 20;
+
+  // Send 10% steps first, then 1% steps
+  while (delta >= 10 && cmds < MAX)  { rtSend(incBig);   delta -= 10; current += 10; cmds++; }
+  while (delta <= -10 && cmds < MAX) { rtSend(decBig);   delta += 10; current -= 10; cmds++; }
+  while (delta >= 1 && cmds < MAX)   { rtSend(incSmall); delta -= 1;  current += 1;  cmds++; }
+  while (delta <= -1 && cmds < MAX)  { rtSend(decSmall); delta += 1;  current -= 1;  cmds++; }
+
+  ovrCurrent[type] = current;
+}
 
 function setSpindle(mode) {
   const rpm = parseInt(document.getElementById('spindleRPM').value) || 0;
