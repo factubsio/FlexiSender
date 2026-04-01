@@ -170,6 +170,27 @@
   .state-badge.jog   { background: var(--accent2); color: #fff; }
   .state-badge.home  { background: var(--orange); color: #fff; }
 
+  /* JOG MODE TOGGLE */
+  .jog-mode-toggle { display: flex; align-items: center; gap: 5px; margin-left: auto; margin-right: 4px; flex-shrink: 0; }
+  .jog-mode-label { font-family: var(--cond); font-weight: 700; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); line-height: 1; transition: color 0.15s; white-space: nowrap; }
+  .jog-mode-label.active { color: var(--accent); }
+  .jog-mode-switch-wrap { position: relative; width: 30px; height: 16px; flex-shrink: 0; }
+  .jog-mode-switch-wrap input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .jog-mode-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--surface3); border: 1px solid var(--border2);
+    border-radius: 16px; transition: background 0.2s, border-color 0.2s;
+  }
+  .jog-mode-slider::before {
+    content: ''; position: absolute;
+    width: 10px; height: 10px; border-radius: 50%;
+    left: 2px; top: 2px;
+    background: var(--text3);
+    transition: transform 0.2s, background 0.2s;
+  }
+  .jog-mode-switch-wrap input:checked + .jog-mode-slider { background: rgba(229,92,0,0.25); border-color: var(--accent2); }
+  .jog-mode-switch-wrap input:checked + .jog-mode-slider::before { transform: translateX(14px); background: var(--accent); }
+
   /* JOG */
   .jog-section { background: var(--card); border-radius: var(--radius); padding: 10px; border: 1px solid var(--border); flex-shrink: 0; }
   .jog-grid { display: grid; grid-template-columns: repeat(3,46px); grid-template-rows: repeat(3,46px); gap: 5px; justify-content: center; margin-bottom: 8px; }
@@ -969,25 +990,33 @@
          ontouchstart="modTouchStart(event,'mod-jogging')">
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Jogging</span>
+      <div class="jog-mode-toggle" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+        <span class="jog-mode-label" id="jogModeClickLabel" style="color:var(--accent)">CLICK</span>
+        <label class="jog-mode-switch-wrap" title="Toggle: Click (step) vs Hold (stop on release)">
+          <input type="checkbox" id="jogHoldToggle" onchange="setJogHoldMode(this.checked)">
+          <span class="jog-mode-slider"></span>
+        </label>
+        <span class="jog-mode-label" id="jogModeHoldLabel">HOLD</span>
+      </div>
       <button class="module-drag-close" onclick="toggleModule('jogging',false)">✕</button>
     </div>
     <div class="module-body">
       <div class="jog-section" style="border:none;padding:4px 0;background:transparent">
         <div class="jog-row">
           <div class="jog-grid">
-            <button class="jog-btn diag" onclick="startJog('X-Y+')">↖</button>
-            <button class="jog-btn" onclick="startJog('Y+')">↑</button>
-            <button class="jog-btn diag" onclick="startJog('X+Y+')">↗</button>
-            <button class="jog-btn" onclick="startJog('X-')">←</button>
+            <button class="jog-btn diag" data-dir="X-Y+">↖</button>
+            <button class="jog-btn" data-dir="Y+">↑</button>
+            <button class="jog-btn diag" data-dir="X+Y+">↗</button>
+            <button class="jog-btn" data-dir="X-">←</button>
             <button class="jog-btn center" onclick="goToXY0()">XY0</button>
-            <button class="jog-btn" onclick="startJog('X+')">→</button>
-            <button class="jog-btn diag" onclick="startJog('X-Y-')">↙</button>
-            <button class="jog-btn" onclick="startJog('Y-')">↓</button>
-            <button class="jog-btn diag" onclick="startJog('X+Y-')">↘</button>
+            <button class="jog-btn" data-dir="X+">→</button>
+            <button class="jog-btn diag" data-dir="X-Y-">↙</button>
+            <button class="jog-btn" data-dir="Y-">↓</button>
+            <button class="jog-btn diag" data-dir="X+Y-">↘</button>
           </div>
           <div class="jog-z-col">
-            <button class="jog-btn z-up" style="width:48px;height:48px" onclick="startJog('Z+')">Z↑</button>
-            <button class="jog-btn z-down" style="width:48px;height:48px" onclick="startJog('Z-')">Z↓</button>
+            <button class="jog-btn z-up" style="width:48px;height:48px" data-dir="Z+">Z↑</button>
+            <button class="jog-btn z-down" style="width:48px;height:48px" data-dir="Z-">Z↓</button>
           </div>
         </div>
       </div>
@@ -2520,6 +2549,70 @@ function stopJog() {
   rtSend('\x85');           // jog cancel real-time byte
   setJogging(false);
 }
+
+// ── Jog Hold / Click mode ─────────────────────────────────────────────────
+// CLICK mode (default): each button press sends one step command and completes.
+// HOLD mode: mousedown/touchstart starts the jog (full selected distance),
+//            mouseup/touchend/mouseleave cancels immediately → travels at most
+//            the selected distance, stops instantly on release.
+
+let jogHoldMode = false;
+let _jogHoldActive = false;   // true while a hold-mode button is pressed
+
+function setJogHoldMode(on) {
+  jogHoldMode = on;
+  document.getElementById('jogModeClickLabel').style.color = on ? 'var(--text3)' : 'var(--accent)';
+  document.getElementById('jogModeHoldLabel').style.color  = on ? 'var(--accent)' : 'var(--text3)';
+  // If switching away from hold while a move is running, cancel it
+  if (!on && _jogHoldActive) { _jogHoldActive = false; stopJog(); }
+}
+
+function _jogBtnDown(e, dir) {
+  if (!jogHoldMode) return;
+  e.preventDefault();
+  _jogHoldActive = true;
+  startJog(dir);
+}
+
+function _jogBtnUp(e) {
+  if (!jogHoldMode || !_jogHoldActive) return;
+  e.preventDefault();
+  _jogHoldActive = false;
+  stopJog();
+}
+
+// Attach click / hold listeners to all jog buttons after DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.jog-btn[data-dir]').forEach(function(btn) {
+    const dir = btn.dataset.dir;
+
+    // ── Click mode ──────────────────────────────────────────────────────
+    btn.addEventListener('click', function(e) {
+      if (jogHoldMode) return;   // hold mode ignores clicks
+      startJog(dir);
+    });
+
+    // ── Hold mode — mouse ───────────────────────────────────────────────
+    btn.addEventListener('mousedown', function(e) {
+      if (!jogHoldMode) return;
+      e.preventDefault();
+      _jogHoldActive = true;
+      startJog(dir);
+    });
+    btn.addEventListener('mouseup',    function(e) { _jogBtnUp(e); });
+    btn.addEventListener('mouseleave', function(e) { _jogBtnUp(e); });
+
+    // ── Hold mode — touch ───────────────────────────────────────────────
+    btn.addEventListener('touchstart', function(e) {
+      if (!jogHoldMode) return;
+      e.preventDefault();
+      _jogHoldActive = true;
+      startJog(dir);
+    }, { passive: false });
+    btn.addEventListener('touchend',    function(e) { if (jogHoldMode) { e.preventDefault(); _jogBtnUp(e); } }, { passive: false });
+    btn.addEventListener('touchcancel', function(e) { if (jogHoldMode) { e.preventDefault(); _jogBtnUp(e); } }, { passive: false });
+  });
+});
 
 // ── Continuous keyboard jogging (IOSender style) ───────────────────────────
 // keydown → long-distance jog command (effectively infinite until cancelled)
