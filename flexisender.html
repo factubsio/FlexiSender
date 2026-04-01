@@ -123,7 +123,7 @@
   .tb-sep { width: 1px; height: 28px; background: var(--border); margin: 0 8px; flex-shrink: 0; }
 
   /* MAIN */
-  .main { display: grid; grid-template-columns: 270px 1fr 260px; flex: 1; overflow: hidden; gap: 0; position: relative; }
+  .main { flex: 1; overflow: hidden; position: relative; display: flex; }
 
   /* PANELS */
   .panel { background: var(--bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; padding: 8px; gap: 6px; }
@@ -197,6 +197,287 @@
   .feed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); cursor: pointer; border-radius: 50%; }
   .feed-val { font-family: var(--mono); font-size: 12px; color: var(--accent); width: 40px; text-align: right; font-weight: 700; }
 
+  /* ── Jogging module — fills card width at every size preset ────────────── */
+  #mod-jogging .jog-section { background: transparent; border: none; padding: 4px 0; }
+  #mod-jogging .jog-row     { width: 100%; gap: 8px; justify-content: stretch; align-items: center; }
+  #mod-jogging .jog-grid    {
+    flex: 1; min-width: 0;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: unset;
+    gap: 5px; margin-bottom: 0;
+    justify-content: stretch;
+  }
+  /* Buttons fill their cell and stay square */
+  #mod-jogging .jog-btn                { width: 100%; aspect-ratio: 1; height: auto; }
+  #mod-jogging .jog-btn.z-up,
+  #mod-jogging .jog-btn.z-down         { width: 100% !important; height: auto !important; aspect-ratio: 1; }
+  /* Z column tracks the computed cell size */
+  #mod-jogging .jog-z-col              { display: flex; flex-direction: column; gap: 5px; margin-left: 0; }
+  /* Step buttons fill their row */
+  #mod-jogging .jog-step-axis-btns     { flex: 1; }
+  #mod-jogging .step-btn               { flex: 1; text-align: center; }
+  #mod-jogging .jog-step-axis-row,
+  #mod-jogging .feed-row               { width: 100%; }
+
+  /* Normal (282px) — same feel as before */
+  #mod-jogging[data-mod-size="normal"] .jog-z-col      { width: 48px; }
+  #mod-jogging[data-mod-size="normal"] .jog-btn        { font-size: 18px; }
+  #mod-jogging[data-mod-size="normal"] .jog-btn.diag   { font-size: 15px; }
+  #mod-jogging[data-mod-size="normal"] .step-btn       { font-size: 11px; padding: 5px 6px; }
+  #mod-jogging[data-mod-size="normal"] .jog-step-axis-label { font-size: 10px; }
+  #mod-jogging[data-mod-size="normal"] .feed-label     { font-size: 10px; }
+  #mod-jogging[data-mod-size="normal"] .feed-val       { font-size: 12px; }
+
+  /* Large (360px) */
+  #mod-jogging[data-mod-size="large"] .jog-z-col       { width: 62px; }
+  #mod-jogging[data-mod-size="large"] .jog-btn         { font-size: 24px; }
+  #mod-jogging[data-mod-size="large"] .jog-btn.diag    { font-size: 20px; }
+  #mod-jogging[data-mod-size="large"] .step-btn        { font-size: 13px; padding: 7px 6px; }
+  #mod-jogging[data-mod-size="large"] .jog-step-axis-label { font-size: 12px; }
+  #mod-jogging[data-mod-size="large"] .feed-label      { font-size: 12px; }
+  #mod-jogging[data-mod-size="large"] .feed-val        { font-size: 14px; width: 50px; }
+
+  /* XL (460px) */
+  #mod-jogging[data-mod-size="xl"] .jog-z-col          { width: 80px; }
+  #mod-jogging[data-mod-size="xl"] .jog-btn            { font-size: 32px; }
+  #mod-jogging[data-mod-size="xl"] .jog-btn.diag       { font-size: 26px; }
+  #mod-jogging[data-mod-size="xl"] .step-btn           { font-size: 15px; padding: 9px 6px; }
+  #mod-jogging[data-mod-size="xl"] .jog-step-axis-label { font-size: 13px; }
+  #mod-jogging[data-mod-size="xl"] .feed-label         { font-size: 13px; }
+  #mod-jogging[data-mod-size="xl"] .feed-val           { font-size: 16px; width: 56px; }
+
+  /* XXL (580px) */
+  #mod-jogging[data-mod-size="xxl"] .jog-z-col         { width: 102px; }
+  #mod-jogging[data-mod-size="xxl"] .jog-btn           { font-size: 42px; }
+  #mod-jogging[data-mod-size="xxl"] .jog-btn.diag      { font-size: 34px; }
+  #mod-jogging[data-mod-size="xxl"] .step-btn          { font-size: 17px; padding: 11px 6px; }
+  #mod-jogging[data-mod-size="xxl"] .jog-step-axis-label { font-size: 15px; }
+  #mod-jogging[data-mod-size="xxl"] .feed-label        { font-size: 15px; width: 40px; }
+  #mod-jogging[data-mod-size="xxl"] .feed-val          { font-size: 18px; width: 60px; }
+
+  /* ── Machine Position module ─────────────────────────────────────────────── */
+  #mod-position .dro-axis-card { width: 100%; box-sizing: border-box; }
+  #mod-position .dro-grid,
+  #mod-position .dro-sub { width: 100%; }
+  #mod-position .status-wcs-row { width: 100%; }
+
+  /* normal */
+  #mod-position[data-mod-size="normal"] .dro-axis-label   { font-size: 26px; width: 28px; }
+  #mod-position[data-mod-size="normal"] .dro-axis-wpos    { font-size: 22px; }
+  #mod-position[data-mod-size="normal"] .dro-axis-mpos    { font-size: 11px; }
+  #mod-position[data-mod-size="normal"] .dro-zero-btn     { font-size: 13px; padding: 10px 14px; }
+  #mod-position[data-mod-size="normal"] .dro-mini-label   { font-size: 10px; }
+  #mod-position[data-mod-size="normal"] .dro-mini-value   { font-size: 13px; }
+  #mod-position[data-mod-size="normal"] .state-badge      { font-size: 13px; }
+  #mod-position[data-mod-size="normal"] .wcs-select       { font-size: 13px; }
+  /* large */
+  #mod-position[data-mod-size="large"] .dro-axis-label    { font-size: 32px; width: 34px; }
+  #mod-position[data-mod-size="large"] .dro-axis-wpos     { font-size: 28px; }
+  #mod-position[data-mod-size="large"] .dro-axis-mpos     { font-size: 13px; }
+  #mod-position[data-mod-size="large"] .dro-zero-btn      { font-size: 15px; padding: 12px 16px; }
+  #mod-position[data-mod-size="large"] .dro-mini-label    { font-size: 12px; }
+  #mod-position[data-mod-size="large"] .dro-mini-value    { font-size: 16px; }
+  #mod-position[data-mod-size="large"] .state-badge       { font-size: 16px; padding: 8px 20px; }
+  #mod-position[data-mod-size="large"] .wcs-select        { font-size: 16px; }
+  #mod-position[data-mod-size="large"] .wcs-label         { font-size: 12px; }
+  /* xl */
+  #mod-position[data-mod-size="xl"] .dro-axis-label       { font-size: 42px; width: 44px; }
+  #mod-position[data-mod-size="xl"] .dro-axis-wpos        { font-size: 36px; }
+  #mod-position[data-mod-size="xl"] .dro-axis-mpos        { font-size: 15px; margin-top: 4px; }
+  #mod-position[data-mod-size="xl"] .dro-zero-btn         { font-size: 18px; padding: 14px 18px; }
+  #mod-position[data-mod-size="xl"] .dro-mini-label       { font-size: 13px; }
+  #mod-position[data-mod-size="xl"] .dro-mini-value       { font-size: 20px; }
+  #mod-position[data-mod-size="xl"] .state-badge          { font-size: 20px; padding: 10px 24px; }
+  #mod-position[data-mod-size="xl"] .wcs-select           { font-size: 20px; }
+  #mod-position[data-mod-size="xl"] .wcs-label            { font-size: 14px; }
+  /* xxl */
+  #mod-position[data-mod-size="xxl"] .dro-axis-label      { font-size: 54px; width: 56px; }
+  #mod-position[data-mod-size="xxl"] .dro-axis-wpos       { font-size: 46px; }
+  #mod-position[data-mod-size="xxl"] .dro-axis-mpos       { font-size: 17px; margin-top: 6px; }
+  #mod-position[data-mod-size="xxl"] .dro-zero-btn        { font-size: 22px; padding: 16px 22px; }
+  #mod-position[data-mod-size="xxl"] .dro-mini-label      { font-size: 15px; }
+  #mod-position[data-mod-size="xxl"] .dro-mini-value      { font-size: 26px; }
+  #mod-position[data-mod-size="xxl"] .state-badge         { font-size: 24px; padding: 12px 28px; }
+  #mod-position[data-mod-size="xxl"] .wcs-select          { font-size: 24px; }
+  #mod-position[data-mod-size="xxl"] .wcs-label           { font-size: 16px; }
+
+  /* ── Overrides module ────────────────────────────────────────────────────── */
+  #mod-overrides .override-section { width: 100%; }
+  #mod-overrides .ovr-row          { width: 100%; }
+
+  /* normal */
+  #mod-overrides[data-mod-size="normal"] .ovr-reset-btn   { font-size: 11px; width: 44px; }
+  #mod-overrides[data-mod-size="normal"] .ovr-val         { font-size: 12px; width: 40px; }
+  #mod-overrides[data-mod-size="normal"] .ovr-slider      { height: 4px; }
+  #mod-overrides[data-mod-size="normal"] .ovr-slider::-webkit-slider-thumb { width: 16px; height: 16px; }
+  /* large */
+  #mod-overrides[data-mod-size="large"] .ovr-reset-btn    { font-size: 14px; width: 54px; }
+  #mod-overrides[data-mod-size="large"] .ovr-val          { font-size: 16px; width: 50px; }
+  #mod-overrides[data-mod-size="large"] .ovr-slider       { height: 6px; }
+  #mod-overrides[data-mod-size="large"] .ovr-slider::-webkit-slider-thumb { width: 22px; height: 22px; }
+  #mod-overrides[data-mod-size="large"] .ovr-row          { margin-bottom: 14px; }
+  /* xl */
+  #mod-overrides[data-mod-size="xl"] .ovr-reset-btn       { font-size: 18px; width: 68px; }
+  #mod-overrides[data-mod-size="xl"] .ovr-val             { font-size: 20px; width: 64px; }
+  #mod-overrides[data-mod-size="xl"] .ovr-slider          { height: 8px; }
+  #mod-overrides[data-mod-size="xl"] .ovr-slider::-webkit-slider-thumb { width: 28px; height: 28px; }
+  #mod-overrides[data-mod-size="xl"] .ovr-row             { margin-bottom: 18px; }
+  /* xxl */
+  #mod-overrides[data-mod-size="xxl"] .ovr-reset-btn      { font-size: 22px; width: 84px; }
+  #mod-overrides[data-mod-size="xxl"] .ovr-val            { font-size: 26px; width: 80px; }
+  #mod-overrides[data-mod-size="xxl"] .ovr-slider         { height: 10px; }
+  #mod-overrides[data-mod-size="xxl"] .ovr-slider::-webkit-slider-thumb { width: 34px; height: 34px; }
+  #mod-overrides[data-mod-size="xxl"] .ovr-row            { margin-bottom: 22px; }
+  #mod-overrides[data-mod-size="xxl"] .override-section   { padding: 16px; }
+
+  /* ── Spindle / Coolant module ────────────────────────────────────────────── */
+  #mod-spindle .module-body > div { width: 100%; box-sizing: border-box; }
+
+  /* normal */
+  #mod-spindle[data-mod-size="normal"] .spin-dir-btn      { font-size: 12px; padding: 10px 6px; }
+  #mod-spindle[data-mod-size="normal"] .coolant-btn       { font-size: 12px; padding: 11px 6px; }
+  #mod-spindle[data-mod-size="normal"] #spindleRPM        { font-size: 13px; padding: 6px 10px; }
+  /* large */
+  #mod-spindle[data-mod-size="large"] .spin-dir-btn       { font-size: 16px; padding: 14px 6px; }
+  #mod-spindle[data-mod-size="large"] .coolant-btn        { font-size: 16px; padding: 16px 6px; }
+  #mod-spindle[data-mod-size="large"] #spindleRPM         { font-size: 18px; padding: 10px 12px; }
+  /* xl */
+  #mod-spindle[data-mod-size="xl"] .spin-dir-btn          { font-size: 22px; padding: 18px 6px; }
+  #mod-spindle[data-mod-size="xl"] .coolant-btn           { font-size: 22px; padding: 20px 6px; }
+  #mod-spindle[data-mod-size="xl"] #spindleRPM            { font-size: 24px; padding: 14px 14px; }
+  /* xxl */
+  #mod-spindle[data-mod-size="xxl"] .spin-dir-btn         { font-size: 28px; padding: 24px 6px; }
+  #mod-spindle[data-mod-size="xxl"] .coolant-btn          { font-size: 28px; padding: 28px 6px; }
+  #mod-spindle[data-mod-size="xxl"] #spindleRPM           { font-size: 30px; padding: 18px 16px; }
+
+  /* ── Macros module ───────────────────────────────────────────────────────── */
+  #mod-macros .macro-grid { width: 100%; }
+
+  /* normal */
+  #mod-macros[data-mod-size="normal"] .macro-grid         { grid-template-columns: 1fr 1fr; }
+  #mod-macros[data-mod-size="normal"] .macro-btn          { font-size: 11px; padding: 10px; }
+  /* large */
+  #mod-macros[data-mod-size="large"] .macro-grid          { grid-template-columns: 1fr 1fr; }
+  #mod-macros[data-mod-size="large"] .macro-btn           { font-size: 15px; padding: 14px; }
+  /* xl — 3 columns fit nicely at 460px */
+  #mod-macros[data-mod-size="xl"] .macro-grid             { grid-template-columns: 1fr 1fr 1fr; }
+  #mod-macros[data-mod-size="xl"] .macro-btn              { font-size: 14px; padding: 16px 8px; }
+  /* xxl — 4 columns at 580px */
+  #mod-macros[data-mod-size="xxl"] .macro-grid            { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  #mod-macros[data-mod-size="xxl"] .macro-btn             { font-size: 13px; padding: 18px 6px; }
+
+  /* ── Console module ──────────────────────────────────────────────────────── */
+  /* Default: tall enough to show ~3x more output than the old 320px cap */
+  #mod-console .right-console-wrap { border: none; border-radius: 0; max-height: none; }
+  #mod-console .module-body        { padding: 0; }
+
+  #mod-console[data-mod-size="normal"] .console-out       { min-height: 460px; font-size: 11px; line-height: 1.6; }
+  #mod-console[data-mod-size="normal"] .con-input         { font-size: 12px; }
+  #mod-console[data-mod-size="normal"] .con-prompt        { font-size: 13px; }
+  #mod-console[data-mod-size="normal"] .con-send          { font-size: 11px; }
+
+  #mod-console[data-mod-size="large"] .console-out        { min-height: 520px; font-size: 13px; line-height: 1.7; }
+  #mod-console[data-mod-size="large"] .con-input          { font-size: 14px; padding: 9px 0; }
+  #mod-console[data-mod-size="large"] .con-prompt         { font-size: 16px; padding: 9px 12px; }
+  #mod-console[data-mod-size="large"] .con-send           { font-size: 13px; padding: 0 20px; }
+
+  #mod-console[data-mod-size="xl"] .console-out           { min-height: 600px; font-size: 15px; line-height: 1.8; }
+  #mod-console[data-mod-size="xl"] .con-input             { font-size: 16px; padding: 11px 0; }
+  #mod-console[data-mod-size="xl"] .con-prompt            { font-size: 18px; padding: 11px 14px; }
+  #mod-console[data-mod-size="xl"] .con-send              { font-size: 15px; padding: 0 24px; }
+
+  #mod-console[data-mod-size="xxl"] .console-out          { min-height: 700px; font-size: 17px; line-height: 1.9; }
+  #mod-console[data-mod-size="xxl"] .con-input            { font-size: 18px; padding: 13px 0; }
+  #mod-console[data-mod-size="xxl"] .con-prompt           { font-size: 20px; padding: 13px 16px; }
+  #mod-console[data-mod-size="xxl"] .con-send             { font-size: 17px; padding: 0 28px; }
+
+  /* ── Tool Table module ───────────────────────────────────────────────────── */
+  #mod-tooltable .module-body    { padding: 0; }
+  /* Normal (282px): hide name, X/Y offsets, status to keep it compact */
+  #mod-tooltable[data-mod-size="normal"] .mod-tt-name-col   { display: none; }
+  #mod-tooltable[data-mod-size="normal"] .mod-tt-off-col    { display: none; }
+  #mod-tooltable[data-mod-size="normal"] .mod-tt-status-col { display: none; }
+  #mod-tooltable[data-mod-size="normal"] .tt-th,
+  #mod-tooltable[data-mod-size="normal"] .tt-td             { font-size: 10px; padding: 6px 8px; }
+  /* Large (360px): show name, hide X/Y offsets */
+  #mod-tooltable[data-mod-size="large"] .mod-tt-off-col     { display: none; }
+  #mod-tooltable[data-mod-size="large"] .tt-th,
+  #mod-tooltable[data-mod-size="large"] .tt-td              { font-size: 11px; padding: 7px 9px; }
+  /* XL (460px): show all columns */
+  #mod-tooltable[data-mod-size="xl"] .tt-th,
+  #mod-tooltable[data-mod-size="xl"] .tt-td                 { font-size: 11px; padding: 8px 10px; }
+  /* XXL (580px): show all, larger text */
+  #mod-tooltable[data-mod-size="xxl"] .tt-th,
+  #mod-tooltable[data-mod-size="xxl"] .tt-td                { font-size: 13px; padding: 10px 12px; }
+  #mod-tooltable[data-mod-size="xxl"] .tt-status-pill       { font-size: 11px; padding: 4px 12px; }
+
+  /* ── Module lock bar ─────────────────────────────────────────────────────── */
+  .mod-lock-bar {
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 3px 10px; background: var(--surface); border-bottom: 1px solid var(--border);
+    flex-shrink: 0; height: 28px;
+  }
+  .mod-lock-btn {
+    display: flex; align-items: center; gap: 5px;
+    background: none; border: 1px solid transparent; border-radius: var(--radius-sm);
+    color: var(--text3); font-family: var(--cond); font-weight: 700; font-size: 10px;
+    letter-spacing: 1.5px; text-transform: uppercase; padding: 2px 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .mod-lock-btn:hover { border-color: var(--border2); color: var(--text2); background: var(--surface2); }
+  .mod-lock-btn #modLockIcon { font-size: 13px; line-height: 1; }
+
+  /* Locked state — btn turns orange, handles become inert */
+  body.mod-locked .mod-lock-btn { border-color: var(--accent2); color: var(--accent); background: rgba(229,92,0,0.12); }
+  body.mod-locked .module-drag-handle { cursor: default; }
+  body.mod-locked .module-drag-dots   { opacity: 0.2; }
+  .qp-field-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .qp-row { display: flex; align-items: center; gap: 8px; }
+  .qp-label {
+    font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text3); width: 82px; flex-shrink: 0;
+  }
+  .qp-input {
+    flex: 1; background: var(--surface3); border: 1px solid var(--border2); color: var(--text);
+    font-family: var(--mono); font-size: 13px; padding: 6px 10px; outline: none;
+    border-radius: var(--radius-sm); transition: border-color 0.15s; min-width: 0;
+  }
+  .qp-input:focus { border-color: var(--accent); }
+  .qp-unit {
+    font-family: var(--cond); font-size: 10px; color: var(--text3); letter-spacing: 1px;
+    text-transform: uppercase; flex-shrink: 0; width: 26px; text-align: right;
+  }
+  .qp-divider { height: 1px; background: var(--border); margin: 4px 0; }
+  /* Binary toggle pairs */
+  .qp-toggle-pair { display: flex; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border2); flex: 1; }
+  .qp-toggle-btn {
+    flex: 1; background: var(--surface3); border: none; color: var(--text2);
+    font-family: var(--cond); font-weight: 700; font-size: 11px; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 7px 4px; cursor: pointer; transition: all 0.12s;
+    text-align: center;
+  }
+  .qp-toggle-btn + .qp-toggle-btn { border-left: 1px solid var(--border2); }
+  .qp-toggle-btn:hover:not(.active) { background: var(--surface2); color: var(--text); }
+  .qp-toggle-btn.active { background: var(--accent2); color: #fff; }
+  /* Action buttons */
+  .qp-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+  .qp-btn {
+    font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 1px;
+    text-transform: uppercase; padding: 11px 8px; cursor: pointer; border-radius: var(--radius-sm);
+    transition: all 0.15s; text-align: center; border: 1px solid;
+  }
+  .qp-btn.save {
+    background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.5); color: var(--blue);
+  }
+  .qp-btn.save:hover { background: rgba(59,130,246,0.3); border-color: var(--blue); }
+  .qp-btn.run  {
+    background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.4); color: var(--green);
+  }
+  .qp-btn.run:hover  { background: rgba(34,197,94,0.3); border-color: var(--green); }
+  .qp-btn:disabled   { opacity: 0.35; cursor: not-allowed; }
+
+  /* Size scaling for quick planing */
+
   /* CENTER - 3D VIEWPORT */
   .center-panel { display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
   .viewport-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
@@ -235,9 +516,9 @@
   .right-console-wrap { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
   .right-console-wrap .console-out { min-height: calc(10 * 1.6 * 11px); }
 
-  /* TOUCH KEYBOARD OVERLAY — positioned in .main, spans left sidebar + center viewport */
+  /* TOUCH KEYBOARD OVERLAY — positioned in .main, spans full width */
   .touch-kbd-overlay {
-    position: absolute; bottom: 0; left: 0; right: 260px;
+    position: absolute; bottom: 0; left: 0; right: 0;
     background: var(--surface); border-top: 2px solid var(--accent2);
     z-index: 200; padding: 8px 12px 10px 12px;
     display: none; flex-direction: row; gap: 8px;
@@ -459,6 +740,92 @@
   .tt-status-pill.carousel { background: rgba(255,140,66,0.18); color: var(--accent); border: 1px solid var(--accent2); }
   .tt-status-pill.hand { background: var(--surface3); color: var(--text3); border: 1px solid var(--border2); }
   .tt-status-pill.active { background: rgba(34,197,94,0.18); color: var(--green); border: 1px solid var(--green2); }
+
+  /* ── MODULE SYSTEM ──────────────────────────────────────────────────────── */
+  .module-card {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.7);
+    display: flex;
+    flex-direction: column;
+    width: 282px;
+    z-index: 110;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+  }
+  .module-card:hover { box-shadow: 0 8px 36px rgba(0,0,0,0.8); }
+  .module-card.mod-hidden { display: none !important; }
+  .module-drag-handle {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 10px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    cursor: grab; user-select: none; flex-shrink: 0;
+  }
+  .module-drag-handle:active { cursor: grabbing; }
+  .module-drag-dots { color: var(--border2); font-size: 14px; letter-spacing: -1px; line-height: 1; }
+  .module-drag-title { font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); flex: 1; }
+  .module-drag-close { background: none; border: none; color: var(--text3); font-size: 13px; cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.12s; flex-shrink: 0; }
+  .module-drag-close:hover { color: var(--red); }
+  .module-body { padding: 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; max-height: calc(100vh - 130px); }
+  .module-body::-webkit-scrollbar { width: 4px; }
+  .module-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+
+  /* Modules config tab */
+  .modules-page { display: flex; flex-direction: column; flex: 1; overflow-y: auto; background: var(--bg); }
+  .modules-page-header { padding: 16px 20px 12px; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .modules-page-title { font-family: var(--cond); font-weight: 700; font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text3); }
+  .modules-page-hint { font-family: var(--sans); font-size: 12px; color: var(--text3); margin-top: 6px; }
+  .modules-config-grid { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; max-width: 560px; }
+  .mod-toggle-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .mod-toggle-card:hover { border-color: var(--border2); background: var(--surface2); }
+  .mod-toggle-card.enabled { border-color: var(--accent2); background: rgba(229,92,0,0.06); }
+  .mod-toggle-card .mod-switch { cursor: pointer; }
+  .mod-toggle-card .mod-switch:hover { opacity: 0.85; }
+  .mod-toggle-icon { font-size: 22px; flex-shrink: 0; width: 30px; text-align: center; }
+  .mod-toggle-info { flex: 1; min-width: 0; }
+  .mod-toggle-name { font-family: var(--cond); font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--text); text-transform: uppercase; }
+  .mod-toggle-desc { font-family: var(--sans); font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.4; }
+  .mod-switch {
+    width: 42px; height: 24px; border-radius: 12px; background: var(--surface3);
+    border: 1px solid var(--border2); position: relative; transition: all 0.2s; flex-shrink: 0;
+  }
+  .mod-switch::after {
+    content: ''; position: absolute; left: 3px; top: 3px;
+    width: 16px; height: 16px; background: var(--text3); border-radius: 50%; transition: all 0.2s;
+  }
+  .mod-toggle-card.enabled .mod-switch { background: rgba(229,92,0,0.35); border-color: var(--accent2); }
+  .mod-toggle-card.enabled .mod-switch::after { left: 21px; background: var(--accent); }
+
+  /* Size presets */
+  .mod-size-row { display: flex; gap: 4px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .mod-size-btn {
+    flex: 1; background: var(--surface3); border: 1px solid var(--border2); color: var(--text3);
+    font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 0.5px;
+    text-transform: uppercase; padding: 5px 0; cursor: pointer; border-radius: var(--radius-sm);
+    transition: all 0.12s; text-align: center;
+  }
+  .mod-size-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+  .mod-size-btn.active { background: rgba(229,92,0,0.2); border-color: var(--accent2); color: var(--accent); }
+
+  /* Console lines option */
+  .mod-extra-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .mod-extra-label { font-family: var(--cond); font-size: 10px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; white-space: nowrap; }
+  .mod-lines-btn {
+    background: var(--surface3); border: 1px solid var(--border2); color: var(--text3);
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 4px 10px; cursor: pointer; border-radius: var(--radius-sm);
+    transition: all 0.12s;
+  }
+  .mod-lines-btn:hover { background: var(--surface2); color: var(--text); }
+  .mod-lines-btn.active { background: rgba(229,92,0,0.2); border-color: var(--accent2); color: var(--accent); }
+
 </style>
 </head>
 <body>
@@ -516,118 +883,255 @@
   <button class="tab-btn" id="tab-settings" onclick="switchTab('settings')">SETTINGS: GRBL</button>
   <button class="tab-btn" id="tab-camera" onclick="switchTab('camera')">CAMERA</button>
   <button class="tab-btn" id="tab-tooltable" onclick="switchTab('tooltable')">TOOL TABLE</button>
+  <button class="tab-btn" id="tab-modules" onclick="switchTab('modules')">MODULES</button>
 </div>
 
 <!-- TAB: RUN -->
 <div class="tab-panel active" id="tabpanel-run" style="flex-direction:column;overflow:hidden;">
+
+<!-- MODULE LOCK BAR -->
+<div class="mod-lock-bar">
+  <button class="mod-lock-btn" id="modLockBtn" onclick="toggleModLock()" title="Lock / unlock module positions">
+    <span id="modLockIcon">🔓</span>
+    <span id="modLockLabel">UNLOCKED</span>
+  </button>
+</div>
+
 <!-- MAIN -->
 <div class="main">
 
-  <!-- LEFT: DRO + JOG -->
-  <div class="panel">
-    <div class="panel-title">
-      <span>MACHINE POSITION</span>
+  <!-- ═══ MODULE: MACHINE POSITION ═══ -->
+  <div class="module-card mod-hidden" id="mod-position" data-mod-size="normal" style="top:10px;left:10px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-position')"
+         ontouchstart="modTouchStart(event,'mod-position')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Machine Position</span>
+      <button class="module-drag-close" onclick="toggleModule('position',false)">✕</button>
     </div>
-    <div class="status-wcs-row">
-      <div class="state-badge idle" id="stateBadge"><span id="stateText">IDLE</span></div>
-      <div class="wcs-select-wrap">
-        <span class="wcs-label">WCS</span>
-        <select class="wcs-select" id="wcsSelect" onchange="setWCS(this.value)">
-          <option value="G54">G54</option>
-          <option value="G55">G55</option>
-          <option value="G56">G56</option>
-          <option value="G57">G57</option>
-          <option value="G58">G58</option>
-          <option value="G59">G59</option>
-        </select>
-      </div>
-    </div>
-    <div class="dro-grid">
-      <div class="dro-axis-card" id="axCard-X">
-        <div class="dro-axis-label">X</div>
-        <div class="dro-axis-values">
-          <div class="dro-axis-wpos" id="droX">0.000</div>
-          <div class="dro-axis-mpos" id="droMX">M: 0.000</div>
-        </div>
-        <div class="dro-axis-unit">MM</div>
-        <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 X0')">ZERO</button>
-      </div>
-      <div class="dro-axis-card" id="axCard-Y">
-        <div class="dro-axis-label">Y</div>
-        <div class="dro-axis-values">
-          <div class="dro-axis-wpos" id="droY">0.000</div>
-          <div class="dro-axis-mpos" id="droMY">M: 0.000</div>
-        </div>
-        <div class="dro-axis-unit">MM</div>
-        <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Y0')">ZERO</button>
-      </div>
-      <div class="dro-axis-card" id="axCard-Z">
-        <div class="dro-axis-label">Z</div>
-        <div class="dro-axis-values">
-          <div class="dro-axis-wpos" id="droZ">0.000</div>
-          <div class="dro-axis-mpos" id="droMZ">M: 0.000</div>
-        </div>
-        <div class="dro-axis-unit">MM</div>
-        <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Z0')">ZERO</button>
-      </div>
-    </div>
-    <div class="dro-sub">
-      <div class="dro-mini"><div class="dro-mini-label">FEED</div><div class="dro-mini-value" id="feedVal">0 mm/m</div></div>
-      <div class="dro-mini"><div class="dro-mini-label">SPINDLE</div><div class="dro-mini-value" id="spindleVal">0 RPM</div></div>
-      <div class="dro-mini"><div class="dro-mini-label">BUF</div><div class="dro-mini-value" id="bufVal">15/15</div></div>
-      <div class="dro-mini"><div class="dro-mini-label">LINE</div><div class="dro-mini-value" id="lineVal">—</div></div>
-    </div>
-
-    <div class="panel-title">JOG</div>
-    <div class="jog-section">
-      <div class="jog-row">
-        <div class="jog-grid">
-          <button class="jog-btn diag" onclick="startJog('X-Y+')">↖</button>
-          <button class="jog-btn" onclick="startJog('Y+')">↑</button>
-          <button class="jog-btn diag" onclick="startJog('X+Y+')">↗</button>
-          <button class="jog-btn" onclick="startJog('X-')">←</button>
-          <button class="jog-btn center" onclick="goToXY0()">XY0</button>
-          <button class="jog-btn" onclick="startJog('X+')">→</button>
-          <button class="jog-btn diag" onclick="startJog('X-Y-')">↙</button>
-          <button class="jog-btn" onclick="startJog('Y-')">↓</button>
-          <button class="jog-btn diag" onclick="startJog('X+Y-')">↘</button>
-        </div>
-        <div class="jog-z-col">
-          <button class="jog-btn z-up" style="width:48px;height:48px" onclick="startJog('Z+')">Z↑</button>
-          <button class="jog-btn z-down" style="width:48px;height:48px" onclick="startJog('Z-')">Z↓</button>
+    <div class="module-body">
+      <div class="status-wcs-row" style="padding:2px 0 0">
+        <div class="state-badge idle" id="stateBadge"><span id="stateText">IDLE</span></div>
+        <div class="wcs-select-wrap">
+          <span class="wcs-label">WCS</span>
+          <select class="wcs-select" id="wcsSelect" onchange="setWCS(this.value)">
+            <option value="G54">G54</option>
+            <option value="G55">G55</option>
+            <option value="G56">G56</option>
+            <option value="G57">G57</option>
+            <option value="G58">G58</option>
+            <option value="G59">G59</option>
+          </select>
         </div>
       </div>
-    </div>
-    <div class="feed-row" style="margin-top:4px">
-      <span class="feed-label">JOG F</span>
-      <input type="range" class="feed-slider" min="100" max="3000" value="1000" id="jogFeed"
-        oninput="document.getElementById('jogFeedVal').textContent=this.value" />
-      <span class="feed-val" id="jogFeedVal">1000</span>
-    </div>
-    <div class="jog-step-axis-row">
-      <span class="jog-step-axis-label">XY</span>
-      <div class="jog-step-axis-btns">
-        <button class="step-btn xy-step-btn" onclick="setStepXY(0.01)">0.01</button>
-        <button class="step-btn xy-step-btn" onclick="setStepXY(0.1)">0.1</button>
-        <button class="step-btn xy-step-btn" onclick="setStepXY(1)">1</button>
-        <button class="step-btn xy-step-btn active" onclick="setStepXY(10)">10</button>
-        <button class="step-btn xy-step-btn" onclick="setStepXY(50)">50</button>
+      <div class="dro-grid">
+        <div class="dro-axis-card" id="axCard-X">
+          <div class="dro-axis-label">X</div>
+          <div class="dro-axis-values">
+            <div class="dro-axis-wpos" id="droX">0.000</div>
+            <div class="dro-axis-mpos" id="droMX">M: 0.000</div>
+          </div>
+          <div class="dro-axis-unit">MM</div>
+          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 X0')">ZERO</button>
+        </div>
+        <div class="dro-axis-card" id="axCard-Y">
+          <div class="dro-axis-label">Y</div>
+          <div class="dro-axis-values">
+            <div class="dro-axis-wpos" id="droY">0.000</div>
+            <div class="dro-axis-mpos" id="droMY">M: 0.000</div>
+          </div>
+          <div class="dro-axis-unit">MM</div>
+          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Y0')">ZERO</button>
+        </div>
+        <div class="dro-axis-card" id="axCard-Z">
+          <div class="dro-axis-label">Z</div>
+          <div class="dro-axis-values">
+            <div class="dro-axis-wpos" id="droZ">0.000</div>
+            <div class="dro-axis-mpos" id="droMZ">M: 0.000</div>
+          </div>
+          <div class="dro-axis-unit">MM</div>
+          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Z0')">ZERO</button>
+        </div>
       </div>
-    </div>
-    <div class="jog-step-axis-row">
-      <span class="jog-step-axis-label">Z</span>
-      <div class="jog-step-axis-btns">
-        <button class="step-btn z-step-btn" onclick="setStepZ(0.01)">0.01</button>
-        <button class="step-btn z-step-btn" onclick="setStepZ(0.1)">0.1</button>
-        <button class="step-btn z-step-btn active" onclick="setStepZ(1)">1</button>
-        <button class="step-btn z-step-btn" onclick="setStepZ(5)">5</button>
-        <button class="step-btn z-step-btn" onclick="setStepZ(10)">10</button>
+      <div class="dro-sub">
+        <div class="dro-mini"><div class="dro-mini-label">FEED</div><div class="dro-mini-value" id="feedVal">0 mm/m</div></div>
+        <div class="dro-mini"><div class="dro-mini-label">SPINDLE</div><div class="dro-mini-value" id="spindleVal">0 RPM</div></div>
+        <div class="dro-mini"><div class="dro-mini-label">BUF</div><div class="dro-mini-value" id="bufVal">15/15</div></div>
+        <div class="dro-mini"><div class="dro-mini-label">LINE</div><div class="dro-mini-value" id="lineVal">—</div></div>
       </div>
     </div>
   </div>
 
-  <!-- CENTER: 3D VIEWPORT + CONSOLE -->
-  <div class="center-panel">
+  <!-- ═══ MODULE: JOGGING ═══ -->
+  <div class="module-card mod-hidden" id="mod-jogging" data-mod-size="normal" style="top:10px;left:302px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-jogging')"
+         ontouchstart="modTouchStart(event,'mod-jogging')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Jogging</span>
+      <button class="module-drag-close" onclick="toggleModule('jogging',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <div class="jog-section" style="border:none;padding:4px 0;background:transparent">
+        <div class="jog-row">
+          <div class="jog-grid">
+            <button class="jog-btn diag" onclick="startJog('X-Y+')">↖</button>
+            <button class="jog-btn" onclick="startJog('Y+')">↑</button>
+            <button class="jog-btn diag" onclick="startJog('X+Y+')">↗</button>
+            <button class="jog-btn" onclick="startJog('X-')">←</button>
+            <button class="jog-btn center" onclick="goToXY0()">XY0</button>
+            <button class="jog-btn" onclick="startJog('X+')">→</button>
+            <button class="jog-btn diag" onclick="startJog('X-Y-')">↙</button>
+            <button class="jog-btn" onclick="startJog('Y-')">↓</button>
+            <button class="jog-btn diag" onclick="startJog('X+Y-')">↘</button>
+          </div>
+          <div class="jog-z-col">
+            <button class="jog-btn z-up" style="width:48px;height:48px" onclick="startJog('Z+')">Z↑</button>
+            <button class="jog-btn z-down" style="width:48px;height:48px" onclick="startJog('Z-')">Z↓</button>
+          </div>
+        </div>
+      </div>
+      <div class="feed-row" style="margin-top:2px">
+        <span class="feed-label">JOG F</span>
+        <input type="range" class="feed-slider" min="100" max="3000" value="1000" id="jogFeed"
+          oninput="document.getElementById('jogFeedVal').textContent=this.value" />
+        <span class="feed-val" id="jogFeedVal">1000</span>
+      </div>
+      <div class="jog-step-axis-row">
+        <span class="jog-step-axis-label">XY</span>
+        <div class="jog-step-axis-btns">
+          <button class="step-btn xy-step-btn" onclick="setStepXY(0.01)">0.01</button>
+          <button class="step-btn xy-step-btn" onclick="setStepXY(0.1)">0.1</button>
+          <button class="step-btn xy-step-btn" onclick="setStepXY(1)">1</button>
+          <button class="step-btn xy-step-btn active" onclick="setStepXY(10)">10</button>
+          <button class="step-btn xy-step-btn" onclick="setStepXY(50)">50</button>
+        </div>
+      </div>
+      <div class="jog-step-axis-row">
+        <span class="jog-step-axis-label">Z</span>
+        <div class="jog-step-axis-btns">
+          <button class="step-btn z-step-btn" onclick="setStepZ(0.01)">0.01</button>
+          <button class="step-btn z-step-btn" onclick="setStepZ(0.1)">0.1</button>
+          <button class="step-btn z-step-btn active" onclick="setStepZ(1)">1</button>
+          <button class="step-btn z-step-btn" onclick="setStepZ(5)">5</button>
+          <button class="step-btn z-step-btn" onclick="setStepZ(10)">10</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODULE: OVERRIDES ═══ -->
+  <div class="module-card mod-hidden" id="mod-overrides" data-mod-size="normal" style="top:10px;left:594px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-overrides')"
+         ontouchstart="modTouchStart(event,'mod-overrides')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Overrides</span>
+      <button class="module-drag-close" onclick="toggleModule('overrides',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <!-- Hidden run-button aliases so updateRunButtons() stays happy -->
+      <span id="rcStart" style="display:none"></span>
+      <span id="rcPause" style="display:none"></span>
+      <span id="rcStop"  style="display:none"></span>
+      <div class="override-section">
+        <div class="ovr-row">
+          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('feed')" title="Reset to 100%">FEED</button>
+          <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" oninput="applyOverride('feed', parseInt(this.value))" />
+          <span class="ovr-val" id="ovrFeedVal">100%</span>
+        </div>
+        <div class="ovr-row">
+          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('rapid')" title="Reset to 100%">RAPID</button>
+          <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" oninput="applyOverride('rapid', parseInt(this.value))" />
+          <span class="ovr-val" id="ovrRapidVal">100%</span>
+        </div>
+        <div class="ovr-row">
+          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('spindle')" title="Reset to 100%">SPIN</button>
+          <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" oninput="applyOverride('spindle', parseInt(this.value))" />
+          <span class="ovr-val" id="ovrSpinVal">100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODULE: SPINDLE / COOLANT ═══ -->
+  <div class="module-card mod-hidden" id="mod-spindle" data-mod-size="normal" style="top:160px;left:594px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-spindle')"
+         ontouchstart="modTouchStart(event,'mod-spindle')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Spindle / Coolant</span>
+      <button class="module-drag-close" onclick="toggleModule('spindle',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <div style="display:flex;align-items:center;gap:8px;padding:0 2px 2px">
+        <span style="font-family:var(--cond);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;flex-shrink:0">RPM</span>
+        <input type="number" id="spindleRPM" min="0" max="30000" step="100" value="10000"
+          style="flex:1;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:6px 10px;outline:none;border-radius:var(--radius-sm);transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'" />
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 2px">
+        <button class="spin-dir-btn" id="btnSpinCW"  onclick="setSpindle('CW')" >CW</button>
+        <button class="spin-dir-btn" id="btnSpinCCW" onclick="setSpindle('CCW')">CCW</button>
+        <button class="spin-dir-btn" id="btnSpinOFF" onclick="setSpindle('OFF')">OFF</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 2px">
+        <button class="coolant-btn" id="btnFlood" onclick="toggleCoolant('flood')">FLOOD</button>
+        <button class="coolant-btn" id="btnMist"  onclick="toggleCoolant('mist')">MIST</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODULE: MACROS ═══ -->
+  <div class="module-card mod-hidden" id="mod-macros" data-mod-size="normal" style="top:310px;left:594px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-macros')"
+         ontouchstart="modTouchStart(event,'mod-macros')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Macros</span>
+      <button class="module-drag-close" onclick="toggleModule('macros',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <div class="macro-grid">
+        <button class="macro-btn" onclick="sendHome()">HOME ALL</button>
+        <button class="macro-btn" onclick="sendCmd('$H Z')">HOME Z</button>
+        <button class="macro-btn" onclick="sendCmd('G0 X0 Y0')">GOTO XY0</button>
+        <button class="macro-btn" onclick="sendCmd('G0 Z5')">PARK Z</button>
+        <button class="macro-btn" onclick="sendCmd('$I')">GRBL INFO</button>
+        <button class="macro-btn" onclick="sendCmd('$$')">SETTINGS</button>
+        <button class="macro-btn" onclick="sendCmd('$#')">WCS TABLE</button>
+        <button class="macro-btn" onclick="sendCmd('?')">QUERY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MODULE: CONSOLE ═══ -->
+  <div class="module-card mod-hidden" id="mod-console" data-mod-size="normal" style="top:10px;left:886px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-console')"
+         ontouchstart="modTouchStart(event,'mod-console')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Console</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="clearConsole()">CLEAR</button>
+        <button class="tb-btn" id="btnKeyboard" style="font-size:16px;padding:2px 10px;line-height:1" onclick="toggleTouchKeyboard()" title="Touch keyboard">⌨</button>
+      </div>
+      <button class="module-drag-close" onclick="toggleModule('console',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <div class="right-console-wrap" style="border:none;border-radius:0">
+        <div class="console-out" id="consoleOut"></div>
+        <div class="console-input-row">
+          <span class="con-prompt">›</span>
+          <input class="con-input" id="conInput" placeholder="Send G-code command..." onkeydown="handleConInput(event)" />
+          <button class="con-send" onclick="sendManual()">SEND</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: 3D VIEWPORT (fills entire main) -->
+  <div class="center-panel" style="flex:1">
     <div class="viewport-header">
       <span class="file-name" id="fileName">No file loaded</span>
       <button class="view-btn active" onclick="setView('iso')">ISO</button>
@@ -662,7 +1166,6 @@
   </div><!-- /center-panel -->
 
   <!-- TOUCH KEYBOARD — direct child of .main so position:absolute uses .main as context -->
-  <!-- Spans left sidebar (270px) + center panel, stops before right panel (right:260px) -->
   <div class="touch-kbd-overlay" id="touchKbdOverlay">
 
       <!-- LEFT: input bar + QWERTY -->
@@ -755,90 +1258,229 @@
         <button class="kbd-key" ontouchstart="kbdPress(event,'.')" onclick="kbdPress(event,'.')">.</button>
       </div><!-- /kbd-numpad -->
 
-  </div><!-- /touch-kbd-overlay (in .main) -->
+  </div><!-- /touch-kbd-overlay -->
 
-  <!-- RIGHT -->
-  <div class="panel right-panel">
-    <!-- Hidden elements to keep updateRunButtons() happy -->
-    <span id="rcStart" style="display:none"></span>
-    <span id="rcPause" style="display:none"></span>
-    <span id="rcStop"  style="display:none"></span>
-
-    <div class="panel-title">OVERRIDES</div>
-    <div class="override-section">
-      <div class="ovr-row">
-        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('feed')" title="Reset to 100%">FEED</button>
-        <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" oninput="applyOverride('feed', parseInt(this.value))" />
-        <span class="ovr-val" id="ovrFeedVal">100%</span>
-      </div>
-      <div class="ovr-row">
-        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('rapid')" title="Reset to 100%">RAPID</button>
-        <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" oninput="applyOverride('rapid', parseInt(this.value))" />
-        <span class="ovr-val" id="ovrRapidVal">100%</span>
-      </div>
-      <div class="ovr-row">
-        <button class="ovr-label ovr-reset-btn" onclick="resetOverride('spindle')" title="Reset to 100%">SPIN</button>
-        <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" oninput="applyOverride('spindle', parseInt(this.value))" />
-        <span class="ovr-val" id="ovrSpinVal">100%</span>
-      </div>
-    </div>
-
-    <div class="section-divider"></div>
-    <div class="panel-title">SPINDLE / COOLANT</div>
-
-    <!-- RPM entry -->
-    <div style="display:flex;align-items:center;gap:8px;padding:0 2px 2px">
-      <span style="font-family:var(--cond);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;flex-shrink:0">RPM</span>
-      <input type="number" id="spindleRPM" min="0" max="30000" step="100" value="10000"
-        style="flex:1;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:6px 10px;outline:none;border-radius:var(--radius-sm);transition:border-color 0.15s;"
-        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'" />
-    </div>
-
-    <!-- Spindle direction buttons -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 2px">
-      <button class="spin-dir-btn" id="btnSpinCW"  onclick="setSpindle('CW')" >CW</button>
-      <button class="spin-dir-btn" id="btnSpinCCW" onclick="setSpindle('CCW')">CCW</button>
-      <button class="spin-dir-btn" id="btnSpinOFF" onclick="setSpindle('OFF')">OFF</button>
-    </div>
-
-    <!-- Coolant buttons -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 2px">
-      <button class="coolant-btn" id="btnFlood" onclick="toggleCoolant('flood')">FLOOD</button>
-      <button class="coolant-btn" id="btnMist"  onclick="toggleCoolant('mist')">MIST</button>
-    </div>
-
-    <div class="section-divider"></div>
-    <div class="panel-title">MACROS</div>
-    <div class="macro-grid">
-      <button class="macro-btn" onclick="sendHome()">HOME ALL</button>
-      <button class="macro-btn" onclick="sendCmd('$H Z')">HOME Z</button>
-      <button class="macro-btn" onclick="sendCmd('G0 X0 Y0')">GOTO XY0</button>
-      <button class="macro-btn" onclick="sendCmd('G0 Z5')">PARK Z</button>
-      <button class="macro-btn" onclick="sendCmd('$I')">GRBL INFO</button>
-      <button class="macro-btn" onclick="sendCmd('$$')">SETTINGS</button>
-      <button class="macro-btn" onclick="sendCmd('$#')">WCS TABLE</button>
-      <button class="macro-btn" onclick="sendCmd('?')">QUERY</button>
-    </div>
-
-    <div class="section-divider"></div>
-    <div class="panel-title">
-      <span>CONSOLE</span>
+  <!-- ═══ MODULE: TOOL TABLE ═══ -->
+  <div class="module-card mod-hidden" id="mod-tooltable" data-mod-size="normal" style="top:10px;left:302px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-tooltable')"
+         ontouchstart="modTouchStart(event,'mod-tooltable')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Tool Table</span>
       <div style="display:flex;gap:5px;align-items:center">
-        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="clearConsole()">CLEAR</button>
-        <button class="tb-btn" id="btnKeyboard" style="font-size:16px;padding:2px 10px;line-height:1" onclick="toggleTouchKeyboard()" title="Touch keyboard">⌨</button>
+        <span id="modTTCount" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="loadToolTable()" id="modTTRefresh">↻</button>
       </div>
+      <button class="module-drag-close" onclick="toggleModule('tooltable',false)">✕</button>
     </div>
-    <div class="right-console-wrap">
-      <div class="console-out" id="consoleOut"></div>
-      <div class="console-input-row">
-        <span class="con-prompt">›</span>
-        <input class="con-input" id="conInput" placeholder="Send G-code command..." onkeydown="handleConInput(event)" />
-        <button class="con-send" onclick="sendManual()">SEND</button>
+    <div class="module-body" style="padding:0">
+      <div id="modTTStatus" style="padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);display:none;"></div>
+      <div style="overflow-x:auto;overflow-y:auto;flex:1">
+        <table id="modTTTable" class="mod-tt-table" style="width:100%;border-collapse:collapse;display:none;">
+          <thead>
+            <tr style="background:var(--surface2);">
+              <th class="tt-th mod-tt-pocket-col">PKT</th>
+              <th class="tt-th">TOOL</th>
+              <th class="tt-th mod-tt-name-col">NAME</th>
+              <th class="tt-th mod-tt-off-col">X</th>
+              <th class="tt-th mod-tt-off-col">Y</th>
+              <th class="tt-th">Z</th>
+              <th class="tt-th mod-tt-dia-col">DIA</th>
+              <th class="tt-th mod-tt-status-col">STATUS</th>
+            </tr>
+          </thead>
+          <tbody id="modTTBody"></tbody>
+        </table>
+        <div id="modTTEmpty" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:120px;color:var(--text3);gap:10px;">
+          <div style="font-size:24px;opacity:0.2">⚙</div>
+          <div style="font-family:var(--cond);font-size:11px;letter-spacing:2px;text-transform:uppercase;text-align:center">Connect and click ↻ to load</div>
+        </div>
+      </div>
+      <!-- Legend -->
+      <div style="display:flex;gap:10px;padding:6px 10px;background:var(--surface2);border-top:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:5px;font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
+          <div style="width:10px;height:10px;border-radius:2px;background:rgba(255,140,66,0.18);border:1px solid var(--accent2)"></div>CAROUSEL
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
+          <div style="width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,0.18);border:1px solid var(--green2)"></div>ACTIVE
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- /main -->
 </div><!-- /tab-panel-run -->
+
+<!-- TAB: MODULES -->
+<div class="tab-panel" id="tabpanel-modules" style="flex-direction:column;overflow:hidden;background:var(--bg);">
+  <div class="modules-page">
+    <div class="modules-page-header">
+      <div class="modules-page-title">Modules</div>
+      <div class="modules-page-hint">Toggle modules on or off, then pick a size. Enabled modules appear as floating panels on the RUN page — drag their title bar to reposition them.</div>
+    </div>
+    <div class="modules-config-grid">
+
+      <!-- VIEWPORT EXTENTS — not a floating tile, a global setting -->
+      <div class="mod-toggle-card" style="cursor:default;" id="modcfg-viewport">
+        <div class="mod-toggle-icon">🗺️</div>
+        <div class="mod-toggle-info">
+          <div class="mod-toggle-name" style="margin-bottom:6px">3D Viewport Extents</div>
+          <div class="mod-toggle-desc" style="margin-bottom:10px">Machine-coordinate workspace bounds. 0,0 is home (top-right); enter negative values for your working area. Updates the grid and camera position instantly.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div>
+              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#ff6b6b;margin-bottom:3px">X Minimum (mm)</div>
+              <input class="qp-input" type="number" id="vpXMin" step="10" value="-300"
+                oninput="vpApply()" style="width:100%" />
+            </div>
+            <div>
+              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#ff6b6b;margin-bottom:3px">X Maximum (mm)</div>
+              <input class="qp-input" type="number" id="vpXMax" step="10" value="0"
+                oninput="vpApply()" style="width:100%" />
+            </div>
+            <div>
+              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#6bcb77;margin-bottom:3px">Y Minimum (mm)</div>
+              <input class="qp-input" type="number" id="vpYMin" step="10" value="-300"
+                oninput="vpApply()" style="width:100%" />
+            </div>
+            <div>
+              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#6bcb77;margin-bottom:3px">Y Maximum (mm)</div>
+              <input class="qp-input" type="number" id="vpYMax" step="10" value="0"
+                oninput="vpApply()" style="width:100%" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-position">
+        <div class="mod-toggle-icon">📍</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Machine Position</div>
+            <div class="mod-switch" onclick="toggleModule('position')"></div>
+          </div>
+          <div class="mod-toggle-desc">DRO axis readouts, WCS selector, machine state and feed/spindle status</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('position','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('position','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('position','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('position','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-jogging">
+        <div class="mod-toggle-icon">🕹</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Jogging</div>
+            <div class="mod-switch" onclick="toggleModule('jogging')"></div>
+          </div>
+          <div class="mod-toggle-desc">XY/Z jog buttons, step size selectors, and jog feed rate control</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('jogging','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('jogging','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('jogging','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('jogging','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-overrides">
+        <div class="mod-toggle-icon">⚡</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Overrides</div>
+            <div class="mod-switch" onclick="toggleModule('overrides')"></div>
+          </div>
+          <div class="mod-toggle-desc">Real-time feed rate, rapid, and spindle speed override sliders</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('overrides','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('overrides','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('overrides','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('overrides','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-spindle">
+        <div class="mod-toggle-icon">🔄</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Spindle / Coolant</div>
+            <div class="mod-switch" onclick="toggleModule('spindle')"></div>
+          </div>
+          <div class="mod-toggle-desc">Spindle direction (CW/CCW/OFF), RPM input, and flood/mist coolant toggles</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('spindle','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('spindle','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('spindle','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('spindle','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-macros">
+        <div class="mod-toggle-icon">🔧</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Macros</div>
+            <div class="mod-switch" onclick="toggleModule('macros')"></div>
+          </div>
+          <div class="mod-toggle-desc">Quick-access buttons for common G-code commands and machine routines</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('macros','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('macros','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('macros','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('macros','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-console">
+        <div class="mod-toggle-icon">💻</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Console</div>
+            <div class="mod-switch" onclick="toggleModule('console')"></div>
+          </div>
+          <div class="mod-toggle-desc">Live command log with manual G-code entry and touch keyboard support</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('console','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('console','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('console','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('console','xxl',event)">XXL</button>
+          </div>
+          <div class="mod-extra-row">
+            <span class="mod-extra-label">Output lines:</span>
+            <button class="mod-lines-btn active" onclick="setConsoleLines(50, event)">50</button>
+            <button class="mod-lines-btn" onclick="setConsoleLines(100, event)">100</button>
+            <button class="mod-lines-btn" onclick="setConsoleLines(200, event)">200</button>
+            <button class="mod-lines-btn" onclick="setConsoleLines(500, event)">500</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-tooltable">
+        <div class="mod-toggle-icon">🔩</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Tool Table</div>
+            <div class="mod-switch" onclick="toggleModule('tooltable')"></div>
+          </div>
+          <div class="mod-toggle-desc">Live tool library with offsets, pocket assignments and active tool indicator</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('tooltable','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('tooltable','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('tooltable','xl',event)">XL</button>
+            <button class="mod-size-btn" onclick="setModSize('tooltable','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div></div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /tab-panel-modules -->
 
 <!-- TAB: SETTINGS -->
 <div class="tab-panel" id="tabpanel-settings" style="flex-direction:column;overflow:hidden;">
@@ -1056,20 +1698,88 @@ const dlight = new THREE.DirectionalLight(0xffffff, 0.5);
 dlight.position.set(1, 2, 1);
 scene.add(dlight);
 
-// Grid
-const gridHelper = new THREE.GridHelper(200, 20, 0x2a2a40, 0x1a1a2a);
-gridHelper.position.y = 0;
-scene.add(gridHelper);
+// Grid — rebuilt dynamically when extents change
+let gridHelper = null;
+let _vpBoundary = null;
+let _vpOriginAxes = [];
 
-// Axes
-const axesMat = (color) => new THREE.LineBasicMaterial({ color });
-function makeAxis(dir, color, len=15) {
-  const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0), dir.clone().multiplyScalar(len)]);
-  return new THREE.Line(g, axesMat(color));
+// Default extents (mm, machine coords — 0,0 is home, workspace is negative)
+let vpXMin = -300, vpXMax = 0;
+let vpYMin = -300, vpYMax = 0;
+
+const VP_STORAGE_KEY = 'fs-viewport-extents';
+
+function vpLoadExtents() {
+  try {
+    const raw = localStorage.getItem(VP_STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      vpXMin = d.xMin ?? -300; vpXMax = d.xMax ?? 0;
+      vpYMin = d.yMin ?? -300; vpYMax = d.yMax ?? 0;
+    }
+  } catch(_) {}
 }
-scene.add(makeAxis(new THREE.Vector3(1,0,0), 0xff3333));
-scene.add(makeAxis(new THREE.Vector3(0,1,0), 0x33ff66));
-scene.add(makeAxis(new THREE.Vector3(0,0,1), 0x3399ff));
+
+function vpSaveExtents() {
+  try { localStorage.setItem(VP_STORAGE_KEY, JSON.stringify({ xMin: vpXMin, xMax: vpXMax, yMin: vpYMin, yMax: vpYMax })); } catch(_) {}
+}
+
+function rebuildViewportGrid() {
+  // Remove old objects
+  if (gridHelper)       { scene.remove(gridHelper);   gridHelper.geometry.dispose(); gridHelper.material.dispose(); gridHelper = null; }
+  if (_vpBoundary)      { scene.remove(_vpBoundary);  _vpBoundary.geometry.dispose(); _vpBoundary.material.dispose(); _vpBoundary = null; }
+  _vpOriginAxes.forEach(l => { scene.remove(l); l.geometry.dispose(); l.material.dispose(); });
+  _vpOriginAxes = [];
+
+  // Three.js coordinate mapping: machine X → Three X, machine Y → Three -Z
+  // Grid sits at y=0
+  const threeXMin = vpXMin, threeXMax = vpXMax;
+  const threeZMin = -vpYMax, threeZMax = -vpYMin;
+  const sizeX = Math.abs(threeXMax - threeXMin) || 200;
+  const sizeZ = Math.abs(threeZMax - threeZMin) || 200;
+  const cx = (threeXMin + threeXMax) / 2;
+  const cz = (threeZMin + threeZMax) / 2;
+
+  // Grid using standard GridHelper — positioned and sized to workspace
+  const gridSize = Math.max(sizeX, sizeZ);
+  const divisions = Math.min(40, Math.max(10, Math.round(gridSize / 20)));
+  gridHelper = new THREE.GridHelper(gridSize, divisions, 0x2a2720, 0x1a1814);
+  gridHelper.position.set(cx, 0, cz);
+  scene.add(gridHelper);
+
+  // Workspace boundary outline
+  const pts = [
+    new THREE.Vector3(threeXMin, 0.1, threeZMin),
+    new THREE.Vector3(threeXMax, 0.1, threeZMin),
+    new THREE.Vector3(threeXMax, 0.1, threeZMax),
+    new THREE.Vector3(threeXMin, 0.1, threeZMax),
+    new THREE.Vector3(threeXMin, 0.1, threeZMin),
+  ];
+  const bdGeo = new THREE.BufferGeometry().setFromPoints(pts);
+  _vpBoundary = new THREE.Line(bdGeo, new THREE.LineBasicMaterial({ color: 0x443e2e }));
+  scene.add(_vpBoundary);
+
+  // Axis indicators at origin (0,0,0 = machine home)
+  const axLen = Math.min(sizeX, sizeZ) * 0.05;
+  const makeVpAxis = (v, color) => {
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0.2, 0), v.clone().multiplyScalar(axLen).add(new THREE.Vector3(0, 0.2, 0))]);
+    const l = new THREE.Line(g, new THREE.LineBasicMaterial({ color }));
+    scene.add(l);
+    _vpOriginAxes.push(l);
+  };
+  makeVpAxis(new THREE.Vector3(1, 0, 0),  0xff3333);
+  makeVpAxis(new THREE.Vector3(-1, 0, 0), 0x992222);
+  makeVpAxis(new THREE.Vector3(0, 0, -1), 0x33ff66);
+  makeVpAxis(new THREE.Vector3(0, 0, 1),  0x226633);
+  makeVpAxis(new THREE.Vector3(0, 1, 0),  0x3399ff);
+
+  // Re-centre camera on workspace
+  target.set(cx, 0, cz);
+  spherical.radius = Math.max(sizeX, sizeZ) * 1.4;
+  updateCamera();
+}
+
+vpLoadExtents();
 
 // Toolhead marker
 // CylinderGeometry(0, 1.5, 4, 8) has its centre at y=0, tip at y=+2, base at y=-2.
@@ -1123,6 +1833,7 @@ function updateCamera() {
   camera.lookAt(target);
 }
 updateCamera();
+rebuildViewportGrid();
 
 canvas.addEventListener('mousedown', e => {
   if (e.button === 0) isOrbiting = true;
@@ -1609,6 +2320,7 @@ function parseStatus(s) {
         if (document.getElementById('tabpanel-tooltable').classList.contains('active')) {
           renderToolTableRows();
         }
+        renderModTT();
       }
     }
     if (key === 'WCS') {
@@ -2140,7 +2852,7 @@ function log(type,msg) {
   const div=document.createElement('div'); div.className='con-line';
   div.innerHTML='<span class="'+cls+'">'+pre+' '+esc(msg)+'</span>';
   out.appendChild(div);
-  if(++conLines>500){out.removeChild(out.firstChild);conLines--;}
+  if(++conLines>consoleMaxLines){out.removeChild(out.firstChild);conLines--;}
   // Use rAF to scroll — avoids forcing a synchronous layout on every log line
   requestAnimationFrame(() => { out.scrollTop = out.scrollHeight; });
 }
@@ -2202,6 +2914,238 @@ function switchTab(tab) {
   if (tab === 'settings' && !settingsLoaded && connected) loadSettings();
   if (tab === 'camera' && !_camTabInited) { _camTabInited = true; initCameraTab(); }
   if (tab === 'tooltable') loadToolTable();
+}
+
+// ═══════════════════════════════════════════════
+// MODULE SYSTEM
+// ═══════════════════════════════════════════════
+const MODULE_DEFS = [
+  { id: 'position',  icon: '📍', name: 'Machine Position' },
+  { id: 'jogging',   icon: '🕹', name: 'Jogging'          },
+  { id: 'overrides', icon: '⚡', name: 'Overrides'         },
+  { id: 'spindle',   icon: '🔄', name: 'Spindle/Coolant'  },
+  { id: 'macros',    icon: '🔧', name: 'Macros'           },
+  { id: 'console',   icon: '💻', name: 'Console'          },
+  { id: 'tooltable', icon: '🔩', name: 'Tool Table'       },
+];
+
+// Size presets: width in px (height is always auto / content-driven)
+const MOD_SIZES = {
+  normal: 282,
+  large:  360,
+  xl:     460,
+  xxl:    580,
+};
+
+const MOD_DEFAULTS = {
+  position:  { x: 10,  y: 10,  enabled: false, size: 'normal' },
+  jogging:   { x: 10,  y: 380, enabled: false, size: 'normal' },
+  overrides: { x: 302, y: 10,  enabled: false, size: 'normal' },
+  spindle:   { x: 302, y: 185, enabled: false, size: 'normal' },
+  macros:    { x: 302, y: 390, enabled: false, size: 'normal' },
+  console:   { x: 594, y: 10,  enabled: false, size: 'normal' },
+  tooltable: { x: 10,  y: 10,  enabled: false, size: 'xl'     },
+};
+
+let consoleMaxLines = 50; // default — changed by setConsoleLines()
+
+function modLoadState() {
+  try { return JSON.parse(localStorage.getItem('fs-modules') || '{}'); }
+  catch(_) { return {}; }
+}
+
+function modSaveState() {
+  const state = { _consoleLines: consoleMaxLines };
+  MODULE_DEFS.forEach(m => {
+    const card = document.getElementById('mod-' + m.id);
+    if (!card) return;
+    state[m.id] = {
+      enabled: !card.classList.contains('mod-hidden'),
+      x:    parseInt(card.style.left) || 0,
+      y:    parseInt(card.style.top)  || 0,
+      size: card.dataset.modSize || 'normal',
+    };
+  });
+  try { localStorage.setItem('fs-modules', JSON.stringify(state)); } catch(_){}
+}
+
+function toggleModule(id, forceState) {
+  const card    = document.getElementById('mod-' + id);
+  const cfgCard = document.getElementById('modcfg-' + id);
+  if (!card) return;
+  const isHidden = card.classList.contains('mod-hidden');
+  const enable   = forceState !== undefined ? forceState : isHidden;
+  card.classList.toggle('mod-hidden', !enable);
+  if (cfgCard) cfgCard.classList.toggle('enabled', enable);
+  modSaveState();
+}
+
+function setModSize(id, size, evt) {
+  if (evt) { evt.stopPropagation(); }
+  const card    = document.getElementById('mod-' + id);
+  const cfgCard = document.getElementById('modcfg-' + id);
+  if (!card) return;
+  const w = MOD_SIZES[size] || MOD_SIZES.normal;
+  card.style.width    = w + 'px';
+  card.dataset.modSize = size;
+  // Update button states in config card
+  if (cfgCard) {
+    cfgCard.querySelectorAll('.mod-size-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.toLowerCase() === size);
+    });
+  }
+  modSaveState();
+}
+
+function setConsoleLines(n, evt) {
+  if (evt) { evt.stopPropagation(); }
+  consoleMaxLines = n;
+  // Trim existing console output if over the new limit
+  const out = document.getElementById('consoleOut');
+  if (out) {
+    while (out.children.length > consoleMaxLines) out.removeChild(out.firstChild);
+    conLines = out.children.length;
+  }
+  // Update button states
+  document.querySelectorAll('.mod-lines-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.textContent) === n);
+  });
+  modSaveState();
+}
+
+function modInitPositions() {
+  const saved = modLoadState();
+
+  // Restore console lines setting
+  if (saved._consoleLines) setConsoleLines(saved._consoleLines);
+
+  MODULE_DEFS.forEach(m => {
+    const card    = document.getElementById('mod-' + m.id);
+    const cfgCard = document.getElementById('modcfg-' + m.id);
+    if (!card) return;
+    const def     = MOD_DEFAULTS[m.id] || { x: 10, y: 10, enabled: false, size: 'normal' };
+    const s       = saved[m.id] || {};
+    const x       = s.x       !== undefined ? s.x       : def.x;
+    const y       = s.y       !== undefined ? s.y       : def.y;
+    const enabled = s.enabled !== undefined ? s.enabled : def.enabled;
+    const size    = s.size    || def.size;
+    card.style.left  = x + 'px';
+    card.style.top   = y + 'px';
+    card.style.width = (MOD_SIZES[size] || MOD_SIZES.normal) + 'px';
+    card.dataset.modSize = size;
+    card.classList.toggle('mod-hidden', !enabled);
+    if (cfgCard) {
+      cfgCard.classList.toggle('enabled', enabled);
+      cfgCard.querySelectorAll('.mod-size-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.toLowerCase() === size);
+      });
+    }
+  });
+}
+
+// ── Mouse drag ────────────────────────────────────────────────────────────────
+let _modDrag = null;
+let modLocked = false;
+
+function toggleModLock() {
+  modLocked = !modLocked;
+  document.body.classList.toggle('mod-locked', modLocked);
+  document.getElementById('modLockIcon').textContent  = modLocked ? '🔒' : '🔓';
+  document.getElementById('modLockLabel').textContent = modLocked ? 'LOCKED' : 'UNLOCKED';
+  try { localStorage.setItem('fs-mod-locked', modLocked ? '1' : '0'); } catch(_) {}
+}
+
+function modDragStart(e, modId) {
+  if (modLocked) return;
+  if (e.button !== 0) return;
+  const card = document.getElementById(modId);
+  _modDrag = {
+    card,
+    startX:   e.clientX,
+    startY:   e.clientY,
+    origLeft: parseInt(card.style.left) || 0,
+    origTop:  parseInt(card.style.top)  || 0,
+  };
+  card.style.zIndex = 200;
+  e.preventDefault();
+}
+
+document.addEventListener('mousemove', e => {
+  if (!_modDrag) return;
+  const dx = e.clientX - _modDrag.startX;
+  const dy = e.clientY - _modDrag.startY;
+  _modDrag.card.style.left = Math.max(0, _modDrag.origLeft + dx) + 'px';
+  _modDrag.card.style.top  = Math.max(0, _modDrag.origTop  + dy) + 'px';
+});
+
+document.addEventListener('mouseup', () => {
+  if (!_modDrag) return;
+  _modDrag.card.style.zIndex = 110;
+  _modDrag = null;
+  modSaveState();
+});
+
+// ── Touch drag ────────────────────────────────────────────────────────────────
+function modTouchStart(e, modId) {
+  if (modLocked) return;
+  if (e.touches.length !== 1) return;
+  const t    = e.touches[0];
+  const card = document.getElementById(modId);
+  _modDrag = {
+    card,
+    startX:   t.clientX,
+    startY:   t.clientY,
+    origLeft: parseInt(card.style.left) || 0,
+    origTop:  parseInt(card.style.top)  || 0,
+  };
+  card.style.zIndex = 200;
+}
+
+document.addEventListener('touchmove', e => {
+  if (!_modDrag) return;
+  const t  = e.touches[0];
+  const dx = t.clientX - _modDrag.startX;
+  const dy = t.clientY - _modDrag.startY;
+  _modDrag.card.style.left = Math.max(0, _modDrag.origLeft + dx) + 'px';
+  _modDrag.card.style.top  = Math.max(0, _modDrag.origTop  + dy) + 'px';
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+  if (!_modDrag) return;
+  _modDrag.card.style.zIndex = 110;
+  _modDrag = null;
+  modSaveState();
+});
+
+// Bring a module to the front when clicked
+document.addEventListener('mousedown', e => {
+  const card = e.target.closest('.module-card');
+  if (!card) return;
+  document.querySelectorAll('.module-card').forEach(c => c.style.zIndex = 110);
+  card.style.zIndex = 150;
+}, true);
+
+window.addEventListener('load', () => {
+  modInitPositions();
+  try { if (localStorage.getItem('fs-mod-locked') === '1') toggleModLock(); } catch(_) {}
+  // Populate viewport extent inputs from saved values
+  const fields = { vpXMin, vpXMax, vpYMin, vpYMax };
+  for (const [id, val] of Object.entries(fields)) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+});
+
+function vpApply() {
+  const xMin = parseFloat(document.getElementById('vpXMin').value);
+  const xMax = parseFloat(document.getElementById('vpXMax').value);
+  const yMin = parseFloat(document.getElementById('vpYMin').value);
+  const yMax = parseFloat(document.getElementById('vpYMax').value);
+  if (isNaN(xMin) || isNaN(xMax) || isNaN(yMin) || isNaN(yMax)) return;
+  if (xMin >= xMax || yMin >= yMax) return;  // invalid range — wait for more input
+  vpXMin = xMin; vpXMax = xMax; vpYMin = yMin; vpYMax = yMax;
+  vpSaveExtents();
+  rebuildViewportGrid();
 }
 
 function loadSettings() {
@@ -3120,6 +4064,7 @@ function renderToolTable() {
     table.style.display = 'none';
     empty.style.display = 'flex';
     count.textContent = '';
+    renderModTT();
     return;
   }
 
@@ -3128,17 +4073,82 @@ function renderToolTable() {
   count.textContent = `${ttEntries.length} tool${ttEntries.length !== 1 ? 's' : ''} · ${carouselCount} in carousel`;
   table.style.display = '';
   empty.style.display = 'none';
+  renderModTT();
+}
+
+// ── Module tool table render ──────────────────────────────────────────────────
+function renderModTT() {
+  const modCard = document.getElementById('mod-tooltable');
+  if (!modCard || modCard.classList.contains('mod-hidden')) return;
+
+  const table = document.getElementById('modTTTable');
+  const empty = document.getElementById('modTTEmpty');
+  const count = document.getElementById('modTTCount');
+  const tbody = document.getElementById('modTTBody');
+  if (!table || !empty || !tbody) return;
+
+  if (!ttEntries.length) {
+    table.style.display = 'none';
+    empty.style.display = 'flex';
+    if (count) count.textContent = '';
+    return;
+  }
+
+  const sorted = [...ttEntries].sort((a, b) => {
+    if (a.pocket > 0 && b.pocket > 0) return a.pocket - b.pocket;
+    if (a.pocket > 0) return -1;
+    if (b.pocket > 0) return 1;
+    return a.tool - b.tool;
+  });
+
+  tbody.innerHTML = sorted.map(e => {
+    const inCarousel = e.pocket > 0;
+    const isCurrent  = e.tool === currentToolNumber && currentToolNumber !== 0;
+    let rowClass = 'tt-row';
+    if (isCurrent)       rowClass += ' current-tool';
+    else if (inCarousel) rowClass += ' in-carousel';
+
+    const pocketCell = inCarousel
+      ? `<span style="color:var(--accent);font-weight:700">P${e.pocket}</span>`
+      : `<span style="color:var(--text3)">P0</span>`;
+
+    let statusPill;
+    if (isCurrent)       statusPill = `<span class="tt-status-pill active">▶ ACTIVE</span>`;
+    else if (inCarousel) statusPill = `<span class="tt-status-pill carousel">⬡ ${e.pocket}</span>`;
+    else                 statusPill = `<span class="tt-status-pill hand">○</span>`;
+
+    return `<tr class="${rowClass}">
+      <td class="tt-td mod-tt-pocket-col">${pocketCell}</td>
+      <td class="tt-td tool-id">T${e.tool}</td>
+      <td class="tt-td tool-name mod-tt-name-col">${e.name || '<span style="color:var(--text3)">—</span>'}</td>
+      <td class="tt-td mod-tt-off-col">${fmtOffset(e.x)}</td>
+      <td class="tt-td mod-tt-off-col">${fmtOffset(e.y)}</td>
+      <td class="tt-td">${fmtOffset(e.z)}</td>
+      <td class="tt-td mod-tt-dia-col">${fmtOffset(e.d)}</td>
+      <td class="tt-td mod-tt-status-col">${statusPill}</td>
+    </tr>`;
+  }).join('');
+
+  table.style.display = '';
+  empty.style.display = 'none';
+  const carouselCount = ttEntries.filter(e => e.pocket > 0).length;
+  if (count) count.textContent = `${ttEntries.length}T · ${carouselCount}P`;
 }
 
 // ── Status bar helper ─────────────────────────────────────────────────────────
 function ttSetStatus(msg) {
-  const el = document.getElementById('ttStatus');
-  if (msg) { el.textContent = msg; el.style.display = ''; }
-  else      { el.style.display = 'none'; }
+  const el  = document.getElementById('ttStatus');
+  const mel = document.getElementById('modTTStatus');
+  if (el)  { if (msg) { el.textContent  = msg; el.style.display  = ''; } else { el.style.display  = 'none'; } }
+  if (mel) { if (msg) { mel.textContent = msg; mel.style.display = ''; } else { mel.style.display = 'none'; } }
 }
 
 // ── Called when the tab is opened or Refresh is clicked ──────────────────────
 function loadToolTable() {
+  // Disable both refresh buttons
+  const tabBtn = document.getElementById('btnTTRefresh');
+  const modBtn = document.getElementById('modTTRefresh');
+
   if (!connected) {
     ttSetStatus('');
     document.getElementById('ttTable').style.display = 'none';
@@ -3146,13 +4156,15 @@ function loadToolTable() {
     empty.style.display = 'flex';
     empty.querySelector('div:last-child').textContent = 'Connect to a controller and click Refresh.';
     document.getElementById('ttToolCount').textContent = '';
+    renderModTT();
     return;
   }
   ttSetStatus('Loading tool table…');
   ttEntries  = [];
   _ttLines   = [];
   ttPhase    = 'loading';
-  document.getElementById('btnTTRefresh').disabled = true;
+  if (tabBtn) tabBtn.disabled = true;
+  if (modBtn) modBtn.disabled = true;
   sendCmd('$TTLIST');
 }
 
@@ -3165,7 +4177,10 @@ function toolTableIntercept(raw) {
     _ttLines  = [];
     renderToolTable();
     ttSetStatus('');
-    document.getElementById('btnTTRefresh').disabled = false;
+    const tabBtn = document.getElementById('btnTTRefresh');
+    const modBtn = document.getElementById('modTTRefresh');
+    if (tabBtn) tabBtn.disabled = false;
+    if (modBtn) modBtn.disabled = false;
     log('info', 'Tool table: ' + ttEntries.length + ' entr' + (ttEntries.length === 1 ? 'y' : 'ies'));
     return true;
   }
@@ -3173,7 +4188,10 @@ function toolTableIntercept(raw) {
     ttPhase  = 'idle';
     _ttLines = [];
     ttSetStatus('⚠ ' + raw);
-    document.getElementById('btnTTRefresh').disabled = false;
+    const tabBtn = document.getElementById('btnTTRefresh');
+    const modBtn = document.getElementById('modTTRefresh');
+    if (tabBtn) tabBtn.disabled = false;
+    if (modBtn) modBtn.disabled = false;
     log('err', '$TTLIST: ' + raw);
     return true;
   }
