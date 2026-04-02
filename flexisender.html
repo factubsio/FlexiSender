@@ -53,6 +53,13 @@
   .ws-section { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
   .ws-input { background: var(--surface3); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 7px 12px; width: 220px; outline: none; border-radius: var(--radius-sm); transition: border-color 0.2s; flex-shrink: 0; }
   .ws-input:focus { border-color: var(--accent); }
+  .serial-port-label { font-family: var(--mono); font-size: 12px; color: var(--text2); background: var(--surface3); border: 1px solid var(--border2); padding: 7px 12px; border-radius: var(--radius-sm); flex-shrink: 0; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: none; }
+  body.conn-serial   .serial-port-label { display: block; }
+  body.conn-serial   #wsUrl             { display: none; }
+  body.conn-websocket .serial-port-label { display: none; }
+  body.conn-websocket #wsUrl            { display: block; }
+  .serial-unsupported-bar { display: none; background: rgba(239,68,68,0.15); border-bottom: 1px solid rgba(239,68,68,0.4); color: var(--red); font-family: var(--cond); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 6px 16px; flex-shrink: 0; }
+  body.serial-unsupported .serial-unsupported-bar { display: block; }
   .status-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); flex-shrink: 0; box-shadow: 0 0 0 2px rgba(239,68,68,0.25); }
   .status-dot.connected { background: var(--green); box-shadow: 0 0 0 2px rgba(34,197,94,0.25); }
   .status-dot.connecting { background: var(--yellow); box-shadow: 0 0 0 2px rgba(245,158,11,0.25); animation: pulse 1s infinite; }
@@ -658,6 +665,71 @@
   .viewport-stats { position: absolute; top: 8px; right: 8px; background: rgba(15,15,23,0.9); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 8px 12px; font-family: var(--mono); font-size: 10px; color: var(--text3); pointer-events: none; line-height: 1.8; }
   .viewport-wrap { position: relative; flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
+  /* OPTIONS PAGE */
+  .options-page { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 0; }
+  .options-page::-webkit-scrollbar { width: 5px; }
+  .options-page::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  .options-page-header { margin-bottom: 20px; }
+  .options-page-title { font-family: var(--cond); font-weight: 700; font-size: 22px; letter-spacing: 2px; text-transform: uppercase; color: var(--text); margin-bottom: 6px; }
+  .options-page-hint { font-family: var(--sans); font-size: 12px; color: var(--text2); line-height: 1.6; max-width: 680px; }
+  .options-grid { display: flex; flex-direction: column; gap: 14px; max-width: 760px; }
+
+  .options-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; display: flex; gap: 14px; align-items: flex-start; }
+  .options-card-icon { font-size: 22px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+  .options-card-body { flex: 1; min-width: 0; }
+  .options-card-title { font-family: var(--cond); font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); margin-bottom: 5px; }
+  .options-card-desc { font-family: var(--sans); font-size: 11px; color: var(--text2); line-height: 1.55; }
+
+  .opt-field-label { font-family: var(--cond); font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); margin-bottom: 3px; }
+  .opt-input { width: 100%; background: var(--surface3); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 7px 10px; outline: none; border-radius: var(--radius-sm); transition: border-color 0.15s; }
+  .opt-input:focus { border-color: var(--accent); }
+
+  .opt-color-row { display: flex; align-items: center; gap: 10px; }
+  .opt-color-label { font-family: var(--cond); font-weight: 600; font-size: 11px; letter-spacing: 0.5px; color: var(--text2); width: 110px; flex-shrink: 0; }
+  .opt-color-swatch-wrap { position: relative; flex-shrink: 0; }
+  .opt-color-picker { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+  .opt-color-swatch { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 2px solid var(--border2); cursor: pointer; transition: border-color 0.15s, transform 0.1s; }
+  .opt-color-swatch:hover { border-color: var(--accent); transform: scale(1.08); }
+  .opt-hex-input { flex: 1; background: var(--surface3); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 6px 10px; outline: none; border-radius: var(--radius-sm); transition: border-color 0.15s; }
+  .opt-hex-input:focus { border-color: var(--accent); }
+  .opt-reset-btn { background: var(--surface3); border: 1px solid var(--border2); color: var(--text3); font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; padding: 6px 12px; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
+  .opt-reset-btn:hover { background: var(--border); color: var(--text2); }
+  .opt-action-btn { background: rgba(229,92,0,0.18); border: 1px solid var(--accent2); color: var(--accent); font-family: var(--cond); font-weight: 700; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; padding: 8px 16px; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; }
+  .opt-action-btn:hover { background: rgba(229,92,0,0.32); }
+  .opt-conn-btn { flex: 1; background: var(--surface3); border: 1px solid var(--border2); color: var(--text2); font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; padding: 10px 8px; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; text-align: center; }
+  .opt-conn-btn:hover { background: var(--border); color: var(--text); }
+  .opt-conn-btn.active { background: rgba(229,92,0,0.22); border-color: var(--accent2); color: var(--accent); }
+
+  /* Tab lock list items */
+  .opt-tab-lock-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .opt-tab-lock-name { font-family: var(--cond); font-weight: 600; font-size: 12px; letter-spacing: 0.5px; color: var(--text); flex: 1; }
+  .opt-tab-lock-status { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-right: 4px; }
+  .opt-tab-lock-btn { background: var(--surface3); border: 1px solid var(--border2); color: var(--text2); font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 5px 14px; cursor: pointer; border-radius: 20px; transition: all 0.12s; white-space: nowrap; flex-shrink: 0; }
+  .opt-tab-lock-btn:hover { background: var(--border); color: var(--text); }
+  .opt-tab-lock-btn.locked { background: rgba(239,68,68,0.18); border-color: rgba(239,68,68,0.45); color: var(--red); }
+  .opt-tab-lock-btn.locked:hover { background: rgba(239,68,68,0.3); }
+  .tab-btn.tab-locked { opacity: 0.35; cursor: not-allowed; pointer-events: none; }
+  .tab-btn.tab-locked::after { content: ' 🔒'; font-size: 9px; }
+
+  /* PROGRAM LIMITS MODULE */
+  .limits-table { width: 100%; border-collapse: collapse; }
+  .limits-axis-label { font-family: var(--cond); font-weight: 900; font-size: 15px; color: var(--text3); width: 22px; padding: 5px 6px 5px 2px; }
+  .limits-col-hdr { font-family: var(--cond); font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text3); text-align: right; padding: 0 6px 4px; }
+  .limits-val { font-family: var(--mono); font-size: 13px; font-weight: 700; text-align: right; padding: 5px 6px; border-radius: 4px; }
+  .limits-val.min { color: #6bcb77; }
+  .limits-val.max { color: #ff6b6b; }
+  .limits-val.span { color: var(--text2); }
+  .limits-row-active .limits-axis-label { color: var(--accent); }
+  .limits-divider { height: 1px; background: var(--border); margin: 6px 0; }
+  .limits-empty { font-family: var(--cond); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); text-align: center; padding: 14px 0; }
+  .limits-safe-row { display: flex; align-items: center; gap: 8px; padding: 2px 0 6px; }
+  .limits-safe-label { font-family: var(--cond); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); flex-shrink: 0; }
+  .limits-safe-input { flex: 1; background: var(--surface3); border: 1px solid var(--border2); color: var(--text); font-family: var(--mono); font-size: 12px; padding: 5px 8px; outline: none; border-radius: var(--radius-sm); transition: border-color 0.15s; }
+  .limits-safe-input:focus { border-color: var(--accent); }
+  .limits-frame-btn { width: 100%; background: rgba(59,130,246,0.18); border: 1px solid rgba(59,130,246,0.5); color: var(--blue); font-family: var(--cond); font-weight: 800; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px; cursor: pointer; border-radius: var(--radius-sm); transition: all 0.15s; margin-top: 2px; }
+  .limits-frame-btn:hover { background: rgba(59,130,246,0.32); border-color: var(--blue); }
+  .limits-frame-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
   /* TAB SYSTEM */
   .tab-bar { display: flex; align-items: stretch; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; padding: 0 8px; gap: 4px; }
   .tab-btn { font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; padding: 0 18px; height: 38px; background: transparent; border: none; border-bottom: 3px solid transparent; color: var(--text3); cursor: pointer; transition: all 0.15s; border-radius: 0; }
@@ -849,14 +921,17 @@
 
 </style>
 </head>
-<body>
+<body class="conn-websocket">
 
 <!-- TOOLBAR -->
 <div class="toolbar">
   <div class="logo">Flexi<span>Sender</span></div>
-  <div class="ws-section">
+  <div class="ws-section" id="connSection">
     <div class="status-dot" id="statusDot"></div>
+    <!-- WebSocket mode -->
     <input class="ws-input" id="wsUrl" type="text" value="ws://192.168.5.1:80" placeholder="ws://host:port" />
+    <!-- Serial mode -->
+    <span class="serial-port-label" id="serialPortLabel">No port selected</span>
     <button class="tb-btn primary" id="connectBtn" onclick="toggleConnect()">CONNECT</button>
     <span class="status-text" id="statusText">DISCONNECTED</span>
   </div>
@@ -877,6 +952,9 @@
   <button class="tb-btn" onclick="unlockAlarm()">🔓 UNLOCK</button>
   <button class="tb-btn" onclick="sendHome()">⌂ HOME</button>
 </div>
+
+<!-- SERIAL NOT SUPPORTED WARNING -->
+<div class="serial-unsupported-bar">⚠ Web Serial API not supported in this browser — use Chrome or Edge for USB/Serial connections</div>
 
 <!-- SD CARD DROPDOWN PANEL -->
 <div class="sd-panel" id="sdPanel">
@@ -905,6 +983,7 @@
   <button class="tab-btn" id="tab-camera" onclick="switchTab('camera')">CAMERA</button>
   <button class="tab-btn" id="tab-tooltable" onclick="switchTab('tooltable')">TOOL TABLE</button>
   <button class="tab-btn" id="tab-modules" onclick="switchTab('modules')">MODULES</button>
+  <button class="tab-btn" id="tab-options" onclick="switchTab('options')">⚙ OPTIONS</button>
 </div>
 
 <!-- TAB: RUN -->
@@ -1159,6 +1238,59 @@
     </div>
   </div>
 
+  <!-- ═══ MODULE: PROGRAM LIMITS ═══ -->
+  <div class="module-card mod-hidden" id="mod-limits" data-mod-size="normal" style="top:10px;left:302px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-limits')"
+         ontouchstart="modTouchStart(event,'mod-limits')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">Program Limits</span>
+      <button class="module-drag-close" onclick="toggleModule('limits',false)">✕</button>
+    </div>
+    <div class="module-body">
+      <div id="limitsEmpty" class="limits-empty">No program loaded</div>
+      <div id="limitsContent" style="display:none">
+        <table class="limits-table">
+          <thead>
+            <tr>
+              <td></td>
+              <th class="limits-col-hdr">MIN</th>
+              <th class="limits-col-hdr">MAX</th>
+              <th class="limits-col-hdr">SPAN</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="limits-row" id="limitsRowX">
+              <td class="limits-axis-label">X</td>
+              <td class="limits-val min" id="limXMin">—</td>
+              <td class="limits-val max" id="limXMax">—</td>
+              <td class="limits-val span" id="limXSpan">—</td>
+            </tr>
+            <tr class="limits-row" id="limitsRowY">
+              <td class="limits-axis-label">Y</td>
+              <td class="limits-val min" id="limYMin">—</td>
+              <td class="limits-val max" id="limYMax">—</td>
+              <td class="limits-val span" id="limYSpan">—</td>
+            </tr>
+            <tr class="limits-row" id="limitsRowZ">
+              <td class="limits-axis-label">Z</td>
+              <td class="limits-val min" id="limZMin">—</td>
+              <td class="limits-val max" id="limZMax">—</td>
+              <td class="limits-val span" id="limZSpan">—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="limits-divider"></div>
+        <div class="limits-safe-row">
+          <span class="limits-safe-label">Safe Z</span>
+          <input type="number" class="limits-safe-input" id="limitsSafeZ" value="5" step="1" title="Z height to lift to before framing (absolute WCS)" />
+          <span style="font-family:var(--cond);font-size:9px;color:var(--text3);letter-spacing:1px">MM</span>
+        </div>
+        <button class="limits-frame-btn" id="limitsFrameBtn" onclick="frameProgram()" disabled>⬛ FRAME PROGRAM</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CENTER: 3D VIEWPORT (fills entire main) -->
   <div class="center-panel" style="flex:1">
     <div class="viewport-header">
@@ -1349,37 +1481,6 @@
     </div>
     <div class="modules-config-grid">
 
-      <!-- VIEWPORT EXTENTS — not a floating tile, a global setting -->
-      <div class="mod-toggle-card" style="cursor:default;" id="modcfg-viewport">
-        <div class="mod-toggle-icon">🗺️</div>
-        <div class="mod-toggle-info">
-          <div class="mod-toggle-name" style="margin-bottom:6px">3D Viewport Extents</div>
-          <div class="mod-toggle-desc" style="margin-bottom:10px">Machine-coordinate workspace bounds. 0,0 is home (top-right); enter negative values for your working area. Updates the grid and camera position instantly.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div>
-              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#ff6b6b;margin-bottom:3px">X Minimum (mm)</div>
-              <input class="qp-input" type="number" id="vpXMin" step="10" value="-300"
-                oninput="vpApply()" style="width:100%" />
-            </div>
-            <div>
-              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#ff6b6b;margin-bottom:3px">X Maximum (mm)</div>
-              <input class="qp-input" type="number" id="vpXMax" step="10" value="0"
-                oninput="vpApply()" style="width:100%" />
-            </div>
-            <div>
-              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#6bcb77;margin-bottom:3px">Y Minimum (mm)</div>
-              <input class="qp-input" type="number" id="vpYMin" step="10" value="-300"
-                oninput="vpApply()" style="width:100%" />
-            </div>
-            <div>
-              <div style="font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#6bcb77;margin-bottom:3px">Y Maximum (mm)</div>
-              <input class="qp-input" type="number" id="vpYMax" step="10" value="0"
-                oninput="vpApply()" style="width:100%" />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div class="mod-toggle-card" id="modcfg-position">
         <div class="mod-toggle-icon">📍</div>
         <div class="mod-toggle-info">
@@ -1502,6 +1603,21 @@
             <button class="mod-size-btn" onclick="setModSize('tooltable','large',event)">Large</button>
             <button class="mod-size-btn" onclick="setModSize('tooltable','xl',event)">XL</button>
             <button class="mod-size-btn" onclick="setModSize('tooltable','xxl',event)">XXL</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-limits">
+        <div class="mod-toggle-icon">📐</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">Program Limits</div>
+            <div class="mod-switch" onclick="toggleModule('limits')"></div>
+          </div>
+          <div class="mod-toggle-desc">Shows the minimum, maximum and span of X, Y and Z movements in the loaded program. Includes a Frame button to trace the XY extents on the machine.</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('limits','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('limits','large',event)">Large</button>
           </div>
         </div>
       </div></div>
@@ -1652,6 +1768,187 @@
 
   </div>
 </div><!-- /tab-panel-camera -->
+
+<!-- TAB: OPTIONS -->
+<div class="tab-panel" id="tabpanel-options" style="flex-direction:column;overflow:hidden;background:var(--bg);">
+  <div class="options-page">
+    <div class="options-page-header">
+      <div class="options-page-title">Options</div>
+      <div class="options-page-hint">Configure appearance and behaviour settings. Changes are saved to local storage and applied immediately.</div>
+    </div>
+
+    <div class="options-grid">
+
+      <!-- ── CONNECTION TYPE ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🔌</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Connection Type</div>
+          <div class="options-card-desc">Choose how FlexiSender connects to your controller. WebSocket connects over your network (WiFi/Ethernet). USB/Serial connects directly via a USB cable using the Web Serial API (Chrome &amp; Edge only).</div>
+          <div style="display:flex;gap:8px;margin-top:12px;" id="connTypeBtns">
+            <button class="opt-conn-btn active" id="connBtnWs"     onclick="optSetConnMode('websocket')">🌐 WebSocket</button>
+            <button class="opt-conn-btn"        id="connBtnSerial" onclick="optSetConnMode('serial')">🔌 USB / Serial</button>
+          </div>
+          <!-- WebSocket sub-options -->
+          <div id="optWsSection" style="margin-top:12px;">
+            <div class="opt-field-label">WebSocket URL</div>
+            <div style="font-family:var(--mono);font-size:11px;color:var(--text2);margin-top:2px;">Edit directly in the toolbar. Format: <span style="color:var(--accent)">ws://host:port</span></div>
+          </div>
+          <!-- Serial sub-options -->
+          <div id="optSerialSection" style="margin-top:12px;display:none;">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:140px;">
+                <div class="opt-field-label">Baud Rate</div>
+                <select class="opt-input" id="optBaudRate" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                  <option value="9600">9600</option>
+                  <option value="19200">19200</option>
+                  <option value="38400">38400</option>
+                  <option value="57600">57600</option>
+                  <option value="115200" selected>115200</option>
+                  <option value="230400">230400</option>
+                  <option value="250000">250000</option>
+                  <option value="500000">500000</option>
+                  <option value="1000000">1000000</option>
+                  <option value="2000000">2000000</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <div class="opt-field-label">Data Bits</div>
+                <select class="opt-input" id="optDataBits" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                  <option value="7">7</option>
+                  <option value="8" selected>8</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <div class="opt-field-label">Stop Bits</div>
+                <select class="opt-input" id="optStopBits" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                  <option value="1" selected>1</option>
+                  <option value="2">2</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <div class="opt-field-label">Parity</div>
+                <select class="opt-input" id="optParity" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                  <option value="none" selected>None</option>
+                  <option value="even">Even</option>
+                  <option value="odd">Odd</option>
+                </select>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-family:var(--sans);font-size:11px;color:var(--text2);line-height:1.6;">
+              Click <strong style="color:var(--text)">CONNECT</strong> in the toolbar to open the browser's port picker and connect. The browser will remember your last port.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 3D VIEWPORT EXTENTS ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🗺️</div>
+        <div class="options-card-body">
+          <div class="options-card-title">3D Viewport Extents</div>
+          <div class="options-card-desc">Machine-coordinate workspace bounds. 0,0 is home (top-right); enter negative values for your working area. Updates the grid and camera position instantly.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
+            <div>
+              <div class="opt-field-label" style="color:#ff6b6b">X Minimum (mm)</div>
+              <input class="opt-input" type="number" id="vpXMin" step="10" value="-300" oninput="vpApply()" />
+            </div>
+            <div>
+              <div class="opt-field-label" style="color:#ff6b6b">X Maximum (mm)</div>
+              <input class="opt-input" type="number" id="vpXMax" step="10" value="0" oninput="vpApply()" />
+            </div>
+            <div>
+              <div class="opt-field-label" style="color:#6bcb77">Y Minimum (mm)</div>
+              <input class="opt-input" type="number" id="vpYMin" step="10" value="-300" oninput="vpApply()" />
+            </div>
+            <div>
+              <div class="opt-field-label" style="color:#6bcb77">Y Maximum (mm)</div>
+              <input class="opt-input" type="number" id="vpYMax" step="10" value="0" oninput="vpApply()" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COLOUR THEME ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🎨</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Colour Theme</div>
+          <div class="options-card-desc">Customise the primary text colour and background colour. Click the swatch to open the colour picker, or type a hex value. Reset restores the defaults.</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;">
+
+            <div class="opt-color-row">
+              <span class="opt-color-label">Primary Text</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optColorText" class="opt-color-picker" value="#f1f5f9" oninput="optApplyColor('text', this.value)" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optColorText').click()" id="optSwatchText" style="background:#f1f5f9"></div>
+              </div>
+              <input type="text" class="opt-hex-input" id="optHexText" value="#f1f5f9" oninput="optHexChange('text', this.value)" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn" onclick="optResetColor('text')">Reset</button>
+            </div>
+
+            <div class="opt-color-row">
+              <span class="opt-color-label">Secondary Text</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optColorText2" class="opt-color-picker" value="#94a3b8" oninput="optApplyColor('text2', this.value)" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optColorText2').click()" id="optSwatchText2" style="background:#94a3b8"></div>
+              </div>
+              <input type="text" class="opt-hex-input" id="optHexText2" value="#94a3b8" oninput="optHexChange('text2', this.value)" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn" onclick="optResetColor('text2')">Reset</button>
+            </div>
+
+            <div class="opt-color-row">
+              <span class="opt-color-label">Background</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optColorBg" class="opt-color-picker" value="#0f0e0c" oninput="optApplyColor('bg', this.value)" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optColorBg').click()" id="optSwatchBg" style="background:#0f0e0c"></div>
+              </div>
+              <input type="text" class="opt-hex-input" id="optHexBg" value="#0f0e0c" oninput="optHexChange('bg', this.value)" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn" onclick="optResetColor('bg')">Reset</button>
+            </div>
+
+            <div class="opt-color-row">
+              <span class="opt-color-label">Surface</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optColorSurface" class="opt-color-picker" value="#1a1814" oninput="optApplyColor('surface', this.value)" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optColorSurface').click()" id="optSwatchSurface" style="background:#1a1814"></div>
+              </div>
+              <input type="text" class="opt-hex-input" id="optHexSurface" value="#1a1814" oninput="optHexChange('surface', this.value)" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn" onclick="optResetColor('surface')">Reset</button>
+            </div>
+
+            <div class="opt-color-row">
+              <span class="opt-color-label">Accent</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optColorAccent" class="opt-color-picker" value="#ff8c42" oninput="optApplyColor('accent', this.value)" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optColorAccent').click()" id="optSwatchAccent" style="background:#ff8c42"></div>
+              </div>
+              <input type="text" class="opt-hex-input" id="optHexAccent" value="#ff8c42" oninput="optHexChange('accent', this.value)" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn" onclick="optResetColor('accent')">Reset</button>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <button class="opt-action-btn" onclick="optResetAllColors()">↺ Reset All Colours</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB ACCESS CONTROL ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🔒</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Tab Access Control</div>
+          <div class="options-card-desc">Lock tabs to prevent accidental access. Locked tabs are greyed out and cannot be clicked. Useful for protecting GRBL settings on a shared machine.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;" id="optTabLockList">
+            <!-- populated by JS -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div><!-- /tab-panel-options -->
 
 <!-- TAB: TOOL TABLE -->
 <div class="tab-panel" id="tabpanel-tooltable" style="flex-direction:column;overflow:hidden;background:var(--bg);">
@@ -2094,13 +2391,20 @@ function updateExecutedPath(segIdx) {
 }
 
 // ═══════════════════════════════════════════════
-// WEBSOCKET & COMMS
+// CONNECTION LAYER — WebSocket & USB/Serial
 // ═══════════════════════════════════════════════
-let ws = null, connected = false;
+let ws            = null;          // WebSocket instance
+let serialPort    = null;          // Web Serial port
+let serialWriter  = null;          // WritableStreamDefaultWriter
+let serialReader  = null;          // ReadableStreamDefaultReader
+let serialAbort   = null;          // AbortController for read loop
+let connMode      = 'websocket';   // 'websocket' | 'serial'
+let connected     = false;
+
 let jogStepXY = 10, jogStepZ = 1, statusInterval = null;
-let _isJogging = false;   // true while any jog is active (button held or keyboard)
-const POLL_JOG  = 50;     // ms — 20 Hz while jogging for crisp DRO response
-const POLL_NORM = 100;    // ms — 10 Hz at idle / running
+let _isJogging = false;
+const POLL_JOG  = 50;
+const POLL_NORM = 100;
 
 function setPollRate(ms) {
   if (statusInterval) clearInterval(statusInterval);
@@ -2112,69 +2416,147 @@ function setJogging(active) {
   _isJogging = active;
   if (connected) setPollRate(active ? POLL_JOG : POLL_NORM);
 }
+
 let cmdHistory = [], histIdx = -1;
 let machineX = 0, machineY = 0, machineZ = 0;
 
 // ── IOSender-style character-counting aggressive buffer ──────────────────────
-//
-// GrblHAL has a serial RX buffer (default 128 bytes, reported in [OPT:,blocks,rxBytes]).
-// Rather than counting line slots (naive block-counting), we track *byte occupancy*
-// of the RX buffer exactly, just as IOSender does:
-//
-//   - On each send: rxInFlight += byteLength(line + '\n')
-//   - On each 'ok' or 'error:': rxInFlight -= byteLength(corresponding sent line + '\n')
-//   - Invariant: rxInFlight must never exceed RX_BUFFER_SIZE - 1 (leave 1 byte headroom)
-//
-// This means we can send MANY short lines back-to-back without waiting for 'ok',
-// keeping the controller's planner buffer fully saturated — that's "aggressive buffering".
-//
-// Real-time commands (?, !, ~, \x18, overrides) are intercepted by the controller
-// BEFORE the RX buffer and NEVER count toward byte tracking.
-
-let RX_BUFFER_SIZE = 128;   // default; updated from [OPT:] on connect
-let rxInFlight = 0;         // bytes currently occupying the controller RX buffer
-const sentQueue = [];       // [{line, bytes}] — parallel to 'ok' responses
+let RX_BUFFER_SIZE = 128;
+let rxInFlight = 0;
+const sentQueue = [];
 let gcodeLines = [];
-let lineHead = 0;           // next line index to send
+let lineHead = 0;
 let running = false, paused = false;
 let segmentIndex = 0;
 
-// Encoder to count UTF-8 bytes exactly (same as controller sees)
 const _enc = new TextEncoder();
 function byteLen(s) { return _enc.encode(s).length; }
 
 function toggleConnect() { connected ? disconnect() : connect(); }
 
+// ── Top-level connect ─────────────────────────────────────────────────────────
 function connect() {
+  if (connMode === 'serial') connectSerial();
+  else connectWs();
+}
+
+function disconnect() {
+  if (connMode === 'serial') disconnectSerial();
+  else disconnectWs();
+}
+
+// ── WebSocket ─────────────────────────────────────────────────────────────────
+function connectWs() {
   const url = document.getElementById('wsUrl').value.trim();
   if (!url) return;
   setStatus('connecting');
-  log('info', 'Connecting to ' + url + '...');
+  log('info', 'Connecting to ' + url + '…');
   try {
     ws = new WebSocket(url);
-    ws.onopen = onOpen;
+    ws.onopen    = onOpen;
     ws.onmessage = onMessage;
-    ws.onclose = onClose;
-    ws.onerror = onError;
+    ws.onclose   = onClose;
+    ws.onerror   = () => { log('err', 'WebSocket error — check URL and that the controller is reachable'); };
   } catch(e) { log('err', 'Connection failed: ' + e.message); setStatus('disconnected'); }
 }
 
-function disconnect() { if (ws) ws.close(); }
+function disconnectWs() { if (ws) ws.close(); }
 
+function onMessage(evt) {
+  _rxBuf += evt.data;
+  let nl;
+  while ((nl = _rxBuf.indexOf('\n')) !== -1) {
+    const line = _rxBuf.slice(0, nl).replace(/\r$/, '').trim();
+    _rxBuf = _rxBuf.slice(nl + 1);
+    if (line) parseResponse(line);
+  }
+}
+
+// ── USB / Serial ──────────────────────────────────────────────────────────────
+async function connectSerial() {
+  if (!navigator.serial) {
+    log('err', 'Web Serial API not supported — use Chrome or Edge');
+    return;
+  }
+  try {
+    setStatus('connecting');
+    log('info', 'Opening port picker…');
+    serialPort = await navigator.serial.requestPort();
+    const baud     = parseInt(document.getElementById('optBaudRate').value)  || 115200;
+    const dataBits = parseInt(document.getElementById('optDataBits').value)  || 8;
+    const stopBits = parseInt(document.getElementById('optStopBits').value)  || 1;
+    const parity   = document.getElementById('optParity').value || 'none';
+    await serialPort.open({ baudRate: baud, dataBits, stopBits, parity });
+
+    // Update port label with port info
+    const info = serialPort.getInfo();
+    const label = info.usbVendorId
+      ? `USB ${info.usbVendorId.toString(16).toUpperCase()}:${(info.usbProductId||0).toString(16).toUpperCase()} @ ${baud}`
+      : `Serial @ ${baud}`;
+    document.getElementById('serialPortLabel').textContent = label;
+
+    serialAbort  = new AbortController();
+    serialWriter = serialPort.writable.getWriter();
+    serialReader = serialPort.readable.getReader();
+
+    // Kick off async read loop
+    serialReadLoop();
+
+    onOpen();
+    log('info', `Serial connected — ${baud} baud`);
+  } catch(e) {
+    if (e.name !== 'NotFoundError') log('err', 'Serial error: ' + e.message);
+    setStatus('disconnected');
+    serialPort = null; serialWriter = null; serialReader = null;
+  }
+}
+
+async function serialReadLoop() {
+  try {
+    while (true) {
+      const { value, done } = await serialReader.read();
+      if (done) break;
+      // value is Uint8Array — decode and feed into the same rx buffer
+      _rxBuf += new TextDecoder().decode(value);
+      let nl;
+      while ((nl = _rxBuf.indexOf('\n')) !== -1) {
+        const line = _rxBuf.slice(0, nl).replace(/\r$/, '').trim();
+        _rxBuf = _rxBuf.slice(nl + 1);
+        if (line) parseResponse(line);
+      }
+    }
+  } catch(e) {
+    if (e.name !== 'AbortError') log('err', 'Serial read error: ' + e.message);
+  } finally {
+    // Port closed or error — trigger disconnect cleanup
+    if (connected) onClose();
+  }
+}
+
+async function disconnectSerial() {
+  try {
+    if (serialReader) { await serialReader.cancel(); serialReader.releaseLock(); serialReader = null; }
+    if (serialWriter) { serialWriter.releaseLock(); serialWriter = null; }
+    if (serialPort)   { await serialPort.close(); serialPort = null; }
+  } catch(e) { /* ignore close errors */ }
+  document.getElementById('serialPortLabel').textContent = 'No port selected';
+  onClose();
+}
+
+// ── Shared open / close handlers ─────────────────────────────────────────────
 function onOpen() {
   connected = true;
   rxInFlight = 0;
   sentQueue.length = 0;
   _rxBuf = '';
   setStatus('connected');
-  log('info', 'WebSocket connected');
+  log('info', connMode === 'serial' ? 'Serial connected' : 'WebSocket connected');
   document.getElementById('connectBtn').textContent = 'DISCONNECT';
-  // Poll status at 10 Hz normally; ramps to 20 Hz during jog
   setPollRate(POLL_NORM);
-  // Soft-reset, then after dust settles query build info.
-  // Clear sentQueue after reset so startup ok responses don't pollute job tracking.
   rtSend('\x18');
   setTimeout(() => { sentQueue.length = 0; rxInFlight = 0; cmdSend('$I+'); }, 600);
+  const fb = document.getElementById('limitsFrameBtn');
+  if (fb && progLimits) fb.disabled = false;
 }
 
 function onClose() {
@@ -2186,36 +2568,35 @@ function onClose() {
   running = false; paused = false;
   rxInFlight = 0; sentQueue.length = 0;
   updateRunButtons();
+  const fb = document.getElementById('limitsFrameBtn');
+  if (fb) fb.disabled = true;
 }
 
-function onError() { log('err', 'WebSocket error — check URL and that the controller is reachable'); }
-
-// Receive and split on \n in case WS frames arrive merged
+// Receive buffer shared by both WS and Serial paths
 let _rxBuf = '';
-function onMessage(evt) {
-  _rxBuf += evt.data;
-  let nl;
-  while ((nl = _rxBuf.indexOf('\n')) !== -1) {
-    const line = _rxBuf.slice(0, nl).replace(/\r$/, '').trim();
-    _rxBuf = _rxBuf.slice(nl + 1);
-    if (line) parseResponse(line);
+
+// ── Send helpers ──────────────────────────────────────────────────────────────
+
+// rtSend: real-time byte(s) — no newline, not tracked in byte counter
+function rtSend(char) {
+  if (connMode === 'serial') {
+    if (serialWriter) serialWriter.write(new TextEncoder().encode(char)).catch(() => {});
+  } else {
+    if (ws && ws.readyState === WebSocket.OPEN) ws.send(char);
   }
 }
 
-// ── Send helpers ─────────────────────────────────────────────────────────────
-
-// rtSend: real-time command — bypasses RX buffer, no newline, no tracking
-function rtSend(char) {
-  if (ws && ws.readyState === WebSocket.OPEN) ws.send(char);
-}
-
-// cmdSend: normal G-code / $ command — tracked in byte counter
-// GrblHAL expects each command terminated with \n (LF).
+// cmdSend: tracked G-code / $ command, terminated with \n
 function cmdSend(line) {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   const frame = line + '\n';
   const bytes = byteLen(frame);
-  ws.send(frame);
+  if (connMode === 'serial') {
+    if (!serialWriter) return;
+    serialWriter.write(new TextEncoder().encode(frame)).catch(() => {});
+  } else {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+    ws.send(frame);
+  }
   rxInFlight += bytes;
   sentQueue.push({ line, bytes });
 }
@@ -2793,6 +3174,105 @@ function processGcode(text, name) {
   document.getElementById('vpStats').innerHTML=
     `X: 0.000&nbsp;&nbsp;Y: 0.000&nbsp;&nbsp;Z: 0.000<br>CUTS: ${totalMoves}&nbsp;&nbsp;RAPIDS: ${totalRapids}`;
   log('info','Loaded: '+name+' ('+gcodeLines.length+' lines, '+totalMoves+' cuts, '+totalRapids+' rapids)');
+
+  // Compute and display program limits — pass raw text for direct scanning
+  computeProgLimits(text);
+}
+
+// ═══════════════════════════════════════════════
+// PROGRAM LIMITS
+// ═══════════════════════════════════════════════
+let progLimits = null;  // { xMin, xMax, yMin, yMax, zMin, zMax } in WCS coords
+
+function computeProgLimits(rawText) {
+  // Strip comments first (parens and semicolons), then scan for every X/Y/Z value
+  const stripped = rawText
+    .replace(/\(.*?\)/g, ' ')   // remove (inline comments)
+    .replace(/;[^\n]*/g, ' ');  // remove ; to end of line
+
+  let xVals = [], yVals = [], zVals = [];
+
+  // Find every occurrence of X, Y or Z followed immediately by an optional sign and number
+  const re = /([XYZ])([+-]?\.?\d+\.?\d*)/gi;
+  let m;
+  while ((m = re.exec(stripped)) !== null) {
+    const axis = m[1].toUpperCase();
+    const val  = parseFloat(m[2]);
+    if (isNaN(val)) continue;
+    if (axis === 'X') xVals.push(val);
+    else if (axis === 'Y') yVals.push(val);
+    else if (axis === 'Z') zVals.push(val);
+  }
+
+  if (!xVals.length && !yVals.length && !zVals.length) {
+    progLimits = null;
+    renderProgLimits();
+    return;
+  }
+
+  progLimits = {
+    xMin: xVals.length ? Math.min(...xVals) : 0,
+    xMax: xVals.length ? Math.max(...xVals) : 0,
+    yMin: yVals.length ? Math.min(...yVals) : 0,
+    yMax: yVals.length ? Math.max(...yVals) : 0,
+    zMin: zVals.length ? Math.min(...zVals) : 0,
+    zMax: zVals.length ? Math.max(...zVals) : 0,
+    hasX: xVals.length > 0,
+    hasY: yVals.length > 0,
+    hasZ: zVals.length > 0,
+  };
+
+  renderProgLimits();
+}
+
+function renderProgLimits() {
+  const emptyEl   = document.getElementById('limitsEmpty');
+  const contentEl = document.getElementById('limitsContent');
+  const frameBtn  = document.getElementById('limitsFrameBtn');
+  if (!emptyEl || !contentEl) return;
+
+  if (!progLimits) {
+    emptyEl.style.display = '';
+    contentEl.style.display = 'none';
+    if (frameBtn) frameBtn.disabled = true;
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  contentEl.style.display = '';
+  if (frameBtn) frameBtn.disabled = !connected;
+
+  const fmt  = v => v.toFixed(3);
+  const span = (mn, mx) => (mx - mn).toFixed(3);
+  const dash = '—';
+
+  document.getElementById('limXMin').textContent  = progLimits.hasX ? fmt(progLimits.xMin) : dash;
+  document.getElementById('limXMax').textContent  = progLimits.hasX ? fmt(progLimits.xMax) : dash;
+  document.getElementById('limXSpan').textContent = progLimits.hasX ? span(progLimits.xMin, progLimits.xMax) : dash;
+  document.getElementById('limYMin').textContent  = progLimits.hasY ? fmt(progLimits.yMin) : dash;
+  document.getElementById('limYMax').textContent  = progLimits.hasY ? fmt(progLimits.yMax) : dash;
+  document.getElementById('limYSpan').textContent = progLimits.hasY ? span(progLimits.yMin, progLimits.yMax) : dash;
+  document.getElementById('limZMin').textContent  = progLimits.hasZ ? fmt(progLimits.zMin) : dash;
+  document.getElementById('limZMax').textContent  = progLimits.hasZ ? fmt(progLimits.zMax) : dash;
+  document.getElementById('limZSpan').textContent = progLimits.hasZ ? span(progLimits.zMin, progLimits.zMax) : dash;
+}
+
+function frameProgram() {
+  if (!connected || !progLimits) return;
+  const safeZ = parseFloat(document.getElementById('limitsSafeZ').value);
+  if (isNaN(safeZ)) { log('err', 'Frame: invalid Safe Z value'); return; }
+
+  const { xMin, xMax, yMin, yMax } = progLimits;
+  const f = v => v.toFixed(4);
+
+  log('info', `Framing program — X[${xMin.toFixed(3)} → ${xMax.toFixed(3)}] Y[${yMin.toFixed(3)} → ${yMax.toFixed(3)}] SafeZ:${safeZ}`);
+
+  sendCmd(`G0 Z${f(safeZ)}`);
+  sendCmd(`G0 X${f(xMin)} Y${f(yMin)}`);
+  sendCmd(`G0 X${f(xMax)} Y${f(yMin)}`);
+  sendCmd(`G0 X${f(xMax)} Y${f(yMax)}`);
+  sendCmd(`G0 X${f(xMin)} Y${f(yMax)}`);
+  sendCmd(`G0 X${f(xMin)} Y${f(yMin)}`);
 }
 
 // ═══════════════════════════════════════════════
@@ -3000,6 +3480,8 @@ const DTYPE_MAP = {
 
 let _camTabInited = false;
 function switchTab(tab) {
+  // Refuse to switch to a locked tab (options tab is always unlockable)
+  if (tab !== 'options' && _lockedTabs.has(tab)) return;
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
@@ -3020,6 +3502,7 @@ const MODULE_DEFS = [
   { id: 'macros',    icon: '🔧', name: 'Macros'           },
   { id: 'console',   icon: '💻', name: 'Console'          },
   { id: 'tooltable', icon: '🔩', name: 'Tool Table'       },
+  { id: 'limits',    icon: '📐', name: 'Program Limits'   },
 ];
 
 // Size presets: width in px (height is always auto / content-driven)
@@ -3038,6 +3521,7 @@ const MOD_DEFAULTS = {
   macros:    { x: 302, y: 390, enabled: false, size: 'normal' },
   console:   { x: 594, y: 10,  enabled: false, size: 'normal' },
   tooltable: { x: 10,  y: 10,  enabled: false, size: 'xl'     },
+  limits:    { x: 302, y: 10,  enabled: false, size: 'normal' },
 };
 
 let consoleMaxLines = 50; // default — changed by setConsoleLines()
@@ -4345,6 +4829,214 @@ function toggleTouchKeyboard(evt) {
   document.getElementById('btnKeyboard').classList.toggle('active', isVisible);
   if (isVisible) updateKbdDisplay();
 }
+
+// ═══════════════════════════════════════════════
+// OPTIONS — CONNECTION MODE
+// ═══════════════════════════════════════════════
+function optSetConnMode(mode) {
+  if (connected) { log('err', 'Disconnect before changing connection type'); return; }
+  connMode = mode;
+  document.body.classList.toggle('conn-serial',    mode === 'serial');
+  document.body.classList.toggle('conn-websocket', mode === 'websocket');
+  document.getElementById('connBtnWs').classList.toggle('active',     mode === 'websocket');
+  document.getElementById('connBtnSerial').classList.toggle('active', mode === 'serial');
+  document.getElementById('optWsSection').style.display     = mode === 'websocket' ? '' : 'none';
+  document.getElementById('optSerialSection').style.display = mode === 'serial'    ? '' : 'none';
+  // Show unsupported banner if serial chosen but API absent
+  document.body.classList.toggle('serial-unsupported', mode === 'serial' && !navigator.serial);
+  optSaveConnSettings();
+}
+
+function optSaveConnSettings() {
+  try {
+    localStorage.setItem('fs-opt-conn', JSON.stringify({
+      mode:     connMode,
+      baud:     document.getElementById('optBaudRate').value,
+      dataBits: document.getElementById('optDataBits').value,
+      stopBits: document.getElementById('optStopBits').value,
+      parity:   document.getElementById('optParity').value,
+    }));
+  } catch(_) {}
+}
+
+function optLoadConnSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem('fs-opt-conn') || '{}');
+    if (s.baud)     document.getElementById('optBaudRate').value = s.baud;
+    if (s.dataBits) document.getElementById('optDataBits').value = s.dataBits;
+    if (s.stopBits) document.getElementById('optStopBits').value = s.stopBits;
+    if (s.parity)   document.getElementById('optParity').value   = s.parity;
+    optSetConnMode(s.mode || 'websocket');
+  } catch(_) {
+    optSetConnMode('websocket');
+  }
+}
+
+// ═══════════════════════════════════════════════
+// OPTIONS — COLOUR THEME
+// ═══════════════════════════════════════════════
+const OPT_COLOR_DEFAULTS = {
+  text:    '#f1f5f9',
+  text2:   '#94a3b8',
+  bg:      '#0f0e0c',
+  surface: '#1a1814',
+  accent:  '#ff8c42',
+};
+
+const OPT_COLOR_CSS_VARS = {
+  text:    '--text',
+  text2:   '--text2',
+  bg:      '--bg',
+  surface: '--surface',
+  accent:  '--accent',
+};
+
+function optApplyColor(key, hex) {
+  document.documentElement.style.setProperty(OPT_COLOR_CSS_VARS[key], hex);
+  const swatch = document.getElementById('optSwatch' + key.charAt(0).toUpperCase() + key.slice(1));
+  if (swatch) swatch.style.background = hex;
+  const hexInput = document.getElementById('optHex' + key.charAt(0).toUpperCase() + key.slice(1));
+  if (hexInput && hexInput !== document.activeElement) hexInput.value = hex;
+  optSaveColors();
+}
+
+function optHexChange(key, val) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(val)) return;
+  const picker = document.getElementById('optColor' + key.charAt(0).toUpperCase() + key.slice(1));
+  if (picker) picker.value = val;
+  optApplyColor(key, val);
+}
+
+function optResetColor(key) {
+  const def = OPT_COLOR_DEFAULTS[key];
+  const capKey = key.charAt(0).toUpperCase() + key.slice(1);
+  const picker = document.getElementById('optColor' + capKey);
+  const hexInp = document.getElementById('optHex'   + capKey);
+  if (picker) picker.value = def;
+  if (hexInp) hexInp.value = def;
+  optApplyColor(key, def);
+}
+
+function optResetAllColors() {
+  Object.keys(OPT_COLOR_DEFAULTS).forEach(k => optResetColor(k));
+}
+
+function optSaveColors() {
+  try {
+    const saved = {};
+    Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
+      saved[k] = getComputedStyle(document.documentElement).getPropertyValue(OPT_COLOR_CSS_VARS[k]).trim();
+    });
+    localStorage.setItem('fs-opt-colors', JSON.stringify(saved));
+  } catch(_) {}
+}
+
+function optLoadColors() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('fs-opt-colors') || '{}');
+    Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
+      const hex = saved[k] || OPT_COLOR_DEFAULTS[k];
+      const capKey = k.charAt(0).toUpperCase() + k.slice(1);
+      const picker = document.getElementById('optColor' + capKey);
+      const hexInp = document.getElementById('optHex'   + capKey);
+      const swatch = document.getElementById('optSwatch' + capKey);
+      if (picker) picker.value = hex;
+      if (hexInp) hexInp.value = hex;
+      if (swatch) swatch.style.background = hex;
+      document.documentElement.style.setProperty(OPT_COLOR_CSS_VARS[k], hex);
+    });
+  } catch(_) {}
+}
+
+// ═══════════════════════════════════════════════
+// OPTIONS — TAB LOCK
+// ═══════════════════════════════════════════════
+// Tabs that can be locked (options itself cannot be locked — it's the control panel)
+const OPT_LOCKABLE_TABS = [
+  { id: 'settings',  label: 'SETTINGS: GRBL' },
+  { id: 'tooltable', label: 'TOOL TABLE' },
+];
+
+let _lockedTabs = new Set();
+
+function optBuildTabLockList() {
+  const container = document.getElementById('optTabLockList');
+  if (!container) return;
+  container.innerHTML = '';
+  OPT_LOCKABLE_TABS.forEach(t => {
+    const row = document.createElement('div');
+    row.className = 'opt-tab-lock-item';
+    row.id = 'optlockrow-' + t.id;
+
+    const name = document.createElement('span');
+    name.className = 'opt-tab-lock-name';
+    name.textContent = t.label;
+
+    const status = document.createElement('span');
+    status.className = 'opt-tab-lock-status';
+    status.id = 'optlockstatus-' + t.id;
+    status.textContent = _lockedTabs.has(t.id) ? '🔒 LOCKED' : '🔓 UNLOCKED';
+
+    const btn = document.createElement('button');
+    btn.className = 'opt-tab-lock-btn' + (_lockedTabs.has(t.id) ? ' locked' : '');
+    btn.id = 'optlockbtn-' + t.id;
+    btn.textContent = _lockedTabs.has(t.id) ? 'Unlock' : 'Lock';
+    btn.onclick = () => optToggleTabLock(t.id);
+
+    row.appendChild(name);
+    row.appendChild(status);
+    row.appendChild(btn);
+    container.appendChild(row);
+  });
+}
+
+function optToggleTabLock(tabId) {
+  if (_lockedTabs.has(tabId)) {
+    _lockedTabs.delete(tabId);
+  } else {
+    // If locking the currently active tab, switch away first
+    const activeTab = document.querySelector('.tab-btn.active');
+    if (activeTab && activeTab.id === 'tab-' + tabId) {
+      switchTab('options');
+    }
+    _lockedTabs.add(tabId);
+  }
+  optApplyTabLocks();
+  optSaveTabLocks();
+  optBuildTabLockList();
+}
+
+function optApplyTabLocks() {
+  OPT_LOCKABLE_TABS.forEach(t => {
+    const btn = document.getElementById('tab-' + t.id);
+    if (!btn) return;
+    if (_lockedTabs.has(t.id)) {
+      btn.classList.add('tab-locked');
+    } else {
+      btn.classList.remove('tab-locked');
+    }
+  });
+}
+
+function optSaveTabLocks() {
+  try { localStorage.setItem('fs-opt-tablocks', JSON.stringify([..._lockedTabs])); } catch(_) {}
+}
+
+function optLoadTabLocks() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('fs-opt-tablocks') || '[]');
+    _lockedTabs = new Set(saved);
+    optApplyTabLocks();
+  } catch(_) {}
+}
+
+// Initialise options on page load
+window.addEventListener('load', () => {
+  optLoadConnSettings();
+  optLoadColors();
+  optLoadTabLocks();
+  optBuildTabLockList();
+});
 </script>
 </body>
 </html>
