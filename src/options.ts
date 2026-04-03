@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state, OPT_COLOR_DEFAULTS, OPT_COLOR_CSS_VARS, OPT_LOCKABLE_TABS, TB_BTN_DEFAULTS } from './state';
+import { lsGet, lsSet } from './ui';
 import { log } from './console';
 
 // ── Connection mode ───────────────────────────────────────────────────────────
@@ -20,21 +21,19 @@ export function optSetConnMode(mode: 'websocket' | 'serial'): void {
 }
 
 export function optSaveConnSettings(): void {
-  try {
-    localStorage.setItem('fs-opt-conn', JSON.stringify({
-      mode: state.connMode,
-      wsUrl: (document.getElementById('wsUrl') as HTMLInputElement).value,
-      baud: (document.getElementById('optBaudRate') as HTMLSelectElement).value,
-      dataBits: (document.getElementById('optDataBits') as HTMLSelectElement).value,
-      stopBits: (document.getElementById('optStopBits') as HTMLSelectElement).value,
-      parity: (document.getElementById('optParity') as HTMLSelectElement).value,
-    }));
-  } catch (_) {}
+  lsSet('fs-opt-conn', {
+    mode: state.connMode,
+    wsUrl: (document.getElementById('wsUrl') as HTMLInputElement).value,
+    baud: (document.getElementById('optBaudRate') as HTMLSelectElement).value,
+    dataBits: (document.getElementById('optDataBits') as HTMLSelectElement).value,
+    stopBits: (document.getElementById('optStopBits') as HTMLSelectElement).value,
+    parity: (document.getElementById('optParity') as HTMLSelectElement).value,
+  });
 }
 
 export function optLoadConnSettings(): void {
   try {
-    const s = JSON.parse(localStorage.getItem('fs-opt-conn') || '{}');
+    const s = lsGet('fs-opt-conn', {} as any);
     if (s.wsUrl) (document.getElementById('wsUrl') as HTMLInputElement).value = s.wsUrl;
     if (s.baud) (document.getElementById('optBaudRate') as HTMLSelectElement).value = s.baud;
     if (s.dataBits) (document.getElementById('optDataBits') as HTMLSelectElement).value = s.dataBits;
@@ -80,30 +79,26 @@ export function optResetAllColors(): void {
 }
 
 function optSaveColors(): void {
-  try {
-    const saved: Record<string, string> = {};
-    Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
-      saved[k] = getComputedStyle(document.documentElement).getPropertyValue(OPT_COLOR_CSS_VARS[k]).trim();
-    });
-    localStorage.setItem('fs-opt-colors', JSON.stringify(saved));
-  } catch (_) {}
+  const saved: Record<string, string> = {};
+  Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
+    saved[k] = getComputedStyle(document.documentElement).getPropertyValue(OPT_COLOR_CSS_VARS[k]).trim();
+  });
+  lsSet('fs-opt-colors', saved);
 }
 
 export function optLoadColors(): void {
-  try {
-    const saved = JSON.parse(localStorage.getItem('fs-opt-colors') || '{}');
-    Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
-      const hex = saved[k] || OPT_COLOR_DEFAULTS[k];
-      const ck = capKey(k);
-      const picker = document.getElementById('optColor' + ck) as HTMLInputElement | null;
-      const hexInp = document.getElementById('optHex' + ck) as HTMLInputElement | null;
-      const swatch = document.getElementById('optSwatch' + ck) as HTMLElement | null;
-      if (picker) picker.value = hex;
-      if (hexInp) hexInp.value = hex;
-      if (swatch) swatch.style.background = hex;
-      document.documentElement.style.setProperty(OPT_COLOR_CSS_VARS[k], hex);
-    });
-  } catch (_) {}
+  const saved = lsGet<Record<string, string>>('fs-opt-colors', {});
+  Object.keys(OPT_COLOR_DEFAULTS).forEach(k => {
+    const hex = saved[k] || OPT_COLOR_DEFAULTS[k];
+    const ck = capKey(k);
+    const picker = document.getElementById('optColor' + ck) as HTMLInputElement | null;
+    const hexInp = document.getElementById('optHex' + ck) as HTMLInputElement | null;
+    const swatch = document.getElementById('optSwatch' + ck) as HTMLElement | null;
+    if (picker) picker.value = hex;
+    if (hexInp) hexInp.value = hex;
+    if (swatch) swatch.style.background = hex;
+    document.documentElement.style.setProperty(OPT_COLOR_CSS_VARS[k], hex);
+  });
 }
 
 // ── Tab locks ─────────────────────────────────────────────────────────────────
@@ -151,21 +146,17 @@ export function optApplyTabLocks(): void {
 }
 
 function optSaveTabLocks(): void {
-  try { localStorage.setItem('fs-opt-tablocks', JSON.stringify([...state._lockedTabs])); } catch (_) {}
+  lsSet('fs-opt-tablocks', [...state._lockedTabs]);
 }
 
 export function optLoadTabLocks(): void {
-  try {
-    const saved = JSON.parse(localStorage.getItem('fs-opt-tablocks') || '[]');
-    state._lockedTabs = new Set(saved);
-    optApplyTabLocks();
-  } catch (_) {}
+  state._lockedTabs = new Set(lsGet<string[]>('fs-opt-tablocks', []));
+  optApplyTabLocks();
 }
 
 // ── Toolbar button visibility ─────────────────────────────────────────────────
 export function initToolbarOptions(): void {
-  let stored: Record<string, boolean> = {};
-  try { stored = JSON.parse(localStorage.getItem('fs-tb-btn-opts') || '{}'); } catch (_) {}
+  const stored = lsGet<Record<string, boolean>>('fs-tb-btn-opts', {});
   document.querySelectorAll<HTMLLabelElement>('.tb-opt-toggle').forEach(label => {
     const btnId = label.dataset.btn!;
     const cb = label.querySelector('input[type=checkbox]') as HTMLInputElement;
@@ -182,10 +173,9 @@ export function saveTbOpt(cb: HTMLInputElement): void {
   const btnId = cb.closest('.tb-opt-toggle')!.getAttribute('data-btn')!;
   const el = document.getElementById(btnId);
   if (el) el.classList.toggle('tb-item-hidden', !cb.checked);
-  let stored: Record<string, boolean> = {};
-  try { stored = JSON.parse(localStorage.getItem('fs-tb-btn-opts') || '{}'); } catch (_) {}
+  const stored = lsGet<Record<string, boolean>>('fs-tb-btn-opts', {});
   stored[btnId] = cb.checked;
-  try { localStorage.setItem('fs-tb-btn-opts', JSON.stringify(stored)); } catch (_) {}
+  lsSet('fs-tb-btn-opts', stored);
   _updateRow1MachineSep();
   _updateRow2Visibility();
 }
@@ -215,20 +205,16 @@ function _updateRow2Visibility(): void {
 
 // ── Jog step sizes ────────────────────────────────────────────────────────────
 export function optSaveJogSteps(): void {
-  try {
-    localStorage.setItem('fs-opt-jogsteps', JSON.stringify({
-      xy: (document.getElementById('optJogStepsXY') as HTMLInputElement).value,
-      z: (document.getElementById('optJogStepsZ') as HTMLInputElement).value,
-    }));
-  } catch (_) {}
+  lsSet('fs-opt-jogsteps', {
+    xy: (document.getElementById('optJogStepsXY') as HTMLInputElement).value,
+    z: (document.getElementById('optJogStepsZ') as HTMLInputElement).value,
+  });
 }
 
 export function optLoadJogSteps(): void {
-  try {
-    const s = JSON.parse(localStorage.getItem('fs-opt-jogsteps') || '{}');
-    if (s.xy) (document.getElementById('optJogStepsXY') as HTMLInputElement).value = s.xy;
-    if (s.z) (document.getElementById('optJogStepsZ') as HTMLInputElement).value = s.z;
-  } catch (_) {}
+  const s = lsGet<any>('fs-opt-jogsteps', {});
+  if (s.xy) (document.getElementById('optJogStepsXY') as HTMLInputElement).value = s.xy;
+  if (s.z) (document.getElementById('optJogStepsZ') as HTMLInputElement).value = s.z;
 }
 
 function parseSteps(raw: string): number[] {
@@ -268,30 +254,26 @@ export function optApplyJogSteps(): void {
 const BEAR_COLOR_IDS = ['optBearColorAll', 'optBearColorGcode', 'optBearColorJog', 'optBearColorTool', 'optBearColorSafe'];
 
 export function optSaveBearColors(): void {
-  try {
-    const c: Record<string, string> = {};
-    BEAR_COLOR_IDS.forEach(id => { c[id] = (document.getElementById(id) as HTMLInputElement).value; });
-    c['optBearScale'] = (document.getElementById('optBearScale') as HTMLInputElement).value;
-    localStorage.setItem('fs-opt-bearcolors', JSON.stringify(c));
-  } catch (_) {}
+  const c: Record<string, string> = {};
+  BEAR_COLOR_IDS.forEach(id => { c[id] = (document.getElementById(id) as HTMLInputElement).value; });
+  c['optBearScale'] = (document.getElementById('optBearScale') as HTMLInputElement).value;
+  lsSet('fs-opt-bearcolors', c);
 }
 
 export function optLoadBearColors(): void {
-  try {
-    const c = JSON.parse(localStorage.getItem('fs-opt-bearcolors') || '{}');
-    BEAR_COLOR_IDS.forEach(id => {
-      if (c[id]) {
-        const inp = document.getElementById(id) as HTMLInputElement;
-        if (inp) { inp.value = c[id]; const swatch = inp.nextElementSibling as HTMLElement; if (swatch) swatch.style.background = c[id]; }
-      }
-    });
-    if (c['optBearScale']) {
-      const sl = document.getElementById('optBearScale') as HTMLInputElement;
-      const disp = document.getElementById('optBearScaleVal');
-      if (sl) sl.value = c['optBearScale'];
-      if (disp) disp.textContent = parseFloat(c['optBearScale']).toFixed(3);
+  const c = lsGet<Record<string, string>>('fs-opt-bearcolors', {});
+  BEAR_COLOR_IDS.forEach(id => {
+    if (c[id]) {
+      const inp = document.getElementById(id) as HTMLInputElement;
+      if (inp) { inp.value = c[id]; const swatch = inp.nextElementSibling as HTMLElement; if (swatch) swatch.style.background = c[id]; }
     }
-  } catch (_) {}
+  });
+  if (c['optBearScale']) {
+    const sl = document.getElementById('optBearScale') as HTMLInputElement;
+    const disp = document.getElementById('optBearScaleVal');
+    if (sl) sl.value = c['optBearScale'];
+    if (disp) disp.textContent = parseFloat(c['optBearScale']).toFixed(3);
+  }
 }
 
 export function optGetBearScale(): number {

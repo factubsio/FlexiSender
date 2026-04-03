@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state, POLL_NORM } from './state';
-import { byteLen } from './ui';
+import { byteLen, lsGet } from './ui';
 import { log } from './console';
 import { parseResponse } from './parser';
 import { updateRunButtons } from './streaming';
@@ -53,14 +53,18 @@ function connectWs(): void {
 
 function disconnectWs(): void { if (state.ws) state.ws.close(); }
 
-function onMessage(evt: MessageEvent): void {
-  state._rxBuf += evt.data;
+function feedBuffer(chunk: string): void {
+  state._rxBuf += chunk;
   let nl;
   while ((nl = state._rxBuf.indexOf('\n')) !== -1) {
     const line = state._rxBuf.slice(0, nl).replace(/\r$/, '').trim();
     state._rxBuf = state._rxBuf.slice(nl + 1);
     if (line) parseResponse(line);
   }
+}
+
+function onMessage(evt: MessageEvent): void {
+  feedBuffer(evt.data);
 }
 
 // ── USB / Serial ──────────────────────────────────────────────────────────────
@@ -104,13 +108,7 @@ async function serialReadLoop(): Promise<void> {
     while (true) {
       const { value, done } = await state.serialReader.read();
       if (done) break;
-      state._rxBuf += new TextDecoder().decode(value);
-      let nl;
-      while ((nl = state._rxBuf.indexOf('\n')) !== -1) {
-        const line = state._rxBuf.slice(0, nl).replace(/\r$/, '').trim();
-        state._rxBuf = state._rxBuf.slice(nl + 1);
-        if (line) parseResponse(line);
-      }
+      feedBuffer(new TextDecoder().decode(value));
     }
   } catch (e: any) {
     if (e.name !== 'AbortError') log('err', 'Serial read error: ' + e.message);
@@ -142,7 +140,7 @@ function onOpen(): void {
   rtSend('\x18');
   setTimeout(() => { state.sentQueue.length = 0; state.rxInFlight = 0; cmdSend('$I+'); }, 600);
   setTimeout(() => {
-    try { if (localStorage.getItem('fs-opt-autoload-settings') === '1') import('./settings').then(s => s.loadSettings()); } catch (_) {}
+    try { if (lsGet('fs-opt-autoload-settings', false)) import('./settings').then(s => s.loadSettings()); } catch (_) {}
   }, 1500);
   const fb = document.getElementById('limitsFrameBtn') as HTMLButtonElement | null;
   if (fb && state.progLimits) fb.disabled = false;

@@ -34,6 +34,15 @@ export function isInputFocused(): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA';
 }
 
+export function lsGet<T>(key: string, fallback: T): T {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; }
+  catch (_) { return fallback; }
+}
+
+export function lsSet(key: string, val: unknown): void {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
+}
+
 export function $(id: string): HTMLElement {
   return document.getElementById(id)!;
 }

@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state } from './state';
+import { lsGet, lsSet } from './ui';
 import { log } from './console';
 import { sendCmd } from './connection';
 
@@ -226,25 +227,21 @@ export function zeroAtCrosshair(): void {
 }
 
 export function saveCamSettings(): void {
-  try {
-    localStorage.setItem('flexisender_cam', JSON.stringify({
-      offsetX: state.camOffsetX, offsetY: state.camOffsetY,
-      crossStyle: state.camCrossStyle, crossColor: state.camCrossColor,
-      crossSize: state.camCrossSizeVal, zoom: state.camZoomVal
-    }));
-  } catch (_) {}
+  lsSet('flexisender_cam', {
+    offsetX: state.camOffsetX, offsetY: state.camOffsetY,
+    crossStyle: state.camCrossStyle, crossColor: state.camCrossColor,
+    crossSize: state.camCrossSizeVal, zoom: state.camZoomVal
+  });
 }
 
 export function loadCamSettings(): void {
-  try {
-    const s = JSON.parse(localStorage.getItem('flexisender_cam') || '{}');
-    if (s.offsetX !== undefined) { state.camOffsetX = s.offsetX; (document.getElementById('camOffX') as HTMLInputElement).value = s.offsetX; }
-    if (s.offsetY !== undefined) { state.camOffsetY = s.offsetY; (document.getElementById('camOffY') as HTMLInputElement).value = s.offsetY; }
-    if (s.crossStyle) setCrosshairStyle(s.crossStyle);
-    if (s.crossColor) setCrosshairColor(s.crossColor);
-    if (s.crossSize) { state.camCrossSizeVal = s.crossSize; (document.getElementById('camCrossSize') as HTMLInputElement).value = String(s.crossSize); }
-    if (s.zoom) { state.camZoomVal = s.zoom; (document.getElementById('camZoom') as HTMLInputElement).value = String(s.zoom); document.getElementById('camZoomDisp')!.textContent = s.zoom.toFixed(1) + 'x'; }
-  } catch (_) {}
+  const s = lsGet<any>('flexisender_cam', {});
+  if (s.offsetX !== undefined) { state.camOffsetX = s.offsetX; (document.getElementById('camOffX') as HTMLInputElement).value = s.offsetX; }
+  if (s.offsetY !== undefined) { state.camOffsetY = s.offsetY; (document.getElementById('camOffY') as HTMLInputElement).value = s.offsetY; }
+  if (s.crossStyle) setCrosshairStyle(s.crossStyle);
+  if (s.crossColor) setCrosshairColor(s.crossColor);
+  if (s.crossSize) { state.camCrossSizeVal = s.crossSize; (document.getElementById('camCrossSize') as HTMLInputElement).value = String(s.crossSize); }
+  if (s.zoom) { state.camZoomVal = s.zoom; (document.getElementById('camZoom') as HTMLInputElement).value = String(s.zoom); document.getElementById('camZoomDisp')!.textContent = s.zoom.toFixed(1) + 'x'; }
 }
 
 export function initCameraListeners(): void {

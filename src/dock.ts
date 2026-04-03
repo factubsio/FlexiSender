@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { MOD_SIZES, MODULE_DEFS } from './state';
+import { lsGet } from './ui';
 
 // ── Data structures ───────────────────────────────────────────────────────────
 
@@ -451,11 +452,6 @@ function dockSave(): void {
 }
 
 function dockLoad(): void {
-  try {
-    const raw = localStorage.getItem('fs-dock-tree');
-    if (raw) {
-      const d = JSON.parse(raw);
-      if (d.root) _root = d.root;
-    }
-  } catch (_) {}
+  const d = lsGet<any>('fs-dock-tree', null);
+  if (d?.root) _root = d.root;
 }

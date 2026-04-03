@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state, VP_STORAGE_KEY } from './state';
+import { lsGet, lsSet } from './ui';
 import { bearUpdateSpriteScales } from './bear';
 
 declare const THREE: any;
@@ -270,19 +271,16 @@ function setupTouchControls(canvas: HTMLCanvasElement): void {
 
 // ── Viewport extents ──────────────────────────────────────────────────────────
 export function vpLoadExtents(): void {
-  try {
-    const raw = localStorage.getItem(VP_STORAGE_KEY);
-    if (raw) {
-      const d = JSON.parse(raw);
-      state.vpXMin = d.xMin ?? -300; state.vpXMax = d.xMax ?? 0;
-      state.vpYMin = d.yMin ?? -300; state.vpYMax = d.yMax ?? 0;
-      if (d.ortho !== undefined) state.vpOrtho = !!d.ortho;
-    }
-  } catch (_) {}
+  const d = lsGet<any>(VP_STORAGE_KEY, null);
+  if (d) {
+    state.vpXMin = d.xMin ?? -300; state.vpXMax = d.xMax ?? 0;
+    state.vpYMin = d.yMin ?? -300; state.vpYMax = d.yMax ?? 0;
+    if (d.ortho !== undefined) state.vpOrtho = !!d.ortho;
+  }
 }
 
 export function vpSaveExtents(): void {
-  try { localStorage.setItem(VP_STORAGE_KEY, JSON.stringify({ xMin: state.vpXMin, xMax: state.vpXMax, yMin: state.vpYMin, yMax: state.vpYMax, ortho: state.vpOrtho })); } catch (_) {}
+  lsSet(VP_STORAGE_KEY, { xMin: state.vpXMin, xMax: state.vpXMax, yMin: state.vpYMin, yMax: state.vpYMax, ortho: state.vpOrtho });
 }
 
 export function rebuildViewportGrid(): void {

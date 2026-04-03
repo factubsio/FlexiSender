@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state } from './state';
+import { lsGet, lsSet, $ } from './ui';
 import { log, clearConsole } from './console';
 import { toggleConnect, sendCmd } from './connection';
 import { initViewport, setView, fitView, toggleToolhead, vpApply, setProjection } from './viewport';
@@ -63,9 +64,14 @@ w.bearSaveZone = bearSaveZone;
 w.bearDeleteZone = bearDeleteZone;
 w.bearCancelEdit = bearCancelEdit;
 
+// ── Shared event helper ───────────────────────────────────────────────────────
+function on(id: string, evt: string, fn: (e: any) => void): void {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener(evt, fn);
+}
+
 // ── Event wiring (chunk 3: settings, camera, options) ─────────────────────────
 function initChunk3Events(): void {
-  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
   // Settings tab
   on('btnLoadSettings', 'click', () => loadSettings());
@@ -102,7 +108,7 @@ function initChunk3Events(): void {
   on('connBtnWs', 'click', () => optSetConnMode('websocket'));
   on('connBtnSerial', 'click', () => optSetConnMode('serial'));
   ['optBaudRate', 'optDataBits', 'optStopBits', 'optParity'].forEach(id => on(id, 'change', () => optSaveConnSettings()));
-  on('optAutoLoadSettings', 'change', () => { localStorage.setItem('fs-opt-autoload-settings', (document.getElementById('optAutoLoadSettings') as HTMLInputElement).checked ? '1' : '0'); });
+  on('optAutoLoadSettings', 'change', () => { lsSet('fs-opt-autoload-settings', (document.getElementById('optAutoLoadSettings') as HTMLInputElement).checked); });
 
   // Options — viewport extents
   ['vpXMin', 'vpXMax', 'vpYMin', 'vpYMax'].forEach(id => on(id, 'input', () => vpApply()));
@@ -151,7 +157,6 @@ function initChunk3Events(): void {
 
 // ── Event wiring (chunk 2: modules) ───────────────────────────────────────────
 function initChunk2Events(): void {
-  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
   // Module drag handles + close buttons (delegated)
   document.querySelectorAll<HTMLElement>('.module-drag-handle').forEach(handle => {
@@ -275,8 +280,6 @@ function initChunk2Events(): void {
 
 // ── Event wiring (chunk 1: toolbar, tabs, viewport header, SD) ────────────────
 function initChunk1Events(): void {
-  const $ = (id: string) => document.getElementById(id)!;
-  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
 
   // Toolbar row 1
   on('connectBtn', 'click', () => toggleConnect());
@@ -333,7 +336,7 @@ window.addEventListener('load', () => {
   modInitPositions();
   const mainEl = document.querySelector('.viewport-wrap') as HTMLElement;
   if (mainEl) initDock(mainEl);
-  try { if (localStorage.getItem('fs-mod-locked') === '1') toggleModLock(); } catch (_) {}
+  try { if (lsGet('fs-mod-locked', false)) toggleModLock(); } catch (_) {}
   const fields: Record<string, number> = { vpXMin: state.vpXMin, vpXMax: state.vpXMax, vpYMin: state.vpYMin, vpYMax: state.vpYMax };
   for (const [id, val] of Object.entries(fields)) {
     const el = document.getElementById(id) as HTMLInputElement | null;
@@ -351,7 +354,7 @@ window.addEventListener('load', () => {
   optApplyJogSteps();
   optLoadBearColors();
   // Restore auto-load settings toggle
-  try { const al = document.getElementById('optAutoLoadSettings') as HTMLInputElement; if (al) al.checked = localStorage.getItem('fs-opt-autoload-settings') === '1'; } catch (_) {}
+  try { const al = document.getElementById('optAutoLoadSettings') as HTMLInputElement; if (al) al.checked = lsGet('fs-opt-autoload-settings', false); } catch (_) {}
   // Sync projection toggle
   const projPersp = document.getElementById('projBtnPersp');
   const projOrtho = document.getElementById('projBtnOrtho');

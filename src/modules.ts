@@ -3,13 +3,13 @@
 // ═══════════════════════════════════════════════
 
 import { state, MODULE_DEFS, MOD_DEFAULTS, MOD_SIZES } from './state';
+import { lsGet, lsSet } from './ui';
 import { dockDragStart, dockDragMove, dockDragEnd, dockDragCancel, isModuleDocked, undockModule } from './dock';
 
 let _initDone = false;
 
 export function modLoadState(): Record<string, any> {
-  try { return JSON.parse(localStorage.getItem('fs-modules') || '{}'); }
-  catch (_) { return {}; }
+  return lsGet('fs-modules', {});
 }
 
 export function modSaveState(): void {
@@ -25,7 +25,7 @@ export function modSaveState(): void {
       size: (card as HTMLElement).dataset.modSize || 'normal',
     };
   });
-  try { localStorage.setItem('fs-modules', JSON.stringify(s)); } catch (_) {}
+  try { lsSet('fs-modules', s); } catch (_) {}
 }
 
 export function toggleModule(id: string, forceState?: boolean): void {
@@ -103,7 +103,7 @@ export function toggleModLock(): void {
   document.body.classList.toggle('mod-locked', state.modLocked);
   document.getElementById('modLockIcon')!.textContent = state.modLocked ? '🔒' : '🔓';
   document.getElementById('modLockLabel')!.textContent = state.modLocked ? 'LOCKED' : 'UNLOCKED';
-  try { localStorage.setItem('fs-mod-locked', state.modLocked ? '1' : '0'); } catch (_) {}
+  try { lsSet('fs-mod-locked', state.modLocked); } catch (_) {}
 }
 
 // ── Drag — mouse ──────────────────────────────────────────────────────────────
