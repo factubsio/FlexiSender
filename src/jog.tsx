@@ -20,19 +20,59 @@ let _xyStepContainer: HTMLElement;
 let _zStepContainer: HTMLElement;
 
 // ── Jog preview in 3D ────────────────────────────────────────────────────────
-let _jogPreview: any = null;
-let _jogPreviewLine: any = null;
+let _hoverGhost: any = null;       // ghost shown on hover (next potential click)
+let _previewLines: any[] = [];     // dashed line segments
 let _previewAnimId: number = 0;
-let _previewTarget: any = null;  // THREE.Vector3 — ghost position
-let _previewColor: number = 0;
+let _hoverTarget: any = null;      // THREE.Vector3 — hover ghost position
+let _hoverColor: number = 0;
+
+interface Waypoint { pos: any; ghost: any; color: number; }
+let _waypoints: Waypoint[] = [];
 
 // Predicted position in Three.js coords (accounts for queued click-mode jogs)
 let _predicted = { x: 0, y: 0, z: 0 };
 let _predictedDirty = false;
 
+const WAYPOINT_ARRIVE_DIST = 1.0;
+
+function makeGhost(color: number, opacity: number): any {
+  const mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+  const ghost = new THREE.Group();
+  const cone = new THREE.Mesh(new THREE.CylinderGeometry(0, 1.5, 4, 8), mat);
+  cone.rotation.x = Math.PI;
+  cone.position.y = 2;
+  ghost.add(cone);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 6, 8), mat);
+  body.position.y = 7;
+  ghost.add(body);
+  return ghost;
+}
+
+function removeGhost(ghost: any): void {
+  if (!ghost) return;
+  scene.remove(ghost);
+  ghost.traverse?.((c: any) => { c.geometry?.dispose(); c.material?.dispose(); });
+}
+
 export function jogSyncPredicted(): void {
-  if (!state._isJogging && !_predictedDirty) return;
-  if (!state._isJogging) {
+  // Remove waypoints the head has reached
+  while (_waypoints.length > 0) {
+    const wp = _waypoints[0];
+    const dx = toolGroup.position.x - wp.pos.x;
+    const dy = toolGroup.position.y - wp.pos.y;
+    const dz = toolGroup.position.z - wp.pos.z;
+    if (Math.sqrt(dx * dx + dy * dy + dz * dz) < WAYPOINT_ARRIVE_DIST) {
+      removeGhost(wp.ghost);
+      _waypoints.shift();
+    } else {
+      break;
+    }
+  }
+
+  if (!state._isJogging && _predictedDirty) {
+    // Clear all remaining waypoints when jogging stops
+    for (const wp of _waypoints) removeGhost(wp.ghost);
+    _waypoints.length = 0;
     _predicted.x = toolGroup.position.x;
     _predicted.y = toolGroup.position.y;
     _predicted.z = toolGroup.position.z;
@@ -40,15 +80,28 @@ export function jogSyncPredicted(): void {
   }
 }
 
-function clearJogPreview(): void {
+function addWaypoint(pos: any, color: number): void {
+  const ghost = makeGhost(color, 0.2);
+  ghost.position.copy(pos);
+  scene.add(ghost);
+  _waypoints.push({ pos: pos.clone(), ghost, color });
+}
+
+function clearHoverPreview(): void {
   if (_previewAnimId) { cancelAnimationFrame(_previewAnimId); _previewAnimId = 0; }
-  _previewTarget = null;
-  if (_jogPreview) {
-    scene.remove(_jogPreview);
-    _jogPreview.traverse?.((c: any) => { c.geometry?.dispose(); c.material?.dispose(); });
-    _jogPreview = null;
-  }
-  if (_jogPreviewLine) { scene.remove(_jogPreviewLine); _jogPreviewLine.geometry?.dispose(); _jogPreviewLine.material?.dispose(); _jogPreviewLine = null; }
+  _hoverTarget = null;
+  removeGhost(_hoverGhost);
+  _hoverGhost = null;
+  clearPreviewLines();
+}
+
+function clearPreviewLines(): void {
+  for (const l of _previewLines) { scene.remove(l); l.geometry?.dispose(); l.material?.dispose(); }
+  _previewLines = [];
+}
+
+function jogDirColor(v: { x: number; y: number; z: number }): number {
+  return v.z !== 0 ? 0x3399ff : v.x !== 0 && v.y !== 0 ? 0xffaa00 : v.x !== 0 ? 0xff3333 : 0x33ff66;
 }
 
 function jogDirToVec(dir: string): { x: number; y: number; z: number } {
@@ -60,10 +113,10 @@ function jogDirToVec(dir: string): { x: number; y: number; z: number } {
 }
 
 function showJogPreview(dir: string): void {
-  clearJogPreview();
+  clearHoverPreview();
   const v = jogDirToVec(dir);
-  const color = v.z !== 0 ? 0x3399ff : v.x !== 0 && v.y !== 0 ? 0xffaa00 : v.x !== 0 ? 0xff3333 : 0x33ff66;
-  _previewColor = color;
+  const color = jogDirColor(v);
+  _hoverColor = color;
 
   if (state.jogHoldMode) {
     const pos = toolGroup.position;
@@ -71,9 +124,8 @@ function showJogPreview(dir: string): void {
     const arrowDir = new THREE.Vector3(v.x, v.z, -v.y).normalize();
     const arrow = new THREE.ArrowHelper(arrowDir, pos.clone(), len, color, len * 0.3, len * 0.15);
     scene.add(arrow);
-    _jogPreview = arrow;
+    _hoverGhost = arrow;
   } else {
-    // Compute target from predicted position (accounts for queued jogs)
     const stepX = v.x * (v.z !== 0 ? 0 : state.jogStepXY);
     const stepY = v.y * (v.z !== 0 ? 0 : state.jogStepXY);
     const stepZ = v.z * state.jogStepZ;
@@ -81,43 +133,44 @@ function showJogPreview(dir: string): void {
     const ty = _predicted.y + stepZ;
     const tz = _predicted.z - stepY;
 
-    _previewTarget = new THREE.Vector3(tx, ty, tz);
+    _hoverTarget = new THREE.Vector3(tx, ty, tz);
 
-    // Ghost toolhead at target
-    const ghostMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3, depthWrite: false });
-    const ghost = new THREE.Group();
-    const cone = new THREE.Mesh(new THREE.CylinderGeometry(0, 1.5, 4, 8), ghostMat);
-    cone.rotation.x = Math.PI;
-    cone.position.y = 2;
-    ghost.add(cone);
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 6, 8), ghostMat);
-    body.position.y = 7;
-    ghost.add(body);
-    ghost.position.copy(_previewTarget);
-    scene.add(ghost);
-    _jogPreview = ghost;
+    _hoverGhost = makeGhost(color, 0.35);
+    _hoverGhost.position.copy(_hoverTarget);
+    scene.add(_hoverGhost);
 
-    // Start live dashed line update
-    updatePreviewLine();
+    updateAllPreviewLines();
     startPreviewAnim();
   }
 }
 
-function updatePreviewLine(): void {
-  if (!_previewTarget) return;
-  if (_jogPreviewLine) { scene.remove(_jogPreviewLine); _jogPreviewLine.geometry?.dispose(); _jogPreviewLine.material?.dispose(); }
-  const pts = [toolGroup.position.clone(), _previewTarget.clone()];
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  _jogPreviewLine = new THREE.Line(geo, new THREE.LineDashedMaterial({ color: _previewColor, dashSize: 3, gapSize: 2, transparent: true, opacity: 0.8 }));
-  _jogPreviewLine.computeLineDistances();
-  scene.add(_jogPreviewLine);
+function updateAllPreviewLines(): void {
+  clearPreviewLines();
+
+  // Build chain: head → waypoint[0] → waypoint[1] → ... → hoverTarget
+  const points: any[] = [toolGroup.position.clone()];
+  for (const wp of _waypoints) points.push(wp.pos.clone());
+  if (_hoverTarget) points.push(_hoverTarget.clone());
+
+  if (points.length < 2) return;
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const isHoverSeg = _hoverTarget && i === points.length - 2;
+    const color = isHoverSeg ? _hoverColor : (_waypoints[i - 1]?.color ?? _hoverColor);
+    const opacity = isHoverSeg ? 0.6 : 0.8;
+    const geo = new THREE.BufferGeometry().setFromPoints([points[i], points[i + 1]]);
+    const line = new THREE.Line(geo, new THREE.LineDashedMaterial({ color, dashSize: 3, gapSize: 2, transparent: true, opacity }));
+    line.computeLineDistances();
+    scene.add(line);
+    _previewLines.push(line);
+  }
 }
 
 function startPreviewAnim(): void {
   if (_previewAnimId) return;
   const tick = () => {
-    if (!_previewTarget) return;
-    updatePreviewLine();
+    if (!_hoverTarget && _waypoints.length === 0) { _previewAnimId = 0; return; }
+    updateAllPreviewLines();
     _previewAnimId = requestAnimationFrame(tick);
   };
   _previewAnimId = requestAnimationFrame(tick);
@@ -156,6 +209,8 @@ export function startJog(dir: string): void {
   if (!state.connected) return;
   const f = jogFeedValue();
   const step = state.jogStepXY;
+  const v = jogDirToVec(dir);
+  const color = jogDirColor(v);
 
   // Sync predicted to actual if stale
   if (!_predictedDirty) {
@@ -164,14 +219,29 @@ export function startJog(dir: string): void {
     _predicted.z = toolGroup.position.z;
   }
 
+  // Convert current hover ghost into a committed waypoint
+  if (_hoverGhost && _hoverTarget && !state.jogHoldMode) {
+    _hoverGhost.traverse?.((c: any) => {
+      if (c.material) { c.material.opacity = 0.2; c.material.needsUpdate = true; }
+    });
+    _waypoints.push({ pos: _hoverTarget.clone(), ghost: _hoverGhost, color: _hoverColor });
+    _hoverGhost = null;
+    _hoverTarget = null;
+  }
+
   const diagMatch = dir.match(/^(X[+-])(Y[+-])$/);
   if (diagMatch) {
     const xSign = diagMatch[1][1] === '+' ? '' : '-';
     const ySign = diagMatch[2][1] === '+' ? '' : '-';
     if (!state.jogHoldMode) {
       _predicted.x += (xSign === '-' ? -step : step);
-      _predicted.z += (ySign === '-' ? step : -step);  // Three.js Z = -machineY
+      _predicted.z += (ySign === '-' ? step : -step);
       _predictedDirty = true;
+      if (!_hoverTarget) {
+        // No hover active — add waypoint directly
+        addWaypoint(new THREE.Vector3(_predicted.x, _predicted.y, _predicted.z), color);
+        startPreviewAnim();
+      }
     }
     setJogging(true);
     sendCmd('$J=G91 X' + xSign + step + ' Y' + ySign + step + ' F' + f);
@@ -183,9 +253,13 @@ export function startJog(dir: string): void {
   if (!state.jogHoldMode) {
     const delta = sign === '-' ? -axisStep : axisStep;
     if (axis === 'X') _predicted.x += delta;
-    else if (axis === 'Y') _predicted.z -= delta;  // Three.js Z = -machineY
-    else if (axis === 'Z') _predicted.y += delta;   // Three.js Y = machineZ
+    else if (axis === 'Y') _predicted.z -= delta;
+    else if (axis === 'Z') _predicted.y += delta;
     _predictedDirty = true;
+    if (!_hoverTarget) {
+      addWaypoint(new THREE.Vector3(_predicted.x, _predicted.y, _predicted.z), color);
+      startPreviewAnim();
+    }
   }
   setJogging(true);
   sendCmd('$J=G91 ' + axis + sign + axisStep + ' F' + f);
@@ -223,7 +297,7 @@ function wireJogBtn(btn: HTMLElement, dir: string): void {
   else if (v.x !== 0 && v.y !== 0) { btn.style.color = '#ffaa44'; }
 
   btn.addEventListener('mouseenter', () => showJogPreview(dir));
-  btn.addEventListener('mouseleave', () => clearJogPreview());
+  btn.addEventListener('mouseleave', () => clearHoverPreview());
 
   btn.addEventListener('click', () => { if (!state.jogHoldMode) startJog(dir); });
 
