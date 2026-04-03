@@ -240,27 +240,30 @@ export function startJog(dir: string): void {
     _hoverTarget = null;
   }
 
+  const holdDist = KEYBOARD_JOG_DIST;
+
   const diagMatch = dir.match(/^(X[+-])(Y[+-])$/);
   if (diagMatch) {
     const xSign = diagMatch[1][1] === '+' ? '' : '-';
     const ySign = diagMatch[2][1] === '+' ? '' : '-';
+    const dist = state.jogHoldMode ? holdDist : step;
     if (!state.jogHoldMode) {
       _predicted.x += (xSign === '-' ? -step : step);
       _predicted.z += (ySign === '-' ? step : -step);
       _predictedDirty = true;
       if (!_hoverTarget) {
-        // No hover active — add waypoint directly
         addWaypoint(new THREE.Vector3(_predicted.x, _predicted.y, _predicted.z), color);
         startPreviewAnim();
       }
     }
     setJogging(true);
-    sendCmd('$J=G91 X' + xSign + step + ' Y' + ySign + step + ' F' + f);
+    sendCmd('$J=G91 X' + xSign + dist + ' Y' + ySign + dist + ' F' + f);
     return;
   }
 
   const axis = dir[0], sign = dir[1] === '+' ? '' : '-';
   const axisStep = axis === 'Z' ? state.jogStepZ : state.jogStepXY;
+  const dist = state.jogHoldMode ? holdDist : axisStep;
   if (!state.jogHoldMode) {
     const delta = sign === '-' ? -axisStep : axisStep;
     if (axis === 'X') _predicted.x += delta;
@@ -273,7 +276,7 @@ export function startJog(dir: string): void {
     }
   }
   setJogging(true);
-  sendCmd('$J=G91 ' + axis + sign + axisStep + ' F' + f);
+  sendCmd('$J=G91 ' + axis + sign + dist + ' F' + f);
 }
 
 export function clearWaypoints(): void {
