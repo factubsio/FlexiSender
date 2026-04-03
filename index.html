@@ -91,57 +91,6 @@
 <!-- MAIN -->
 <div class="main">
 
-  <!-- ═══ MODULE: SPINDLE / COOLANT ═══ -->
-  <div class="module-card mod-hidden" id="mod-spindle" data-mod-size="normal" style="top:160px;left:594px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Spindle / Coolant</span>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body">
-      <div style="display:flex;align-items:center;gap:8px;padding:0 2px 2px">
-        <span style="font-family:var(--cond);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;flex-shrink:0">RPM</span>
-        <input type="number" id="spindleRPM" min="0" max="30000" step="100" value="10000"
-          style="flex:1;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:6px 10px;outline:none;border-radius:var(--radius-sm);transition:border-color 0.15s;"
-          />
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 2px">
-        <button class="spin-dir-btn" id="btnSpinCW"  >CW</button>
-        <button class="spin-dir-btn" id="btnSpinCCW">CCW</button>
-        <button class="spin-dir-btn" id="btnSpinOFF">OFF</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 2px">
-        <button class="coolant-btn" id="btnFlood">FLOOD</button>
-        <button class="coolant-btn" id="btnMist" >MIST</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ MODULE: MACROS ═══ -->
-  <div class="module-card mod-hidden" id="mod-macros" data-mod-size="normal" style="top:310px;left:594px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Macros</span>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body">
-      <div class="macro-grid">
-        <button class="macro-btn" data-cmd="$H">HOME ALL</button>
-        <button class="macro-btn" data-cmd="$H Z">HOME Z</button>
-        <button class="macro-btn" data-cmd="G0 X0 Y0">GOTO XY0</button>
-        <button class="macro-btn" data-cmd="G0 Z5">PARK Z</button>
-        <button class="macro-btn" data-cmd="$I">GRBL INFO</button>
-        <button class="macro-btn" data-cmd="$$">SETTINGS</button>
-        <button class="macro-btn" data-cmd="$#">WCS TABLE</button>
-        <button class="macro-btn" data-cmd="?">QUERY</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ═══ MODULE: CONSOLE ═══ -->
   <div class="module-card mod-hidden" id="mod-console" data-mod-size="normal" style="top:10px;left:886px">
     <div class="module-drag-handle"
@@ -395,30 +344,6 @@
         <div style="display:flex;align-items:center;gap:5px;font-family:var(--cond);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);">
           <div style="width:10px;height:10px;border-radius:2px;background:rgba(34,197,94,0.18);border:1px solid var(--green2)"></div>ACTIVE
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ MODULE: SIGNALS ═══ -->
-  <div class="module-card mod-hidden" id="mod-signals" data-mod-size="normal" style="top:10px;left:594px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Signals</span>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body" style="padding:4px">
-      <div class="sig-grid">
-        <div class="sig-item" data-sig="xlim"      id="sig-xlim">      <div class="sig-dot"></div><div class="sig-label">X Limit</div></div>
-        <div class="sig-item" data-sig="ylim"      id="sig-ylim">      <div class="sig-dot"></div><div class="sig-label">Y Limit</div></div>
-        <div class="sig-item" data-sig="zlim"      id="sig-zlim">      <div class="sig-dot"></div><div class="sig-label">Z Limit</div></div>
-        <div class="sig-item" data-sig="alim"      id="sig-alim">      <div class="sig-dot"></div><div class="sig-label">A Limit</div></div>
-        <div class="sig-item" data-sig="blim"      id="sig-blim">      <div class="sig-dot"></div><div class="sig-label">B Limit</div></div>
-        <div class="sig-item" data-sig="probe"     id="sig-probe">     <div class="sig-dot"></div><div class="sig-label">Probe</div></div>
-        <div class="sig-item" data-sig="toolsetter"id="sig-toolsetter"><div class="sig-dot"></div><div class="sig-label">Toolsetter</div></div>
-        <div class="sig-item" data-sig="door"      id="sig-door">      <div class="sig-dot"></div><div class="sig-label">Door</div></div>
-        <div class="sig-item" data-sig="estop"     id="sig-estop">     <div class="sig-dot"></div><div class="sig-label">E-Stop</div></div>
       </div>
     </div>
   </div>

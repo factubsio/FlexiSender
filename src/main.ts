@@ -12,7 +12,9 @@ import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, 
 import { mount as mountJog, initKeyboardJog } from './modules/jog';
 import { mount as mountPosition } from './modules/position';
 import { mount as mountOverrides } from './modules/overrides';
-import { setSpindle, toggleCoolant } from './overrides';
+import { mount as mountSpindle } from './modules/spindle';
+import { mount as mountMacros } from './modules/macros';
+import { mount as mountSignals } from './modules/signals';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
 import { loadToolTable } from './tooltable';
 import { toggleSdPanel, closeSdPanel, sdRefreshFiles, sdRunSelected, initSdClickOutside } from './sd';
@@ -189,19 +191,6 @@ function initChunk2Events(): void {
     btn.addEventListener('click', e => setConsoleLines(parseInt(btn.textContent!), e));
   });
 
-  // Spindle / coolant
-  on('btnSpinCW', 'click', () => setSpindle('CW'));
-  on('btnSpinCCW', 'click', () => setSpindle('CCW'));
-  on('btnSpinOFF', 'click', () => setSpindle('OFF'));
-  on('btnFlood', 'click', () => toggleCoolant('flood'));
-  on('btnMist', 'click', () => toggleCoolant('mist'));
-
-  // Macros
-  document.querySelectorAll<HTMLElement>('.macro-btn[data-cmd]').forEach(btn => {
-    const cmd = btn.dataset.cmd!;
-    btn.addEventListener('click', () => cmd === '$H' ? sendHome() : sendCmd(cmd));
-  });
-
   // Console
   on('btnConClear', 'click', () => clearConsole());
   on('btnKeyboard', 'click', () => toggleTouchKeyboard());
@@ -300,7 +289,10 @@ initViewport();
 const mainEl = document.querySelector('.main') as HTMLElement;
 mountPosition(mainEl);
 mountOverrides(mainEl);
+mountSpindle(mainEl);
+mountMacros(mainEl);
 mountJog(mainEl);
+mountSignals(mainEl);
 initKeyboardJog();
 initModDragListeners();
 initSdClickOutside();

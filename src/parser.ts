@@ -2,7 +2,7 @@
 // Response parser & status reports
 // ═══════════════════════════════════════════════
 
-import { state, SIG_PIN_MAP } from './state';
+import { state } from './state';
 import { log } from './console';
 import { updateBufDisplay, _updateHomeBtnHomed } from './connection';
 import { pumpQueue, updateRunButtons } from './streaming';
@@ -153,7 +153,6 @@ function parseStatus(s: string): void {
       hasPn = true;
       report.pins = vals[0] || '';
       tags.add('pins');
-      updateSignals(report.pins);
     }
     if (key === 'BEAR') {
       report.bear = vals[0] || '';
@@ -161,23 +160,13 @@ function parseStatus(s: string): void {
       bearParseStatus(report.bear);
     }
   }
-  if (!hasPn) { report.pins = ''; tags.add('pins'); updateSignals(''); }
+  if (!hasPn) { report.pins = ''; tags.add('pins'); }
 
   emit('status', tags, report);
 
   document.getElementById('vpStats')!.innerHTML =
     `X: ${state.machineX.toFixed(3)}&nbsp;&nbsp;Y: ${state.machineY.toFixed(3)}&nbsp;&nbsp;Z: ${state.machineZ.toFixed(3)}<br>` +
     `RX: ${state.rxInFlight}/${state.RX_BUFFER_SIZE}B&nbsp;&nbsp;QUEUE: ${state.sentQueue.length}`;
-}
-
-function updateSignals(pinStr: string): void {
-  const mod = document.getElementById('mod-signals');
-  if (!mod || mod.classList.contains('mod-hidden')) return;
-  const active = new Set(pinStr.toUpperCase().split(''));
-  Object.entries(SIG_PIN_MAP).forEach(([ch, elId]) => {
-    const el = document.getElementById(elId);
-    if (el) el.classList.toggle('active', active.has(ch));
-  });
 }
 
 export function setMachineState(s: string): void {
