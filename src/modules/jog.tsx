@@ -287,7 +287,6 @@ export function clearWaypoints(): void {
 }
 
 export function stopJog(): void {
-  if (!state._isJogging) return;
   rtSend('\x85');
   setJogging(false);
   // Flush pending jog commands from sentQueue — \x85 cancels them all
