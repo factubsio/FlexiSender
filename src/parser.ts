@@ -9,7 +9,6 @@ import { pumpQueue, updateRunButtons } from './streaming';
 import { updateExecutedPath, toolGroup } from './viewport';
 import { settingsIntercept, tryInterceptValue, onSettingWriteOk, onSettingWriteErr, tryParseSettingLine } from './settings';
 import { toolTableIntercept, renderToolTable, renderModTT } from './tooltable';
-import { updateOvrDisplay } from './overrides';
 import { bearCheckPlugin, bearIntercept, bearParseStatus } from './bear';
 import { emit, type StatusReport } from './bus';
 
@@ -129,9 +128,6 @@ function parseStatus(s: string): void {
       if (!isNaN(feed) && !isNaN(rapid) && !isNaN(spin)) {
         report.ov = { feed, rapid, spindle: spin };
         tags.add('ov');
-        updateOvrDisplay('feed', feed);
-        updateOvrDisplay('rapid', rapid);
-        updateOvrDisplay('spindle', spin);
       }
     }
     if (key === 'Ct') {

@@ -11,7 +11,8 @@ import { loadFile, uploadAndOpenFile, frameProgram } from './gcode';
 import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS } from './streaming';
 import { mount as mountJog, initKeyboardJog } from './modules/jog';
 import { mount as mountPosition } from './modules/position';
-import { resetOverride, applyOverride, setSpindle, toggleCoolant } from './overrides';
+import { mount as mountOverrides } from './modules/overrides';
+import { setSpindle, toggleCoolant } from './overrides';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
 import { loadToolTable } from './tooltable';
 import { toggleSdPanel, closeSdPanel, sdRefreshFiles, sdRunSelected, initSdClickOutside } from './sd';
@@ -188,14 +189,6 @@ function initChunk2Events(): void {
     btn.addEventListener('click', e => setConsoleLines(parseInt(btn.textContent!), e));
   });
 
-  // Overrides
-  document.querySelectorAll<HTMLElement>('[data-ovr-reset]').forEach(btn => {
-    btn.addEventListener('click', () => resetOverride(btn.dataset.ovrReset!));
-  });
-  on('ovrFeedSlider', 'input', () => applyOverride('feed', parseInt((document.getElementById('ovrFeedSlider') as HTMLInputElement).value)));
-  on('ovrRapidSlider', 'input', () => applyOverride('rapid', parseInt((document.getElementById('ovrRapidSlider') as HTMLInputElement).value)));
-  on('ovrSpinSlider', 'input', () => applyOverride('spindle', parseInt((document.getElementById('ovrSpinSlider') as HTMLInputElement).value)));
-
   // Spindle / coolant
   on('btnSpinCW', 'click', () => setSpindle('CW'));
   on('btnSpinCCW', 'click', () => setSpindle('CCW'));
@@ -306,6 +299,7 @@ initChunk3Events();
 initViewport();
 const mainEl = document.querySelector('.main') as HTMLElement;
 mountPosition(mainEl);
+mountOverrides(mainEl);
 mountJog(mainEl);
 initKeyboardJog();
 initModDragListeners();

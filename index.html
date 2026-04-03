@@ -95,39 +95,7 @@
 
   <!-- ═══ MODULE: JOGGING — mounted by jog.tsx ═══ -->
 
-  <!-- ═══ MODULE: OVERRIDES ═══ -->
-  <div class="module-card mod-hidden" id="mod-overrides" data-mod-size="normal" style="top:10px;left:594px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Overrides</span>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body">
-      <!-- Hidden run-button aliases so updateRunButtons() stays happy -->
-      <span id="rcStart" style="display:none"></span>
-      <span id="rcPause" style="display:none"></span>
-      <span id="rcStop"  style="display:none"></span>
-      <div class="override-section">
-        <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" data-ovr-reset="feed" title="Reset to 100%">FEED</button>
-          <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" />
-          <span class="ovr-val" id="ovrFeedVal">100%</span>
-        </div>
-        <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" data-ovr-reset="rapid" title="Reset to 100%">RAPID</button>
-          <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" />
-          <span class="ovr-val" id="ovrRapidVal">100%</span>
-        </div>
-        <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" data-ovr-reset="spindle" title="Reset to 100%">SPIN</button>
-          <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" />
-          <span class="ovr-val" id="ovrSpinVal">100%</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- ═══ MODULE: OVERRIDES — mounted by overrides.tsx ═══ -->
 
   <!-- ═══ MODULE: SPINDLE / COOLANT ═══ -->
   <div class="module-card mod-hidden" id="mod-spindle" data-mod-size="normal" style="top:160px;left:594px">
