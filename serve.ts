@@ -15,8 +15,8 @@ watch(srcDir, { recursive: true }, (_, filename) => {
 
 // Also watch the HTML
 watch(rootDir, (_, filename) => {
-  if (filename === "index.html") {
-    console.log(`[reload] index.html changed`);
+  if (filename === "index.html" || filename === "style.css") {
+    console.log(`[reload] ${filename} changed`);
     for (const ws of reloadSockets) ws.send("reload");
   }
 });
@@ -36,6 +36,12 @@ Bun.serve({
     if (path === "/" || path === "/index.html") {
       return new Response(Bun.file(`${rootDir}/index.html`), {
         headers: { "content-type": "text/html" },
+      });
+    }
+
+    if (path === "/style.css") {
+      return new Response(Bun.file(`${rootDir}/style.css`), {
+        headers: { "content-type": "text/css" },
       });
     }
 

@@ -18,11 +18,14 @@ if (!result.success) {
 
 const js = await result.outputs[0].text();
 const html = readFileSync(resolve(rootDir, "index.html"), "utf-8");
+const css = readFileSync(resolve(rootDir, "style.css"), "utf-8");
 
-// Replace the dev script tag with the inlined bundle
+// Inline CSS and JS for single-file distribution
 const out = html
+  .replace(/<link rel="stylesheet" href="\/style\.css">/, `<style>${css}</style>`)
   .replace(/<script src="\/app\.js" type="module"><\/script>/, `<script type="module">${js}</script>`)
-  .replace(/<!-- DEV-RELOAD -->[\s\S]*?<!-- \/DEV-RELOAD -->/, '');
+  .replace(/<!-- DEV-RELOAD -->[\s\S]*?<!-- \/DEV-RELOAD -->/, '')
+  .replace(/<!-- CSS extracted to style\.css[^>]*-->/, '');
 
 writeFileSync(resolve(rootDir, "dist", "flexisender.html"), out);
 console.log("Built → dist/flexisender.html");
