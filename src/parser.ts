@@ -15,6 +15,16 @@ import { emit, type StatusReport } from './bus';
 export function parseResponse(raw: string): void {
   if (raw.startsWith('<') && raw.endsWith('>')) { parseStatus(raw.slice(1, -1)); return; }
 
+  // Always dequeue sentQueue on ok/error — before intercepts, so RX tracking stays in sync
+  let _dequeuedSent: { line: string; bytes: number } | undefined;
+  if (raw === 'ok' || raw.startsWith('error:')) {
+    _dequeuedSent = state.sentQueue.shift();
+    if (_dequeuedSent) {
+      state.rxInFlight = Math.max(0, state.rxInFlight - _dequeuedSent.bytes);
+    }
+    updateBufDisplay();
+  }
+
   if (state.esPhase !== 'idle' && settingsIntercept(raw)) return;
 
   if (state.ttPhase === 'loading' && toolTableIntercept(raw)) return;
@@ -22,19 +32,14 @@ export function parseResponse(raw: string): void {
   if (bearIntercept(raw)) return;
 
   if (raw === 'ok' || raw.startsWith('error:')) {
-    const sent = state.sentQueue.shift();
-    if (sent) {
-      state.rxInFlight = Math.max(0, state.rxInFlight - sent.bytes);
-    }
     if (raw.startsWith('error:')) {
-      log('err', raw + (sent ? '  ← "' + sent.line + '"' : ''));
+      log('err', raw + (_dequeuedSent ? '  ← "' + _dequeuedSent.line + '"' : ''));
       onSettingWriteErr(raw);
       if (state.running) { state.running = false; updateRunButtons(); log('alarm', 'Stream halted on error. Fix G-code and restart.'); }
     } else {
       if (state.pendingSettingWrite) { onSettingWriteOk(); }
     }
     pumpQueue();
-    updateBufDisplay();
     return;
   }
 
