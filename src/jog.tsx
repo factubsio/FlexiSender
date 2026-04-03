@@ -272,10 +272,18 @@ export function startJog(dir: string): void {
   sendCmd('$J=G91 ' + axis + sign + axisStep + ' F' + f);
 }
 
+export function clearWaypoints(): void {
+  for (const wp of _waypoints) removeGhost(wp.ghost);
+  _waypoints.length = 0;
+  clearHoverPreview();
+  _predictedDirty = false;
+}
+
 export function stopJog(): void {
   if (!state._isJogging) return;
   rtSend('\x85');
   setJogging(false);
+  clearWaypoints();
 }
 
 // ── Hold mode ─────────────────────────────────────────────────────────────────
