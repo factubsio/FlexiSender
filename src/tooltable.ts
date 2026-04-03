@@ -69,36 +69,11 @@ function renderRow(e: any, isMod: boolean): string {
   </tr>`;
 }
 
-export function renderToolTable(): void {
-  const table = document.getElementById('ttTable') as HTMLElement;
-  const empty = document.getElementById('ttEmpty') as HTMLElement;
-  const count = document.getElementById('ttToolCount') as HTMLElement;
-  const tbody = document.getElementById('ttTableBody') as HTMLElement;
-
-  if (!state.ttEntries.length) {
-    table.style.display = 'none';
-    empty.style.display = 'flex';
-    count.textContent = '';
-    renderModTT();
-    return;
-  }
-
-  tbody.innerHTML = sortedEntries().map(e => renderRow(e, false)).join('');
-  const carouselCount = state.ttEntries.filter(e => e.pocket > 0).length;
-  count.textContent = `${state.ttEntries.length} tool${state.ttEntries.length !== 1 ? 's' : ''} · ${carouselCount} in carousel`;
-  table.style.display = '';
-  empty.style.display = 'none';
-  renderModTT();
-}
-
-export function renderModTT(): void {
-  const modCard = document.getElementById('mod-tooltable');
-  if (!modCard || modCard.classList.contains('mod-hidden')) return;
-
-  const table = document.getElementById('modTTTable') as HTMLElement;
-  const empty = document.getElementById('modTTEmpty') as HTMLElement;
-  const count = document.getElementById('modTTCount') as HTMLElement;
-  const tbody = document.getElementById('modTTBody') as HTMLElement;
+function renderTTInto(tableId: string, emptyId: string, tbodyId: string, countId: string, isMod: boolean): void {
+  const table = document.getElementById(tableId) as HTMLElement;
+  const empty = document.getElementById(emptyId) as HTMLElement;
+  const count = document.getElementById(countId) as HTMLElement | null;
+  const tbody = document.getElementById(tbodyId) as HTMLElement;
   if (!table || !empty || !tbody) return;
 
   if (!state.ttEntries.length) {
@@ -108,11 +83,24 @@ export function renderModTT(): void {
     return;
   }
 
-  tbody.innerHTML = sortedEntries().map(e => renderRow(e, true)).join('');
+  tbody.innerHTML = sortedEntries().map(e => renderRow(e, isMod)).join('');
   table.style.display = '';
   empty.style.display = 'none';
   const carouselCount = state.ttEntries.filter(e => e.pocket > 0).length;
-  if (count) count.textContent = `${state.ttEntries.length}T · ${carouselCount}P`;
+  if (count) count.textContent = isMod
+    ? `${state.ttEntries.length}T · ${carouselCount}P`
+    : `${state.ttEntries.length} tool${state.ttEntries.length !== 1 ? 's' : ''} · ${carouselCount} in carousel`;
+}
+
+export function renderToolTable(): void {
+  renderTTInto('ttTable', 'ttEmpty', 'ttTableBody', 'ttToolCount', false);
+  renderModTT();
+}
+
+export function renderModTT(): void {
+  const modCard = document.getElementById('mod-tooltable');
+  if (!modCard || modCard.classList.contains('mod-hidden')) return;
+  renderTTInto('modTTTable', 'modTTEmpty', 'modTTBody', 'modTTCount', true);
 }
 
 function ttSetStatus(msg: string | null): void {

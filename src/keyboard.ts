@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state } from './state';
-import { sendManual } from './streaming';
+import { sendManual } from './console';
 
 function updateKbdDisplay(): void {
   document.getElementById('kbdInputDisplay')!.textContent = '› ' + state.kbdBuffer;

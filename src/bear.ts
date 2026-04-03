@@ -231,46 +231,48 @@ export function renderBearModule(): void {
   tableWrap.innerHTML = html;
 }
 
-export function bearShowAddForm(): void {
+function populateBearForm(zone?: BearZone): void {
   const form = document.getElementById('bearEditForm');
   if (!form) return;
   form.style.display = '';
-  (document.getElementById('bearFormTitle') as HTMLElement).textContent = 'NEW ZONE';
-  // Find next free slot
-  const used = new Set(_zones.map(z => z.slot));
-  let slot = 0;
-  while (used.has(slot) && slot < 16) slot++;
-  (document.getElementById('bearSlot') as HTMLInputElement).value = String(slot);
-  (document.getElementById('bearXMin') as HTMLInputElement).value = '0';
-  (document.getElementById('bearYMin') as HTMLInputElement).value = '0';
-  (document.getElementById('bearZMin') as HTMLInputElement).value = '0';
-  (document.getElementById('bearXMax') as HTMLInputElement).value = '0';
-  (document.getElementById('bearYMax') as HTMLInputElement).value = '0';
-  (document.getElementById('bearZMax') as HTMLInputElement).value = '0';
-  (document.getElementById('bearFlagEn') as HTMLInputElement).checked = true;
-  (document.getElementById('bearFlagGcode') as HTMLInputElement).checked = false;
-  (document.getElementById('bearFlagJog') as HTMLInputElement).checked = false;
-  (document.getElementById('bearFlagTool') as HTMLInputElement).checked = false;
+
+  if (zone) {
+    (document.getElementById('bearFormTitle') as HTMLElement).textContent = 'EDIT ZONE ' + zone.slot;
+    (document.getElementById('bearSlot') as HTMLInputElement).value = String(zone.slot);
+    (document.getElementById('bearXMin') as HTMLInputElement).value = String(zone.xmin);
+    (document.getElementById('bearYMin') as HTMLInputElement).value = String(zone.ymin);
+    (document.getElementById('bearZMin') as HTMLInputElement).value = String(zone.zmin);
+    (document.getElementById('bearXMax') as HTMLInputElement).value = String(zone.xmax);
+    (document.getElementById('bearYMax') as HTMLInputElement).value = String(zone.ymax);
+    (document.getElementById('bearZMax') as HTMLInputElement).value = String(zone.zmax);
+    (document.getElementById('bearFlagEn') as HTMLInputElement).checked = flagEnabled(zone.flags);
+    (document.getElementById('bearFlagGcode') as HTMLInputElement).checked = flagAllowGcode(zone.flags);
+    (document.getElementById('bearFlagJog') as HTMLInputElement).checked = flagAllowJog(zone.flags);
+    (document.getElementById('bearFlagTool') as HTMLInputElement).checked = flagAllowToolchg(zone.flags);
+  } else {
+    const used = new Set(_zones.map(z => z.slot));
+    let slot = 0;
+    while (used.has(slot) && slot < 16) slot++;
+    (document.getElementById('bearFormTitle') as HTMLElement).textContent = 'NEW ZONE';
+    (document.getElementById('bearSlot') as HTMLInputElement).value = String(slot);
+    (document.getElementById('bearXMin') as HTMLInputElement).value = '0';
+    (document.getElementById('bearYMin') as HTMLInputElement).value = '0';
+    (document.getElementById('bearZMin') as HTMLInputElement).value = '0';
+    (document.getElementById('bearXMax') as HTMLInputElement).value = '0';
+    (document.getElementById('bearYMax') as HTMLInputElement).value = '0';
+    (document.getElementById('bearZMax') as HTMLInputElement).value = '0';
+    (document.getElementById('bearFlagEn') as HTMLInputElement).checked = true;
+    (document.getElementById('bearFlagGcode') as HTMLInputElement).checked = false;
+    (document.getElementById('bearFlagJog') as HTMLInputElement).checked = false;
+    (document.getElementById('bearFlagTool') as HTMLInputElement).checked = false;
+  }
 }
+
+export function bearShowAddForm(): void { populateBearForm(); }
 
 export function bearEditZone(slot: number): void {
   const z = _zones.find(z => z.slot === slot);
-  if (!z) return;
-  const form = document.getElementById('bearEditForm');
-  if (!form) return;
-  form.style.display = '';
-  (document.getElementById('bearFormTitle') as HTMLElement).textContent = 'EDIT ZONE ' + slot;
-  (document.getElementById('bearSlot') as HTMLInputElement).value = String(z.slot);
-  (document.getElementById('bearXMin') as HTMLInputElement).value = String(z.xmin);
-  (document.getElementById('bearYMin') as HTMLInputElement).value = String(z.ymin);
-  (document.getElementById('bearZMin') as HTMLInputElement).value = String(z.zmin);
-  (document.getElementById('bearXMax') as HTMLInputElement).value = String(z.xmax);
-  (document.getElementById('bearYMax') as HTMLInputElement).value = String(z.ymax);
-  (document.getElementById('bearZMax') as HTMLInputElement).value = String(z.zmax);
-  (document.getElementById('bearFlagEn') as HTMLInputElement).checked = flagEnabled(z.flags);
-  (document.getElementById('bearFlagGcode') as HTMLInputElement).checked = flagAllowGcode(z.flags);
-  (document.getElementById('bearFlagJog') as HTMLInputElement).checked = flagAllowJog(z.flags);
-  (document.getElementById('bearFlagTool') as HTMLInputElement).checked = flagAllowToolchg(z.flags);
+  if (z) populateBearForm(z);
 }
 
 export function bearSaveZone(): void {
