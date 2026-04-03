@@ -1107,30 +1107,30 @@
       <input class="ws-input" id="wsUrl" type="text" value="ws://192.168.5.1:80" placeholder="ws://host:port" />
       <!-- Serial mode -->
       <span class="serial-port-label" id="serialPortLabel">No port selected</span>
-      <button class="tb-btn primary" id="connectBtn" onclick="toggleConnect()">CONNECT</button>
+      <button class="tb-btn primary" id="connectBtn">CONNECT</button>
       <span class="status-text" id="statusText">DISCONNECTED</span>
     </div>
     <div class="tb-sep"></div>
     <div class="sd-btn-wrap" id="sdBtnWrap">
-      <button class="tb-btn sd-card-btn" id="sdCardBtn" onclick="toggleSdPanel()">💾 SD CARD</button>
+      <button class="tb-btn sd-card-btn" id="sdCardBtn">💾 SD CARD</button>
     </div>
-    <button class="tb-btn upload-open-btn" id="tbBtn-uploadOpen" onclick="document.getElementById('uploadFileInput').click()" title="Load file into sender AND upload to SD card">📤 UPLOAD &amp; OPEN</button>
-    <input type="file" id="uploadFileInput" accept=".nc,.gcode,.g,.ngc,.tap" onchange="uploadAndOpenFile(this)" />
+    <button class="tb-btn upload-open-btn" id="tbBtn-uploadOpen" title="Load file into sender AND upload to SD card">📤 UPLOAD &amp; OPEN</button>
+    <input type="file" id="uploadFileInput" accept=".nc,.gcode,.g,.ngc,.tap" />
     <div class="tb-sep" id="tbSep-row1-machine"></div>
-    <button class="tb-btn danger" id="tbBtn-reset"  onclick="sendReset()">⚡ RESET</button>
-    <button class="tb-btn"        id="tbBtn-unlock" onclick="unlockAlarm()">🔓 UNLOCK</button>
+    <button class="tb-btn danger" id="tbBtn-reset">⚡ RESET</button>
+    <button class="tb-btn"        id="tbBtn-unlock">🔓 UNLOCK</button>
   </div>
   <!-- ROW 2: File open + Run controls + HOME on right -->
   <div class="toolbar-row" id="toolbar-row2">
-    <button class="tb-btn" id="tbBtn-open" onclick="document.getElementById('fileInput').click()">📂 OPEN</button>
-    <input type="file" id="fileInput" accept=".nc,.gcode,.g,.ngc,.tap" onchange="loadFile(this)" />
+    <button class="tb-btn" id="tbBtn-open">📂 OPEN</button>
+    <input type="file" id="fileInput" accept=".nc,.gcode,.g,.ngc,.tap" />
     <div class="tb-sep" id="tbSep-row2-run"></div>
-    <button class="tb-btn success" id="btnStart" onclick="startJob()" disabled>▶ RUN</button>
-    <button class="tb-btn"         id="btnPause" onclick="pauseJob()" disabled>⏸ HOLD</button>
-    <button class="tb-btn danger"  id="btnStop"  onclick="stopJob()"  disabled>■ STOP</button>
+    <button class="tb-btn success" id="btnStart" disabled>▶ RUN</button>
+    <button class="tb-btn"         id="btnPause" disabled>⏸ HOLD</button>
+    <button class="tb-btn danger"  id="btnStop"  disabled>■ STOP</button>
     <div style="flex:1"></div>
     <div class="tb-sep" id="tbSep-row2-home"></div>
-    <button class="tb-btn home-btn not-homed" id="tbBtn-home" onclick="sendHome()">⌂ HOME</button>
+    <button class="tb-btn home-btn not-homed" id="tbBtn-home">⌂ HOME</button>
   </div>
 </div>
 
@@ -1141,8 +1141,8 @@
 <div class="sd-panel" id="sdPanel">
   <div class="sd-panel-header">
     <span class="sd-panel-title">💾 SD CARD FILES</span>
-    <button class="sd-refresh-btn" id="sdRefreshBtn" onclick="sdRefreshFiles()" title="Fetch file list from controller">⟳ REFRESH</button>
-    <button class="sd-close-btn" onclick="closeSdPanel()">✕</button>
+    <button class="sd-refresh-btn" id="sdRefreshBtn" title="Fetch file list from controller">⟳ REFRESH</button>
+    <button class="sd-close-btn" id="sdCloseBtn">✕</button>
   </div>
   <div class="sd-panel-body">
     <div class="sd-select-wrap">
@@ -1152,20 +1152,20 @@
     </div>
     <div class="sd-panel-actions">
       <span class="sd-file-info" id="sdFileInfo"></span>
-      <button class="tb-btn success sd-run-btn" id="sdRunBtn" onclick="sdRunSelected()" disabled>▶ RUN FROM SD</button>
+      <button class="tb-btn success sd-run-btn" id="sdRunBtn" disabled>▶ RUN FROM SD</button>
     </div>
   </div>
 </div>
 
 <!-- TAB BAR -->
 <div class="tab-bar">
-  <button class="tab-btn active" id="tab-run" onclick="switchTab('run')">RUN</button>
-  <button class="tab-btn" id="tab-settings" onclick="switchTab('settings')">SETTINGS: GRBL</button>
-  <button class="tab-btn" id="tab-camera" onclick="switchTab('camera')">CAMERA</button>
-  <button class="tab-btn" id="tab-tooltable" onclick="switchTab('tooltable')">TOOL TABLE</button>
-  <button class="tab-btn" id="tab-modules" onclick="switchTab('modules')">MODULES</button>
-  <button class="tab-btn" id="tab-options" onclick="switchTab('options')">⚙ OPTIONS</button>
-  <button class="mod-lock-btn" id="modLockBtn" onclick="toggleModLock()" title="Lock / unlock module positions">
+  <button class="tab-btn active" id="tab-run" data-tab="run">RUN</button>
+  <button class="tab-btn" id="tab-settings" data-tab="settings">SETTINGS: GRBL</button>
+  <button class="tab-btn" id="tab-camera" data-tab="camera">CAMERA</button>
+  <button class="tab-btn" id="tab-tooltable" data-tab="tooltable">TOOL TABLE</button>
+  <button class="tab-btn" id="tab-modules" data-tab="modules">MODULES</button>
+  <button class="tab-btn" id="tab-options" data-tab="options">⚙ OPTIONS</button>
+  <button class="mod-lock-btn" id="modLockBtn" title="Lock / unlock module positions">
     <span id="modLockIcon">🔓</span>
     <span id="modLockLabel">UNLOCKED</span>
   </button>
@@ -1180,18 +1180,18 @@
   <!-- ═══ MODULE: MACHINE POSITION ═══ -->
   <div class="module-card mod-hidden" id="mod-position" data-mod-size="normal" style="top:10px;left:10px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-position')"
-         ontouchstart="modTouchStart(event,'mod-position')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Machine Position</span>
-      <button class="module-drag-close" onclick="toggleModule('position',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div class="status-wcs-row" style="padding:2px 0 0">
         <div class="state-badge idle" id="stateBadge"><span id="stateText">IDLE</span></div>
         <div class="wcs-select-wrap">
           <span class="wcs-label">WCS</span>
-          <select class="wcs-select" id="wcsSelect" onchange="setWCS(this.value)">
+          <select class="wcs-select" id="wcsSelect">
             <option value="G54">G54</option>
             <option value="G55">G55</option>
             <option value="G56">G56</option>
@@ -1209,7 +1209,7 @@
             <div class="dro-axis-mpos" id="droMX">M: 0.000</div>
           </div>
           <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 X0')">ZERO</button>
+          <button class="dro-zero-btn" data-zero="X">ZERO</button>
         </div>
         <div class="dro-axis-card" id="axCard-Y">
           <div class="dro-axis-label">Y</div>
@@ -1218,7 +1218,7 @@
             <div class="dro-axis-mpos" id="droMY">M: 0.000</div>
           </div>
           <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Y0')">ZERO</button>
+          <button class="dro-zero-btn" data-zero="Y">ZERO</button>
         </div>
         <div class="dro-axis-card" id="axCard-Z">
           <div class="dro-axis-label">Z</div>
@@ -1227,7 +1227,7 @@
             <div class="dro-axis-mpos" id="droMZ">M: 0.000</div>
           </div>
           <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" onclick="sendCmd('G10 L20 P1 Z0')">ZERO</button>
+          <button class="dro-zero-btn" data-zero="Z">ZERO</button>
         </div>
       </div>
       <div class="dro-sub">
@@ -1242,19 +1242,19 @@
   <!-- ═══ MODULE: JOGGING ═══ -->
   <div class="module-card mod-hidden" id="mod-jogging" data-mod-size="normal" style="top:10px;left:302px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-jogging')"
-         ontouchstart="modTouchStart(event,'mod-jogging')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Jogging</span>
-      <div class="jog-mode-toggle" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()">
+      <div class="jog-mode-toggle">
         <span class="jog-mode-label" id="jogModeClickLabel" style="color:var(--accent)">CLICK</span>
         <label class="jog-mode-switch-wrap" title="Toggle: Click (step) vs Hold (stop on release)">
-          <input type="checkbox" id="jogHoldToggle" onchange="setJogHoldMode(this.checked)">
+          <input type="checkbox" id="jogHoldToggle">
           <span class="jog-mode-slider"></span>
         </label>
         <span class="jog-mode-label" id="jogModeHoldLabel">HOLD</span>
       </div>
-      <button class="module-drag-close" onclick="toggleModule('jogging',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div class="jog-section" style="border:none;padding:4px 0;background:transparent">
@@ -1264,7 +1264,7 @@
             <button class="jog-btn" data-dir="Y+">↑</button>
             <button class="jog-btn diag" data-dir="X+Y+">↗</button>
             <button class="jog-btn" data-dir="X-">←</button>
-            <button class="jog-btn danger" onclick="stopJog()" style="font-size:11px;font-family:var(--cond);letter-spacing:1px">■ STOP</button>
+            <button class="jog-btn danger" id="jogStopBtn" style="font-size:11px;font-family:var(--cond);letter-spacing:1px">■ STOP</button>
             <button class="jog-btn" data-dir="X+">→</button>
             <button class="jog-btn diag" data-dir="X-Y-">↙</button>
             <button class="jog-btn" data-dir="Y-">↓</button>
@@ -1273,34 +1273,34 @@
           <div class="jog-z-col">
             <button class="jog-btn z-up" style="width:48px;height:48px" data-dir="Z+">Z↑</button>
             <button class="jog-btn z-down" style="width:48px;height:48px" data-dir="Z-">Z↓</button>
-            <button class="jog-btn" onclick="goToXY0()" style="width:48px;height:48px;font-size:10px;font-family:var(--cond);letter-spacing:0.5px">XY0</button>
+            <button class="jog-btn" id="jogXY0Btn" style="width:48px;height:48px;font-size:10px;font-family:var(--cond);letter-spacing:0.5px">XY0</button>
           </div>
         </div>
       </div>
       <div class="feed-row" style="margin-top:2px">
         <span class="feed-label">JOG F</span>
         <input type="range" class="feed-slider" min="100" max="3000" value="1000" id="jogFeed"
-          oninput="document.getElementById('jogFeedVal').textContent=this.value" />
+          />
         <span class="feed-val" id="jogFeedVal">1000</span>
       </div>
       <div class="jog-step-axis-row">
         <span class="jog-step-axis-label">XY</span>
         <div class="jog-step-axis-btns">
-          <button class="step-btn xy-step-btn" onclick="setStepXY(0.01)">0.01</button>
-          <button class="step-btn xy-step-btn" onclick="setStepXY(0.1)">0.1</button>
-          <button class="step-btn xy-step-btn" onclick="setStepXY(1)">1</button>
-          <button class="step-btn xy-step-btn active" onclick="setStepXY(10)">10</button>
-          <button class="step-btn xy-step-btn" onclick="setStepXY(50)">50</button>
+          <button class="step-btn xy-step-btn">0.01</button>
+          <button class="step-btn xy-step-btn">0.1</button>
+          <button class="step-btn xy-step-btn">1</button>
+          <button class="step-btn xy-step-btn active">10</button>
+          <button class="step-btn xy-step-btn">50</button>
         </div>
       </div>
       <div class="jog-step-axis-row">
         <span class="jog-step-axis-label">Z</span>
         <div class="jog-step-axis-btns">
-          <button class="step-btn z-step-btn" onclick="setStepZ(0.01)">0.01</button>
-          <button class="step-btn z-step-btn" onclick="setStepZ(0.1)">0.1</button>
-          <button class="step-btn z-step-btn active" onclick="setStepZ(1)">1</button>
-          <button class="step-btn z-step-btn" onclick="setStepZ(5)">5</button>
-          <button class="step-btn z-step-btn" onclick="setStepZ(10)">10</button>
+          <button class="step-btn z-step-btn">0.01</button>
+          <button class="step-btn z-step-btn">0.1</button>
+          <button class="step-btn z-step-btn active">1</button>
+          <button class="step-btn z-step-btn">5</button>
+          <button class="step-btn z-step-btn">10</button>
         </div>
       </div>
     </div>
@@ -1309,11 +1309,11 @@
   <!-- ═══ MODULE: OVERRIDES ═══ -->
   <div class="module-card mod-hidden" id="mod-overrides" data-mod-size="normal" style="top:10px;left:594px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-overrides')"
-         ontouchstart="modTouchStart(event,'mod-overrides')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Overrides</span>
-      <button class="module-drag-close" onclick="toggleModule('overrides',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <!-- Hidden run-button aliases so updateRunButtons() stays happy -->
@@ -1322,18 +1322,18 @@
       <span id="rcStop"  style="display:none"></span>
       <div class="override-section">
         <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('feed')" title="Reset to 100%">FEED</button>
-          <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" oninput="applyOverride('feed', parseInt(this.value))" />
+          <button class="ovr-label ovr-reset-btn" data-ovr-reset="feed" title="Reset to 100%">FEED</button>
+          <input type="range" class="ovr-slider" id="ovrFeedSlider" min="1" max="999" value="100" />
           <span class="ovr-val" id="ovrFeedVal">100%</span>
         </div>
         <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('rapid')" title="Reset to 100%">RAPID</button>
-          <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" oninput="applyOverride('rapid', parseInt(this.value))" />
+          <button class="ovr-label ovr-reset-btn" data-ovr-reset="rapid" title="Reset to 100%">RAPID</button>
+          <input type="range" class="ovr-slider" id="ovrRapidSlider" min="25" max="100" value="100" />
           <span class="ovr-val" id="ovrRapidVal">100%</span>
         </div>
         <div class="ovr-row">
-          <button class="ovr-label ovr-reset-btn" onclick="resetOverride('spindle')" title="Reset to 100%">SPIN</button>
-          <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" oninput="applyOverride('spindle', parseInt(this.value))" />
+          <button class="ovr-label ovr-reset-btn" data-ovr-reset="spindle" title="Reset to 100%">SPIN</button>
+          <input type="range" class="ovr-slider" id="ovrSpinSlider" min="10" max="200" value="100" />
           <span class="ovr-val" id="ovrSpinVal">100%</span>
         </div>
       </div>
@@ -1343,27 +1343,27 @@
   <!-- ═══ MODULE: SPINDLE / COOLANT ═══ -->
   <div class="module-card mod-hidden" id="mod-spindle" data-mod-size="normal" style="top:160px;left:594px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-spindle')"
-         ontouchstart="modTouchStart(event,'mod-spindle')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Spindle / Coolant</span>
-      <button class="module-drag-close" onclick="toggleModule('spindle',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div style="display:flex;align-items:center;gap:8px;padding:0 2px 2px">
         <span style="font-family:var(--cond);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;flex-shrink:0">RPM</span>
         <input type="number" id="spindleRPM" min="0" max="30000" step="100" value="10000"
           style="flex:1;background:var(--surface3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:13px;padding:6px 10px;outline:none;border-radius:var(--radius-sm);transition:border-color 0.15s;"
-          onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'" />
+          />
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;padding:0 2px">
-        <button class="spin-dir-btn" id="btnSpinCW"  onclick="setSpindle('CW')" >CW</button>
-        <button class="spin-dir-btn" id="btnSpinCCW" onclick="setSpindle('CCW')">CCW</button>
-        <button class="spin-dir-btn" id="btnSpinOFF" onclick="setSpindle('OFF')">OFF</button>
+        <button class="spin-dir-btn" id="btnSpinCW"  >CW</button>
+        <button class="spin-dir-btn" id="btnSpinCCW">CCW</button>
+        <button class="spin-dir-btn" id="btnSpinOFF">OFF</button>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:0 2px">
-        <button class="coolant-btn" id="btnFlood" onclick="toggleCoolant('flood')">FLOOD</button>
-        <button class="coolant-btn" id="btnMist"  onclick="toggleCoolant('mist')">MIST</button>
+        <button class="coolant-btn" id="btnFlood">FLOOD</button>
+        <button class="coolant-btn" id="btnMist" >MIST</button>
       </div>
     </div>
   </div>
@@ -1371,22 +1371,22 @@
   <!-- ═══ MODULE: MACROS ═══ -->
   <div class="module-card mod-hidden" id="mod-macros" data-mod-size="normal" style="top:310px;left:594px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-macros')"
-         ontouchstart="modTouchStart(event,'mod-macros')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Macros</span>
-      <button class="module-drag-close" onclick="toggleModule('macros',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div class="macro-grid">
-        <button class="macro-btn" onclick="sendHome()">HOME ALL</button>
-        <button class="macro-btn" onclick="sendCmd('$H Z')">HOME Z</button>
-        <button class="macro-btn" onclick="sendCmd('G0 X0 Y0')">GOTO XY0</button>
-        <button class="macro-btn" onclick="sendCmd('G0 Z5')">PARK Z</button>
-        <button class="macro-btn" onclick="sendCmd('$I')">GRBL INFO</button>
-        <button class="macro-btn" onclick="sendCmd('$$')">SETTINGS</button>
-        <button class="macro-btn" onclick="sendCmd('$#')">WCS TABLE</button>
-        <button class="macro-btn" onclick="sendCmd('?')">QUERY</button>
+        <button class="macro-btn" data-cmd="$H">HOME ALL</button>
+        <button class="macro-btn" data-cmd="$H Z">HOME Z</button>
+        <button class="macro-btn" data-cmd="G0 X0 Y0">GOTO XY0</button>
+        <button class="macro-btn" data-cmd="G0 Z5">PARK Z</button>
+        <button class="macro-btn" data-cmd="$I">GRBL INFO</button>
+        <button class="macro-btn" data-cmd="$$">SETTINGS</button>
+        <button class="macro-btn" data-cmd="$#">WCS TABLE</button>
+        <button class="macro-btn" data-cmd="?">QUERY</button>
       </div>
     </div>
   </div>
@@ -1394,15 +1394,15 @@
   <!-- ═══ MODULE: CONSOLE ═══ -->
   <div class="module-card mod-hidden" id="mod-console" data-mod-size="normal" style="top:10px;left:886px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-console')"
-         ontouchstart="modTouchStart(event,'mod-console')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Console</span>
       <div style="display:flex;gap:5px;align-items:center">
-        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="clearConsole()">CLEAR</button>
-        <button class="tb-btn" id="btnKeyboard" style="font-size:16px;padding:2px 10px;line-height:1" onclick="toggleTouchKeyboard()" title="Touch keyboard">⌨</button>
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px" id="btnConClear">CLEAR</button>
+        <button class="tb-btn" id="btnKeyboard" style="font-size:16px;padding:2px 10px;line-height:1" title="Touch keyboard">⌨</button>
       </div>
-      <button class="module-drag-close" onclick="toggleModule('console',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div class="right-console-wrap" style="border:none;border-radius:0">
@@ -1410,8 +1410,8 @@
         <div class="console-input-row" style="position:relative">
           <div class="con-autocomplete" id="conAutocomplete"></div>
           <span class="con-prompt">›</span>
-          <input class="con-input" id="conInput" placeholder="Send G-code command..." onkeydown="handleConInput(event)" oninput="conAutoUpdate()" autocomplete="off" />
-          <button class="con-send" onclick="sendManual()">SEND</button>
+          <input class="con-input" id="conInput" placeholder="Send G-code command..." autocomplete="off" />
+          <button class="con-send" id="btnConSend">SEND</button>
         </div>
       </div>
     </div>
@@ -1420,11 +1420,11 @@
   <!-- ═══ MODULE: PROGRAM LIMITS ═══ -->
   <div class="module-card mod-hidden" id="mod-limits" data-mod-size="normal" style="top:10px;left:302px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-limits')"
-         ontouchstart="modTouchStart(event,'mod-limits')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Program Limits</span>
-      <button class="module-drag-close" onclick="toggleModule('limits',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body">
       <div id="limitsEmpty" class="limits-empty">No program loaded</div>
@@ -1465,7 +1465,7 @@
           <input type="number" class="limits-safe-input" id="limitsSafeZ" value="5" step="1" title="Z height to lift to before framing (absolute WCS)" />
           <span style="font-family:var(--cond);font-size:9px;color:var(--text3);letter-spacing:1px">MM</span>
         </div>
-        <button class="limits-frame-btn" id="limitsFrameBtn" onclick="frameProgram()" disabled>⬛ FRAME PROGRAM</button>
+        <button class="limits-frame-btn" id="limitsFrameBtn" disabled>⬛ FRAME PROGRAM</button>
       </div>
     </div>
   </div>
@@ -1474,12 +1474,12 @@
   <div class="center-panel" style="flex:1">
     <div class="viewport-header">
       <span class="file-name" id="fileName">No file loaded</span>
-      <button class="view-btn active" onclick="setView('iso')">ISO</button>
-      <button class="view-btn" onclick="setView('top')">TOP</button>
-      <button class="view-btn" onclick="setView('front')">FRONT</button>
-      <button class="view-btn" onclick="setView('side')">SIDE</button>
-      <button class="view-btn" onclick="fitView()">FIT</button>
-      <button class="view-btn" onclick="toggleToolhead()" id="btnToolhead">TOOL ●</button>
+      <button class="view-btn active" data-view="iso">ISO</button>
+      <button class="view-btn" data-view="top">TOP</button>
+      <button class="view-btn" data-view="front">FRONT</button>
+      <button class="view-btn" data-view="side">SIDE</button>
+      <button class="view-btn" id="btnFitView">FIT</button>
+      <button class="view-btn" id="btnToolhead">TOOL ●</button>
     </div>
 
     <div class="progress-wrap">
@@ -1512,90 +1512,90 @@
       <div class="kbd-main">
         <div class="kbd-input-row">
           <div class="kbd-input-display" id="kbdInputDisplay">›</div>
-          <button class="kbd-key send-key" style="flex:none;width:64px" ontouchstart="kbdSend(event)" onclick="kbdSend(event)">SEND</button>
-          <button class="kbd-key close-key" style="flex:none;width:40px" ontouchstart="toggleTouchKeyboard(event)" onclick="toggleTouchKeyboard(event)">✕</button>
+          <button class="kbd-key send-key" style="flex:none;width:64px" data-kbd="send">SEND</button>
+          <button class="kbd-key close-key" style="flex:none;width:40px" data-kbd="close">✕</button>
         </div>
         <!-- Number / symbol row -->
         <div class="kbd-row">
-          <button class="kbd-key" ontouchstart="kbdPress(event,'1')" onclick="kbdPress(event,'1')">1</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'2')" onclick="kbdPress(event,'2')">2</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'3')" onclick="kbdPress(event,'3')">3</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'4')" onclick="kbdPress(event,'4')">4</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'5')" onclick="kbdPress(event,'5')">5</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'6')" onclick="kbdPress(event,'6')">6</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'7')" onclick="kbdPress(event,'7')">7</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'8')" onclick="kbdPress(event,'8')">8</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'9')" onclick="kbdPress(event,'9')">9</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'0')" onclick="kbdPress(event,'0')">0</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'-')" onclick="kbdPress(event,'-')">-</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'.')" onclick="kbdPress(event,'.')">.</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'#')" onclick="kbdPress(event,'#')">#</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'$')" onclick="kbdPress(event,'$')">$</button>
+          <button class="kbd-key" data-key="1">1</button>
+          <button class="kbd-key" data-key="2">2</button>
+          <button class="kbd-key" data-key="3">3</button>
+          <button class="kbd-key" data-key="4">4</button>
+          <button class="kbd-key" data-key="5">5</button>
+          <button class="kbd-key" data-key="6">6</button>
+          <button class="kbd-key" data-key="7">7</button>
+          <button class="kbd-key" data-key="8">8</button>
+          <button class="kbd-key" data-key="9">9</button>
+          <button class="kbd-key" data-key="0">0</button>
+          <button class="kbd-key" data-key="-">-</button>
+          <button class="kbd-key" data-key=".">.</button>
+          <button class="kbd-key" data-key="#">#</button>
+          <button class="kbd-key" data-key="$">$</button>
         </div>
         <!-- QWERTY row -->
         <div class="kbd-row">
-          <button class="kbd-key" ontouchstart="kbdPress(event,'Q')" onclick="kbdPress(event,'Q')">Q</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'W')" onclick="kbdPress(event,'W')">W</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'E')" onclick="kbdPress(event,'E')">E</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'R')" onclick="kbdPress(event,'R')">R</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'T')" onclick="kbdPress(event,'T')">T</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'Y')" onclick="kbdPress(event,'Y')">Y</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'U')" onclick="kbdPress(event,'U')">U</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'I')" onclick="kbdPress(event,'I')">I</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'O')" onclick="kbdPress(event,'O')">O</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'P')" onclick="kbdPress(event,'P')">P</button>
-          <button class="kbd-key action" style="flex:1.6" ontouchstart="kbdBackspace(event)" onclick="kbdBackspace(event)">⌫ DEL</button>
+          <button class="kbd-key" data-key="Q">Q</button>
+          <button class="kbd-key" data-key="W">W</button>
+          <button class="kbd-key" data-key="E">E</button>
+          <button class="kbd-key" data-key="R">R</button>
+          <button class="kbd-key" data-key="T">T</button>
+          <button class="kbd-key" data-key="Y">Y</button>
+          <button class="kbd-key" data-key="U">U</button>
+          <button class="kbd-key" data-key="I">I</button>
+          <button class="kbd-key" data-key="O">O</button>
+          <button class="kbd-key" data-key="P">P</button>
+          <button class="kbd-key action" style="flex:1.6" data-kbd="backspace">⌫ DEL</button>
         </div>
         <!-- ASDF row -->
         <div class="kbd-row">
-          <button class="kbd-key" ontouchstart="kbdPress(event,'A')" onclick="kbdPress(event,'A')">A</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'S')" onclick="kbdPress(event,'S')">S</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'D')" onclick="kbdPress(event,'D')">D</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'F')" onclick="kbdPress(event,'F')">F</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'G')" onclick="kbdPress(event,'G')">G</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'H')" onclick="kbdPress(event,'H')">H</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'J')" onclick="kbdPress(event,'J')">J</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'K')" onclick="kbdPress(event,'K')">K</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'L')" onclick="kbdPress(event,'L')">L</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,';')" onclick="kbdPress(event,';')">;</button>
-          <button class="kbd-key send-key" style="flex:1.6" ontouchstart="kbdSend(event)" onclick="kbdSend(event)">↵ SEND</button>
+          <button class="kbd-key" data-key="A">A</button>
+          <button class="kbd-key" data-key="S">S</button>
+          <button class="kbd-key" data-key="D">D</button>
+          <button class="kbd-key" data-key="F">F</button>
+          <button class="kbd-key" data-key="G">G</button>
+          <button class="kbd-key" data-key="H">H</button>
+          <button class="kbd-key" data-key="J">J</button>
+          <button class="kbd-key" data-key="K">K</button>
+          <button class="kbd-key" data-key="L">L</button>
+          <button class="kbd-key" data-key=";">;</button>
+          <button class="kbd-key send-key" style="flex:1.6" data-kbd="send">↵ SEND</button>
         </div>
         <!-- ZXCV row -->
         <div class="kbd-row">
-          <button class="kbd-key" ontouchstart="kbdPress(event,'Z')" onclick="kbdPress(event,'Z')">Z</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'X')" onclick="kbdPress(event,'X')">X</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'C')" onclick="kbdPress(event,'C')">C</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'V')" onclick="kbdPress(event,'V')">V</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'B')" onclick="kbdPress(event,'B')">B</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'N')" onclick="kbdPress(event,'N')">N</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'M')" onclick="kbdPress(event,'M')">M</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,' ')" onclick="kbdPress(event,' ')">SPC</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'/')" onclick="kbdPress(event,'/')">/</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'=')" onclick="kbdPress(event,'=')">=</button>
-          <button class="kbd-key" ontouchstart="kbdPress(event,'*')" onclick="kbdPress(event,'*')">*</button>
+          <button class="kbd-key" data-key="Z">Z</button>
+          <button class="kbd-key" data-key="X">X</button>
+          <button class="kbd-key" data-key="C">C</button>
+          <button class="kbd-key" data-key="V">V</button>
+          <button class="kbd-key" data-key="B">B</button>
+          <button class="kbd-key" data-key="N">N</button>
+          <button class="kbd-key" data-key="M">M</button>
+          <button class="kbd-key" data-key=" ">SPC</button>
+          <button class="kbd-key" data-key="/">/</button>
+          <button class="kbd-key" data-key="=">=</button>
+          <button class="kbd-key" data-key="*">*</button>
         </div>
       </div><!-- /kbd-main -->
 
       <!-- RIGHT: numpad -->
       <div class="kbd-numpad">
-        <button class="kbd-key action" style="font-size:10px" ontouchstart="kbdClear(event)" onclick="kbdClear(event)">CLR</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'(')" onclick="kbdPress(event,'(')">(</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,')')" onclick="kbdPress(event,')')">)</button>
+        <button class="kbd-key action" style="font-size:10px" data-kbd="clear">CLR</button>
+        <button class="kbd-key" data-key="(">(</button>
+        <button class="kbd-key" data-key=")">)</button>
 
-        <button class="kbd-key" ontouchstart="kbdPress(event,'7')" onclick="kbdPress(event,'7')">7</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'8')" onclick="kbdPress(event,'8')">8</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'9')" onclick="kbdPress(event,'9')">9</button>
+        <button class="kbd-key" data-key="7">7</button>
+        <button class="kbd-key" data-key="8">8</button>
+        <button class="kbd-key" data-key="9">9</button>
 
-        <button class="kbd-key" ontouchstart="kbdPress(event,'4')" onclick="kbdPress(event,'4')">4</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'5')" onclick="kbdPress(event,'5')">5</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'6')" onclick="kbdPress(event,'6')">6</button>
+        <button class="kbd-key" data-key="4">4</button>
+        <button class="kbd-key" data-key="5">5</button>
+        <button class="kbd-key" data-key="6">6</button>
 
-        <button class="kbd-key" ontouchstart="kbdPress(event,'1')" onclick="kbdPress(event,'1')">1</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'2')" onclick="kbdPress(event,'2')">2</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'3')" onclick="kbdPress(event,'3')">3</button>
+        <button class="kbd-key" data-key="1">1</button>
+        <button class="kbd-key" data-key="2">2</button>
+        <button class="kbd-key" data-key="3">3</button>
 
-        <button class="kbd-key np-wide" ontouchstart="kbdPress(event,'0')" onclick="kbdPress(event,'0')">0</button>
-        <button class="kbd-key" ontouchstart="kbdPress(event,'.')" onclick="kbdPress(event,'.')">.</button>
+        <button class="kbd-key np-wide" data-key="0">0</button>
+        <button class="kbd-key" data-key=".">.</button>
       </div><!-- /kbd-numpad -->
 
   </div><!-- /touch-kbd-overlay -->
@@ -1603,15 +1603,15 @@
   <!-- ═══ MODULE: TOOL TABLE ═══ -->
   <div class="module-card mod-hidden" id="mod-tooltable" data-mod-size="normal" style="top:10px;left:302px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-tooltable')"
-         ontouchstart="modTouchStart(event,'mod-tooltable')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Tool Table</span>
       <div style="display:flex;gap:5px;align-items:center">
         <span id="modTTCount" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
-        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="loadToolTable()" id="modTTRefresh">↻</button>
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px" id="modTTRefresh">↻</button>
       </div>
-      <button class="module-drag-close" onclick="toggleModule('tooltable',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body" style="padding:0">
       <div id="modTTStatus" style="padding:6px 12px;font-family:var(--mono);font-size:11px;color:var(--accent);display:none;"></div>
@@ -1651,11 +1651,11 @@
   <!-- ═══ MODULE: SIGNALS ═══ -->
   <div class="module-card mod-hidden" id="mod-signals" data-mod-size="normal" style="top:10px;left:594px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-signals')"
-         ontouchstart="modTouchStart(event,'mod-signals')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">Signals</span>
-      <button class="module-drag-close" onclick="toggleModule('signals',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body" style="padding:4px">
       <div class="sig-grid">
@@ -1675,15 +1675,15 @@
   <!-- ═══ MODULE: MR BEAR DO NOT TOUCH ═══ -->
   <div class="module-card mod-hidden" id="mod-bear" data-mod-size="normal" style="top:10px;left:594px">
     <div class="module-drag-handle"
-         onmousedown="modDragStart(event,'mod-bear')"
-         ontouchstart="modTouchStart(event,'mod-bear')">
+        
+        >
       <span class="module-drag-dots">⠿⠿</span>
       <span class="module-drag-title">🐻 MR BEAR</span>
       <div style="display:flex;gap:5px;align-items:center">
         <span class="bear-status-badge" id="bearStatusBadge">🐻 OFF</span>
-        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="bearRefresh()">↻</button>
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px">↻</button>
       </div>
-      <button class="module-drag-close" onclick="toggleModule('bear',false)">✕</button>
+      <button class="module-drag-close">✕</button>
     </div>
     <div class="module-body" id="bearModBody" style="padding:0">
     </div>
@@ -1706,14 +1706,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Machine Position</div>
-            <div class="mod-switch" onclick="toggleModule('position')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">DRO axis readouts, WCS selector, machine state and feed/spindle status</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('position','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('position','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('position','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('position','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1723,14 +1723,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Jogging</div>
-            <div class="mod-switch" onclick="toggleModule('jogging')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">XY/Z jog buttons, step size selectors, and jog feed rate control</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('jogging','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('jogging','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('jogging','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('jogging','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1740,14 +1740,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Overrides</div>
-            <div class="mod-switch" onclick="toggleModule('overrides')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Real-time feed rate, rapid, and spindle speed override sliders</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('overrides','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('overrides','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('overrides','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('overrides','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1757,14 +1757,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Spindle / Coolant</div>
-            <div class="mod-switch" onclick="toggleModule('spindle')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Spindle direction (CW/CCW/OFF), RPM input, and flood/mist coolant toggles</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('spindle','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('spindle','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('spindle','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('spindle','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1774,14 +1774,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Macros</div>
-            <div class="mod-switch" onclick="toggleModule('macros')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Quick-access buttons for common G-code commands and machine routines</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('macros','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('macros','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('macros','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('macros','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1791,21 +1791,21 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Console</div>
-            <div class="mod-switch" onclick="toggleModule('console')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Live command log with manual G-code entry and touch keyboard support</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('console','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('console','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('console','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('console','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
           <div class="mod-extra-row">
             <span class="mod-extra-label">Output lines:</span>
-            <button class="mod-lines-btn active" onclick="setConsoleLines(50, event)">50</button>
-            <button class="mod-lines-btn" onclick="setConsoleLines(100, event)">100</button>
-            <button class="mod-lines-btn" onclick="setConsoleLines(200, event)">200</button>
-            <button class="mod-lines-btn" onclick="setConsoleLines(500, event)">500</button>
+            <button class="mod-lines-btn active">50</button>
+            <button class="mod-lines-btn">100</button>
+            <button class="mod-lines-btn">200</button>
+            <button class="mod-lines-btn">500</button>
           </div>
         </div>
       </div>
@@ -1815,14 +1815,14 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Tool Table</div>
-            <div class="mod-switch" onclick="toggleModule('tooltable')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Live tool library with offsets, pocket assignments and active tool indicator</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('tooltable','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('tooltable','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('tooltable','xl',event)">XL</button>
-            <button class="mod-size-btn" onclick="setModSize('tooltable','xxl',event)">XXL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
+            <button class="mod-size-btn">XXL</button>
           </div>
         </div>
       </div>
@@ -1832,12 +1832,12 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Program Limits</div>
-            <div class="mod-switch" onclick="toggleModule('limits')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Shows the minimum, maximum and span of X, Y and Z movements in the loaded program. Includes a Frame button to trace the XY extents on the machine.</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('limits','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('limits','large',event)">Large</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
           </div>
         </div>
       </div>
@@ -1847,12 +1847,12 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">Signals</div>
-            <div class="mod-switch" onclick="toggleModule('signals')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Live indicator lights for X, Y and Z limit switches, probe, toolsetter, door and E-Stop inputs. Reads the Pn: field from the GRBL status report.</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('signals','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('signals','large',event)">Large</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
           </div>
         </div>
       </div>
@@ -1862,13 +1862,13 @@
         <div class="mod-toggle-info">
           <div style="display:flex;align-items:center;gap:10px">
             <div class="mod-toggle-name" style="flex:1">MR BEAR DO NOT TOUCH</div>
-            <div class="mod-switch" onclick="toggleModule('bear')"></div>
+            <div class="mod-switch"></div>
           </div>
           <div class="mod-toggle-desc">Zone management for the MR BEAR plugin. Shows exclusion zones in a table and visualizes them as red boxes on the 3D viewport.</div>
           <div class="mod-size-row">
-            <button class="mod-size-btn active" onclick="setModSize('bear','normal',event)">Normal</button>
-            <button class="mod-size-btn" onclick="setModSize('bear','large',event)">Large</button>
-            <button class="mod-size-btn" onclick="setModSize('bear','xl',event)">XL</button>
+            <button class="mod-size-btn active">Normal</button>
+            <button class="mod-size-btn">Large</button>
+            <button class="mod-size-btn">XL</button>
           </div>
         </div>
       </div>
@@ -1880,9 +1880,9 @@
 <!-- TAB: SETTINGS -->
 <div class="tab-panel" id="tabpanel-settings" style="flex-direction:column;overflow:hidden;">
   <div class="settings-toolbar">
-    <button class="tb-btn primary" onclick="loadSettings()" id="btnLoadSettings">↓ READ FROM CONTROLLER</button>
-    <button class="tb-btn success" onclick="writeAllDirty()" id="btnWriteAll" disabled>↑ WRITE ALL CHANGES</button>
-    <input class="settings-search" id="settingsSearch" placeholder="Search settings…" oninput="filterSettings(this.value)" />
+    <button class="tb-btn primary" id="btnLoadSettings">↓ READ FROM CONTROLLER</button>
+    <button class="tb-btn success" id="btnWriteAll" disabled>↑ WRITE ALL CHANGES</button>
+    <input class="settings-search" id="settingsSearch" placeholder="Search settings…" />
     <span class="settings-status" id="settingsStatus">Not loaded — connect and click READ FROM CONTROLLER</span>
   </div>
   <div class="settings-outer">
@@ -1911,14 +1911,14 @@
 
       <div>
         <div class="cam-label">Camera Source</div>
-        <select class="cam-select" id="camSelect" onchange="selectCamera(this.value)">
+        <select class="cam-select" id="camSelect">
           <option value="">— select camera —</option>
         </select>
       </div>
 
       <div style="display:flex;gap:5px">
-        <button class="cam-btn primary" id="camStartBtn" onclick="startCamera()" style="flex:1">▶ START</button>
-        <button class="cam-btn danger"  id="camStopBtn"  onclick="stopCamera()"  style="flex:1" disabled>■ STOP</button>
+        <button class="cam-btn primary" id="camStartBtn" style="flex:1">▶ START</button>
+        <button class="cam-btn danger"  id="camStopBtn"   style="flex:1" disabled>■ STOP</button>
       </div>
 
       <div class="cam-divider"></div>
@@ -1927,7 +1927,7 @@
         <div class="cam-label">Zoom</div>
         <div class="cam-slider-row">
           <input type="range" class="cam-slider" min="1" max="8" step="0.1" value="1" id="camZoom"
-            oninput="camZoomVal=parseFloat(this.value);document.getElementById('camZoomDisp').textContent=parseFloat(this.value).toFixed(1)+'x';drawOverlay()">
+           >
           <span class="cam-slider-val" id="camZoomDisp">1.0x</span>
         </div>
       </div>
@@ -1935,10 +1935,10 @@
       <div>
         <div class="cam-label">Crosshair Style</div>
         <div class="cam-crosshair-style">
-          <button class="ccs-btn active" data-style="cross"    onclick="setCrosshairStyle('cross')"   >+</button>
-          <button class="ccs-btn"        data-style="circle"   onclick="setCrosshairStyle('circle')"  >○</button>
-          <button class="ccs-btn"        data-style="both"     onclick="setCrosshairStyle('both')"    >⊕</button>
-          <button class="ccs-btn"        data-style="dot"      onclick="setCrosshairStyle('dot')"     >·</button>
+          <button class="ccs-btn active" data-style="cross"      >+</button>
+          <button class="ccs-btn"        data-style="circle"    >○</button>
+          <button class="ccs-btn"        data-style="both"        >⊕</button>
+          <button class="ccs-btn"        data-style="dot"          >·</button>
         </div>
       </div>
 
@@ -1946,7 +1946,7 @@
         <div class="cam-label">Crosshair Size</div>
         <div class="cam-slider-row">
           <input type="range" class="cam-slider" min="20" max="300" value="80" id="camCrossSize"
-            oninput="camCrossSizeVal=parseInt(this.value);drawOverlay()">
+           >
           <span class="cam-slider-val" id="camCrossSizeDisp" style="width:28px">80</span>
         </div>
       </div>
@@ -1954,10 +1954,10 @@
       <div>
         <div class="cam-label">Crosshair Color</div>
         <div style="display:flex;gap:4px;flex-wrap:wrap">
-          <button class="ccs-btn active" data-color="#00d4ff" onclick="setCrosshairColor('#00d4ff')" style="background:#00d4ff22;border-color:#00d4ff;color:#00d4ff">CYN</button>
-          <button class="ccs-btn"        data-color="#00e676" onclick="setCrosshairColor('#00e676')" style="color:#00e676">GRN</button>
-          <button class="ccs-btn"        data-color="#ff3d3d" onclick="setCrosshairColor('#ff3d3d')" style="color:#ff3d3d">RED</button>
-          <button class="ccs-btn"        data-color="#ffffff" onclick="setCrosshairColor('#ffffff')" style="color:#fff">WHT</button>
+          <button class="ccs-btn active" data-color="#00d4ff" style="background:#00d4ff22;border-color:#00d4ff;color:#00d4ff">CYN</button>
+          <button class="ccs-btn"        data-color="#00e676" style="color:#00e676">GRN</button>
+          <button class="ccs-btn"        data-color="#ff3d3d" style="color:#ff3d3d">RED</button>
+          <button class="ccs-btn"        data-color="#ffffff" style="color:#fff">WHT</button>
         </div>
       </div>
 
@@ -1969,12 +1969,12 @@
           <div class="cam-offset-box">
             <div class="cam-offset-label">X mm</div>
             <input class="cam-offset-input" id="camOffX" type="number" step="0.001" value="0.000"
-              onchange="camOffsetX=parseFloat(this.value)||0">
+             >
           </div>
           <div class="cam-offset-box">
             <div class="cam-offset-label">Y mm</div>
             <input class="cam-offset-input" id="camOffY" type="number" step="0.001" value="0.000"
-              onchange="camOffsetY=parseFloat(this.value)||0">
+             >
           </div>
         </div>
         <div style="margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--text3)">
@@ -1982,7 +1982,7 @@
         </div>
       </div>
 
-      <button class="cam-btn" onclick="measureOffset()">📏 MEASURE OFFSET</button>
+      <button class="cam-btn" id="camMeasureBtn">📏 MEASURE OFFSET</button>
 
       <div class="cam-divider"></div>
 
@@ -1991,9 +1991,9 @@
         <div class="cam-pos-row"><span class="cam-pos-lbl">Camera</span><span class="cam-pos-val" id="camCameraPos">X:0.000 Y:0.000</span></div>
       </div>
 
-      <button class="cam-btn primary" id="camGoCameraBtn" onclick="goToCamera()" disabled>→ MOVE TO CAMERA POS</button>
-      <button class="cam-btn"         id="camGoSpindleBtn" onclick="goToSpindle()" disabled>← MOVE TO SPINDLE POS</button>
-      <button class="cam-btn success"  id="camZeroHereBtn" onclick="zeroAtCrosshair()" disabled>⊕ ZERO WCS HERE</button>
+      <button class="cam-btn primary" id="camGoCameraBtn" disabled>→ MOVE TO CAMERA POS</button>
+      <button class="cam-btn"         id="camGoSpindleBtn" disabled>← MOVE TO SPINDLE POS</button>
+      <button class="cam-btn success"  id="camZeroHereBtn" disabled>⊕ ZERO WCS HERE</button>
     </div>
 
     <!-- LIVE VIEW -->
@@ -2007,11 +2007,7 @@
       <div class="camera-video-wrap" id="camWrap" style="display:none;position:relative">
         <video id="camVideo" autoplay playsinline muted></video>
         <canvas id="camCanvas"></canvas>
-        <div class="cam-drag-layer" id="camDragLayer"
-          onmousedown="camMouseDown(event)"
-          onmousemove="camMouseMove(event)"
-          onmouseup="camMouseUp(event)"
-          oncontextmenu="return false">
+        <div class="cam-drag-layer" id="camDragLayer">
         </div>
       </div>
     </div>
@@ -2036,8 +2032,8 @@
           <div class="options-card-title">Connection Type</div>
           <div class="options-card-desc">Choose how FlexiSender connects to your controller. WebSocket connects over your network (WiFi/Ethernet). USB/Serial connects directly via a USB cable using the Web Serial API (Chrome &amp; Edge only).</div>
           <div style="display:flex;gap:8px;margin-top:12px;" id="connTypeBtns">
-            <button class="opt-conn-btn active" id="connBtnWs"     onclick="optSetConnMode('websocket')">🌐 WebSocket</button>
-            <button class="opt-conn-btn"        id="connBtnSerial" onclick="optSetConnMode('serial')">🔌 USB / Serial</button>
+            <button class="opt-conn-btn active" id="connBtnWs"    >🌐 WebSocket</button>
+            <button class="opt-conn-btn"        id="connBtnSerial">🔌 USB / Serial</button>
           </div>
           <!-- WebSocket sub-options -->
           <div id="optWsSection" style="margin-top:12px;">
@@ -2049,7 +2045,7 @@
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
               <div style="flex:1;min-width:140px;">
                 <div class="opt-field-label">Baud Rate</div>
-                <select class="opt-input" id="optBaudRate" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                <select class="opt-input" id="optBaudRate" style="cursor:pointer;">
                   <option value="9600">9600</option>
                   <option value="19200">19200</option>
                   <option value="38400">38400</option>
@@ -2064,21 +2060,21 @@
               </div>
               <div style="flex:1;min-width:140px;">
                 <div class="opt-field-label">Data Bits</div>
-                <select class="opt-input" id="optDataBits" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                <select class="opt-input" id="optDataBits" style="cursor:pointer;">
                   <option value="7">7</option>
                   <option value="8" selected>8</option>
                 </select>
               </div>
               <div style="flex:1;min-width:140px;">
                 <div class="opt-field-label">Stop Bits</div>
-                <select class="opt-input" id="optStopBits" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                <select class="opt-input" id="optStopBits" style="cursor:pointer;">
                   <option value="1" selected>1</option>
                   <option value="2">2</option>
                 </select>
               </div>
               <div style="flex:1;min-width:140px;">
                 <div class="opt-field-label">Parity</div>
-                <select class="opt-input" id="optParity" onchange="optSaveConnSettings()" style="cursor:pointer;">
+                <select class="opt-input" id="optParity" style="cursor:pointer;">
                   <option value="none" selected>None</option>
                   <option value="even">Even</option>
                   <option value="odd">Odd</option>
@@ -2100,7 +2096,7 @@
           <div class="options-card-desc">Automatically fetch GrblHAL settings when connecting. Enables console autocomplete for setting names.</div>
           <div style="margin-top:10px;">
             <label class="tb-opt-toggle" style="padding:8px 14px;">
-              <input type="checkbox" id="optAutoLoadSettings" onchange="localStorage.setItem('fs-opt-autoload-settings',this.checked?'1':'0')"> Enable
+              <input type="checkbox" id="optAutoLoadSettings"> Enable
             </label>
           </div>
         </div>
@@ -2115,26 +2111,26 @@
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">
             <div>
               <div class="opt-field-label" style="color:#ff6b6b">X Minimum (mm)</div>
-              <input class="opt-input" type="number" id="vpXMin" step="10" value="-300" oninput="vpApply()" />
+              <input class="opt-input" type="number" id="vpXMin" step="10" value="-300" />
             </div>
             <div>
               <div class="opt-field-label" style="color:#ff6b6b">X Maximum (mm)</div>
-              <input class="opt-input" type="number" id="vpXMax" step="10" value="0" oninput="vpApply()" />
+              <input class="opt-input" type="number" id="vpXMax" step="10" value="0" />
             </div>
             <div>
               <div class="opt-field-label" style="color:#6bcb77">Y Minimum (mm)</div>
-              <input class="opt-input" type="number" id="vpYMin" step="10" value="-300" oninput="vpApply()" />
+              <input class="opt-input" type="number" id="vpYMin" step="10" value="-300" />
             </div>
             <div>
               <div class="opt-field-label" style="color:#6bcb77">Y Maximum (mm)</div>
-              <input class="opt-input" type="number" id="vpYMax" step="10" value="0" oninput="vpApply()" />
+              <input class="opt-input" type="number" id="vpYMax" step="10" value="0" />
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
             <span style="font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);">Projection</span>
             <div style="display:flex;gap:0;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border2);">
-              <button class="bool-btn on" id="projBtnPersp" onclick="setProjection(false);document.getElementById('projBtnPersp').classList.add('selected');document.getElementById('projBtnOrtho').classList.remove('selected');" style="padding:7px 16px;">PERSPECTIVE</button>
-              <button class="bool-btn off" id="projBtnOrtho" onclick="setProjection(true);document.getElementById('projBtnOrtho').classList.add('selected');document.getElementById('projBtnPersp').classList.remove('selected');" style="padding:7px 16px;">ORTHOGRAPHIC</button>
+              <button class="bool-btn on" id="projBtnPersp" style="padding:7px 16px;">PERSPECTIVE</button>
+              <button class="bool-btn off" id="projBtnOrtho" style="padding:7px 16px;">ORTHOGRAPHIC</button>
             </div>
           </div>
         </div>
@@ -2151,55 +2147,55 @@
             <div class="opt-color-row">
               <span class="opt-color-label">Primary Text</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optColorText" class="opt-color-picker" value="#f1f5f9" oninput="optApplyColor('text', this.value)" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optColorText').click()" id="optSwatchText" style="background:#f1f5f9"></div>
+                <input type="color" id="optColorText" class="opt-color-picker" value="#f1f5f9" />
+                <div class="opt-color-swatch" id="optSwatchText" style="background:#f1f5f9"></div>
               </div>
-              <input type="text" class="opt-hex-input" id="optHexText" value="#f1f5f9" oninput="optHexChange('text', this.value)" spellcheck="false" maxlength="7" />
-              <button class="opt-reset-btn" onclick="optResetColor('text')">Reset</button>
+              <input type="text" class="opt-hex-input" id="optHexText" value="#f1f5f9" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn">Reset</button>
             </div>
 
             <div class="opt-color-row">
               <span class="opt-color-label">Secondary Text</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optColorText2" class="opt-color-picker" value="#94a3b8" oninput="optApplyColor('text2', this.value)" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optColorText2').click()" id="optSwatchText2" style="background:#94a3b8"></div>
+                <input type="color" id="optColorText2" class="opt-color-picker" value="#94a3b8" />
+                <div class="opt-color-swatch" id="optSwatchText2" style="background:#94a3b8"></div>
               </div>
-              <input type="text" class="opt-hex-input" id="optHexText2" value="#94a3b8" oninput="optHexChange('text2', this.value)" spellcheck="false" maxlength="7" />
-              <button class="opt-reset-btn" onclick="optResetColor('text2')">Reset</button>
+              <input type="text" class="opt-hex-input" id="optHexText2" value="#94a3b8" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn">Reset</button>
             </div>
 
             <div class="opt-color-row">
               <span class="opt-color-label">Background</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optColorBg" class="opt-color-picker" value="#0f0e0c" oninput="optApplyColor('bg', this.value)" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optColorBg').click()" id="optSwatchBg" style="background:#0f0e0c"></div>
+                <input type="color" id="optColorBg" class="opt-color-picker" value="#0f0e0c" />
+                <div class="opt-color-swatch" id="optSwatchBg" style="background:#0f0e0c"></div>
               </div>
-              <input type="text" class="opt-hex-input" id="optHexBg" value="#0f0e0c" oninput="optHexChange('bg', this.value)" spellcheck="false" maxlength="7" />
-              <button class="opt-reset-btn" onclick="optResetColor('bg')">Reset</button>
+              <input type="text" class="opt-hex-input" id="optHexBg" value="#0f0e0c" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn">Reset</button>
             </div>
 
             <div class="opt-color-row">
               <span class="opt-color-label">Surface</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optColorSurface" class="opt-color-picker" value="#1a1814" oninput="optApplyColor('surface', this.value)" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optColorSurface').click()" id="optSwatchSurface" style="background:#1a1814"></div>
+                <input type="color" id="optColorSurface" class="opt-color-picker" value="#1a1814" />
+                <div class="opt-color-swatch" id="optSwatchSurface" style="background:#1a1814"></div>
               </div>
-              <input type="text" class="opt-hex-input" id="optHexSurface" value="#1a1814" oninput="optHexChange('surface', this.value)" spellcheck="false" maxlength="7" />
-              <button class="opt-reset-btn" onclick="optResetColor('surface')">Reset</button>
+              <input type="text" class="opt-hex-input" id="optHexSurface" value="#1a1814" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn">Reset</button>
             </div>
 
             <div class="opt-color-row">
               <span class="opt-color-label">Accent</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optColorAccent" class="opt-color-picker" value="#ff8c42" oninput="optApplyColor('accent', this.value)" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optColorAccent').click()" id="optSwatchAccent" style="background:#ff8c42"></div>
+                <input type="color" id="optColorAccent" class="opt-color-picker" value="#ff8c42" />
+                <div class="opt-color-swatch" id="optSwatchAccent" style="background:#ff8c42"></div>
               </div>
-              <input type="text" class="opt-hex-input" id="optHexAccent" value="#ff8c42" oninput="optHexChange('accent', this.value)" spellcheck="false" maxlength="7" />
-              <button class="opt-reset-btn" onclick="optResetColor('accent')">Reset</button>
+              <input type="text" class="opt-hex-input" id="optHexAccent" value="#ff8c42" spellcheck="false" maxlength="7" />
+              <button class="opt-reset-btn">Reset</button>
             </div>
 
             <div style="display:flex;gap:8px;margin-top:4px;">
-              <button class="opt-action-btn" onclick="optResetAllColors()">↺ Reset All Colours</button>
+              <button class="opt-action-btn" id="btnResetAllColors">↺ Reset All Colours</button>
             </div>
           </div>
         </div>
@@ -2215,21 +2211,21 @@
             <div>
               <div style="font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Row 1 — Machine Controls</div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                <label class="tb-opt-toggle" data-btn="tbBtn-reset"><input type="checkbox" onchange="saveTbOpt(this)"> ⚡ Reset</label>
-                <label class="tb-opt-toggle" data-btn="tbBtn-unlock"><input type="checkbox" onchange="saveTbOpt(this)"> 🔓 Unlock</label>
-                <label class="tb-opt-toggle" data-btn="sdBtnWrap"><input type="checkbox" onchange="saveTbOpt(this)"> 💾 SD Card</label>
-                <label class="tb-opt-toggle" data-btn="tbBtn-uploadOpen"><input type="checkbox" onchange="saveTbOpt(this)"> 📤 Upload &amp; Open</label>
+                <label class="tb-opt-toggle" data-btn="tbBtn-reset"><input type="checkbox"> ⚡ Reset</label>
+                <label class="tb-opt-toggle" data-btn="tbBtn-unlock"><input type="checkbox"> 🔓 Unlock</label>
+                <label class="tb-opt-toggle" data-btn="sdBtnWrap"><input type="checkbox"> 💾 SD Card</label>
+                <label class="tb-opt-toggle" data-btn="tbBtn-uploadOpen"><input type="checkbox"> 📤 Upload &amp; Open</label>
               </div>
             </div>
             <div style="height:1px;background:var(--border);"></div>
             <div>
               <div style="font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Row 2 — Run Controls</div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                <label class="tb-opt-toggle" data-btn="tbBtn-open"><input type="checkbox" onchange="saveTbOpt(this)"> 📂 Open</label>
-                <label class="tb-opt-toggle" data-btn="btnStart"><input type="checkbox" onchange="saveTbOpt(this)"> ▶ Run</label>
-                <label class="tb-opt-toggle" data-btn="btnPause"><input type="checkbox" onchange="saveTbOpt(this)"> ⏸ Hold</label>
-                <label class="tb-opt-toggle" data-btn="btnStop"><input type="checkbox" onchange="saveTbOpt(this)"> ■ Stop</label>
-                <label class="tb-opt-toggle" data-btn="tbBtn-home"><input type="checkbox" onchange="saveTbOpt(this)"> ⌂ Home</label>
+                <label class="tb-opt-toggle" data-btn="tbBtn-open"><input type="checkbox"> 📂 Open</label>
+                <label class="tb-opt-toggle" data-btn="btnStart"><input type="checkbox"> ▶ Run</label>
+                <label class="tb-opt-toggle" data-btn="btnPause"><input type="checkbox"> ⏸ Hold</label>
+                <label class="tb-opt-toggle" data-btn="btnStop"><input type="checkbox"> ■ Stop</label>
+                <label class="tb-opt-toggle" data-btn="tbBtn-home"><input type="checkbox"> ⌂ Home</label>
               </div>
             </div>
           </div>
@@ -2248,42 +2244,42 @@
             <div class="opt-color-row">
               <span class="opt-color-label">Blocks All</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optBearColorAll" class="opt-color-picker" value="#ff2222" oninput="optSaveBearColors()" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorAll').click()" style="background:#ff2222"></div>
+                <input type="color" id="optBearColorAll" class="opt-color-picker" value="#ff2222" />
+                <div class="opt-color-swatch" style="background:#ff2222"></div>
               </div>
             </div>
             <div class="opt-color-row">
               <span class="opt-color-label">Blocks G-code</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optBearColorGcode" class="opt-color-picker" value="#ff6600" oninput="optSaveBearColors()" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorGcode').click()" style="background:#ff6600"></div>
+                <input type="color" id="optBearColorGcode" class="opt-color-picker" value="#ff6600" />
+                <div class="opt-color-swatch" style="background:#ff6600"></div>
               </div>
             </div>
             <div class="opt-color-row">
               <span class="opt-color-label">Blocks Jog</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optBearColorJog" class="opt-color-picker" value="#ffcc00" oninput="optSaveBearColors()" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorJog').click()" style="background:#ffcc00"></div>
+                <input type="color" id="optBearColorJog" class="opt-color-picker" value="#ffcc00" />
+                <div class="opt-color-swatch" style="background:#ffcc00"></div>
               </div>
             </div>
             <div class="opt-color-row">
               <span class="opt-color-label">Blocks Tool Chg</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optBearColorTool" class="opt-color-picker" value="#cc44ff" oninput="optSaveBearColors()" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorTool').click()" style="background:#cc44ff"></div>
+                <input type="color" id="optBearColorTool" class="opt-color-picker" value="#cc44ff" />
+                <div class="opt-color-swatch" style="background:#cc44ff"></div>
               </div>
             </div>
             <div class="opt-color-row">
               <span class="opt-color-label">Allows All</span>
               <div class="opt-color-swatch-wrap">
-                <input type="color" id="optBearColorSafe" class="opt-color-picker" value="#22cc66" oninput="optSaveBearColors()" />
-                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorSafe').click()" style="background:#22cc66"></div>
+                <input type="color" id="optBearColorSafe" class="opt-color-picker" value="#22cc66" />
+                <div class="opt-color-swatch" style="background:#22cc66"></div>
               </div>
             </div>
             <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
               <div class="opt-field-label">Icon Scale</div>
               <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
-                <input type="range" class="feed-slider" min="0.02" max="0.3" step="0.005" value="0.0875" id="optBearScale" oninput="optSaveBearColors();document.getElementById('optBearScaleVal').textContent=parseFloat(this.value).toFixed(3)" />
+                <input type="range" class="feed-slider" min="0.02" max="0.3" step="0.005" value="0.0875" id="optBearScale" />
                 <span class="feed-val" id="optBearScaleVal" style="width:50px">0.088</span>
               </div>
             </div>
@@ -2300,13 +2296,13 @@
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
             <div>
               <div class="opt-field-label">XY Steps (mm)</div>
-              <input class="opt-input" type="text" id="optJogStepsXY" value="0.01, 0.1, 1, 10, 50" oninput="optSaveJogSteps()" spellcheck="false" />
+              <input class="opt-input" type="text" id="optJogStepsXY" value="0.01, 0.1, 1, 10, 50" spellcheck="false" />
             </div>
             <div>
               <div class="opt-field-label">Z Steps (mm)</div>
-              <input class="opt-input" type="text" id="optJogStepsZ" value="0.01, 0.1, 1, 5, 10" oninput="optSaveJogSteps()" spellcheck="false" />
+              <input class="opt-input" type="text" id="optJogStepsZ" value="0.01, 0.1, 1, 5, 10" spellcheck="false" />
             </div>
-            <button class="opt-action-btn" onclick="optApplyJogSteps()">↺ Apply &amp; Rebuild Buttons</button>
+            <button class="opt-action-btn" id="btnApplyJogSteps">↺ Apply &amp; Rebuild Buttons</button>
           </div>
         </div>
       </div>
@@ -2333,7 +2329,7 @@
     <span style="font-family:var(--cond);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);">TOOL TABLE</span>
     <span style="flex:1"></span>
     <span id="ttToolCount" style="font-family:var(--mono);font-size:11px;color:var(--text3)"></span>
-    <button class="tb-btn" onclick="loadToolTable()" id="btnTTRefresh">↻ REFRESH</button>
+    <button class="tb-btn" id="btnTTRefresh">↻ REFRESH</button>
   </div>
 
   <!-- Status / empty state -->

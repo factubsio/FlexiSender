@@ -36,123 +36,287 @@ export function switchTab(tab: string): void {
 const w = window as any;
 
 // Connection
-w.toggleConnect = toggleConnect;
-w.sendCmd = sendCmd;
-w.sendReset = sendReset;
-w.unlockAlarm = unlockAlarm;
-w.sendHome = sendHome;
+// (wired in initChunk1Events)
 
 // Job
-w.startJob = startJob;
-w.pauseJob = pauseJob;
-w.stopJob = stopJob;
+// (wired in initChunk1Events)
 
 // File
-w.loadFile = loadFile;
-w.uploadAndOpenFile = uploadAndOpenFile;
+// (wired in initChunk1Events)
 
 // Viewport
-w.setView = (v: string) => { setView(v); /* highlight button from event */ };
-w.fitView = fitView;
-w.toggleToolhead = toggleToolhead;
+// (wired in initChunk1Events)
 w.vpApply = vpApply;
 w.setProjection = setProjection;
 
 // Jog
-w.setStepXY = setStepXY;
-w.setStepZ = setStepZ;
-w.setJogHoldMode = setJogHoldMode;
-w.stopJog = stopJog;
-w.goToXY0 = goToXY0;
+// (wired in initChunk2Events)
 
 // Overrides
-w.resetOverride = resetOverride;
-w.applyOverride = applyOverride;
-w.setSpindle = setSpindle;
-w.toggleCoolant = toggleCoolant;
+// (wired in initChunk2Events)
 
-// Settings
-w.loadSettings = loadSettings;
-w.filterSettings = filterSettings;
-w.writeAllDirty = writeAllDirty;
-
-// Tool table
-w.loadToolTable = loadToolTable;
-
-// SD
-w.toggleSdPanel = toggleSdPanel;
-w.closeSdPanel = closeSdPanel;
-w.sdRefreshFiles = sdRefreshFiles;
-w.sdRunSelected = sdRunSelected;
-
-// Camera
-w.selectCamera = selectCamera;
-w.startCamera = startCamera;
-w.stopCamera = stopCamera;
-w.measureOffset = measureOffset;
-w.goToCamera = goToCamera;
-w.goToSpindle = goToSpindle;
-w.zeroAtCrosshair = zeroAtCrosshair;
-w.camMouseDown = camMouseDown;
-w.camMouseMove = camMouseMove;
-w.camMouseUp = camMouseUp;
-w.setCrosshairStyle = setCrosshairStyle;
-w.setCrosshairColor = setCrosshairColor;
-w.drawOverlay = drawOverlay;
-
-// Keyboard
-w.kbdPress = kbdPress;
-w.kbdBackspace = kbdBackspace;
-w.kbdClear = kbdClear;
-w.kbdSend = kbdSend;
-w.toggleTouchKeyboard = toggleTouchKeyboard;
-
-// Modules
-w.toggleModule = toggleModule;
-w.setModSize = setModSize;
-w.setConsoleLines = setConsoleLines;
-w.toggleModLock = toggleModLock;
-w.modDragStart = modDragStart;
-w.modTouchStart = modTouchStart;
-w.dockModule = dockModule;
-w.undockModule = undockModule;
-
-// Tabs
-w.switchTab = switchTab;
-
-// Console
-w.clearConsole = clearConsole;
-w.sendManual = sendManual;
-w.handleConInput = handleConInput;
-w.conAutoUpdate = conAutoUpdate;
-
-// WCS
-w.setWCS = setWCS;
-
-// Options
-w.optSetConnMode = optSetConnMode;
-w.optSaveConnSettings = optSaveConnSettings;
-w.saveTbOpt = saveTbOpt;
-w.optApplyColor = optApplyColor;
-w.optHexChange = optHexChange;
-w.optResetColor = optResetColor;
-w.optResetAllColors = optResetAllColors;
-w.optSaveJogSteps = optSaveJogSteps;
-w.optApplyJogSteps = optApplyJogSteps;
-w.optSaveBearColors = optSaveBearColors;
-
-// Frame
-w.frameProgram = frameProgram;
-
-// Bear
-w.bearRefresh = bearRefresh;
+// Remaining window globals — only for dynamically generated HTML onclick handlers
+w.sendCmd = sendCmd;  // used by settings-widgets.ts generated HTML
 w.bearShowAddForm = bearShowAddForm;
 w.bearEditZone = bearEditZone;
 w.bearSaveZone = bearSaveZone;
 w.bearDeleteZone = bearDeleteZone;
 w.bearCancelEdit = bearCancelEdit;
 
+// ── Event wiring (chunk 3: settings, camera, options) ─────────────────────────
+function initChunk3Events(): void {
+  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
+
+  // Settings tab
+  on('btnLoadSettings', 'click', () => loadSettings());
+  on('btnWriteAll', 'click', () => writeAllDirty());
+  on('settingsSearch', 'input', () => filterSettings((document.getElementById('settingsSearch') as HTMLInputElement).value));
+
+  // Camera tab
+  on('camSelect', 'change', () => selectCamera((document.getElementById('camSelect') as HTMLSelectElement).value));
+  on('camStartBtn', 'click', () => startCamera());
+  on('camStopBtn', 'click', () => stopCamera());
+  on('camZoom', 'input', () => { const v = parseFloat((document.getElementById('camZoom') as HTMLInputElement).value); state.camZoomVal = v; document.getElementById('camZoomDisp')!.textContent = v.toFixed(1) + 'x'; drawOverlay(); });
+  on('camCrossSize', 'input', () => { state.camCrossSizeVal = parseInt((document.getElementById('camCrossSize') as HTMLInputElement).value); drawOverlay(); });
+  document.querySelectorAll<HTMLElement>('.ccs-btn[data-style]').forEach(btn => {
+    btn.addEventListener('click', () => setCrosshairStyle(btn.dataset.style!));
+  });
+  document.querySelectorAll<HTMLElement>('.ccs-btn[data-color]').forEach(btn => {
+    btn.addEventListener('click', () => setCrosshairColor(btn.dataset.color!));
+  });
+  on('camOffX', 'change', () => { state.camOffsetX = parseFloat((document.getElementById('camOffX') as HTMLInputElement).value) || 0; });
+  on('camOffY', 'change', () => { state.camOffsetY = parseFloat((document.getElementById('camOffY') as HTMLInputElement).value) || 0; });
+  on('camMeasureBtn', 'click', () => measureOffset());
+  on('camGoCameraBtn', 'click', () => goToCamera());
+  on('camGoSpindleBtn', 'click', () => goToSpindle());
+  on('camZeroHereBtn', 'click', () => zeroAtCrosshair());
+  const camDrag = document.getElementById('camDragLayer');
+  if (camDrag) {
+    camDrag.addEventListener('mousedown', e => camMouseDown(e));
+    camDrag.addEventListener('mousemove', e => camMouseMove(e));
+    camDrag.addEventListener('mouseup', e => camMouseUp(e));
+    camDrag.addEventListener('contextmenu', e => e.preventDefault());
+  }
+
+  // Options — connection
+  on('connBtnWs', 'click', () => optSetConnMode('websocket'));
+  on('connBtnSerial', 'click', () => optSetConnMode('serial'));
+  ['optBaudRate', 'optDataBits', 'optStopBits', 'optParity'].forEach(id => on(id, 'change', () => optSaveConnSettings()));
+  on('optAutoLoadSettings', 'change', () => { localStorage.setItem('fs-opt-autoload-settings', (document.getElementById('optAutoLoadSettings') as HTMLInputElement).checked ? '1' : '0'); });
+
+  // Options — viewport extents
+  ['vpXMin', 'vpXMax', 'vpYMin', 'vpYMax'].forEach(id => on(id, 'input', () => vpApply()));
+
+  // Options — projection
+  on('projBtnPersp', 'click', () => { setProjection(false); document.getElementById('projBtnPersp')!.classList.add('selected'); document.getElementById('projBtnOrtho')!.classList.remove('selected'); });
+  on('projBtnOrtho', 'click', () => { setProjection(true); document.getElementById('projBtnOrtho')!.classList.add('selected'); document.getElementById('projBtnPersp')!.classList.remove('selected'); });
+
+  // Options — colour theme
+  const colorKeys = ['text', 'text2', 'bg', 'surface', 'accent'];
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  colorKeys.forEach(k => {
+    on('optColor' + cap(k), 'input', () => optApplyColor(k, (document.getElementById('optColor' + cap(k)) as HTMLInputElement).value));
+    on('optHex' + cap(k), 'input', () => optHexChange(k, (document.getElementById('optHex' + cap(k)) as HTMLInputElement).value));
+    // Swatch click → open picker
+    const swatch = document.getElementById('optSwatch' + cap(k));
+    if (swatch) swatch.addEventListener('click', () => (document.getElementById('optColor' + cap(k)) as HTMLInputElement).click());
+    // Reset button — find by sibling
+    const row = swatch?.closest('.opt-color-row');
+    const resetBtn = row?.querySelector('.opt-reset-btn');
+    if (resetBtn) resetBtn.addEventListener('click', () => optResetColor(k));
+  });
+  on('btnResetAllColors', 'click', () => optResetAllColors());
+
+  // Options — toolbar visibility
+  document.querySelectorAll<HTMLLabelElement>('.tb-opt-toggle').forEach(label => {
+    const cb = label.querySelector('input[type=checkbox]') as HTMLInputElement;
+    if (cb) cb.addEventListener('change', () => saveTbOpt(cb));
+  });
+
+  // Options — bear colours
+  ['optBearColorAll', 'optBearColorGcode', 'optBearColorJog', 'optBearColorTool', 'optBearColorSafe'].forEach(id => {
+    on(id, 'input', () => optSaveBearColors());
+    // Swatch click
+    const picker = document.getElementById(id);
+    const swatch = picker?.nextElementSibling as HTMLElement | null;
+    if (swatch) swatch.addEventListener('click', () => (document.getElementById(id) as HTMLInputElement).click());
+  });
+  on('optBearScale', 'input', () => { optSaveBearColors(); document.getElementById('optBearScaleVal')!.textContent = parseFloat((document.getElementById('optBearScale') as HTMLInputElement).value).toFixed(3); });
+
+  // Options — jog steps
+  on('optJogStepsXY', 'input', () => optSaveJogSteps());
+  on('optJogStepsZ', 'input', () => optSaveJogSteps());
+  on('btnApplyJogSteps', 'click', () => optApplyJogSteps());
+}
+
+// ── Event wiring (chunk 2: modules) ───────────────────────────────────────────
+function initChunk2Events(): void {
+  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
+
+  // Module drag handles + close buttons (delegated)
+  document.querySelectorAll<HTMLElement>('.module-drag-handle').forEach(handle => {
+    const card = handle.closest('.module-card') as HTMLElement;
+    if (!card) return;
+    const modId = card.id;
+    handle.addEventListener('mousedown', e => modDragStart(e, modId));
+    handle.addEventListener('touchstart', e => modTouchStart(e, modId));
+  });
+  document.querySelectorAll<HTMLElement>('.module-drag-close').forEach(btn => {
+    const card = btn.closest('.module-card') as HTMLElement;
+    if (!card) return;
+    const moduleId = card.id.replace('mod-', '');
+    btn.addEventListener('click', () => toggleModule(moduleId, false));
+  });
+
+  // Module config toggles + size buttons
+  document.querySelectorAll<HTMLElement>('.mod-toggle-card').forEach(cfgCard => {
+    const moduleId = cfgCard.id.replace('modcfg-', '');
+    const sw = cfgCard.querySelector('.mod-switch');
+    if (sw) sw.addEventListener('click', () => toggleModule(moduleId));
+    cfgCard.querySelectorAll<HTMLElement>('.mod-size-btn').forEach(btn => {
+      btn.addEventListener('click', e => setModSize(moduleId, btn.textContent!.toLowerCase(), e));
+    });
+  });
+  // Console lines buttons
+  document.querySelectorAll<HTMLElement>('.mod-lines-btn').forEach(btn => {
+    btn.addEventListener('click', e => setConsoleLines(parseInt(btn.textContent!), e));
+  });
+
+  // Position module
+  on('wcsSelect', 'change', () => setWCS((document.getElementById('wcsSelect') as HTMLSelectElement).value));
+  document.querySelectorAll<HTMLElement>('.dro-zero-btn[data-zero]').forEach(btn => {
+    btn.addEventListener('click', () => sendCmd('G10 L20 P1 ' + btn.dataset.zero + '0'));
+  });
+
+  // Jog module
+  on('jogHoldToggle', 'change', () => setJogHoldMode((document.getElementById('jogHoldToggle') as HTMLInputElement).checked));
+  on('jogStopBtn', 'click', () => stopJog());
+  on('jogXY0Btn', 'click', () => goToXY0());
+  on('jogFeed', 'input', () => { document.getElementById('jogFeedVal')!.textContent = (document.getElementById('jogFeed') as HTMLInputElement).value; });
+  document.querySelectorAll<HTMLElement>('.xy-step-btn').forEach(btn => {
+    btn.addEventListener('click', () => setStepXY(parseFloat(btn.textContent!)));
+  });
+  document.querySelectorAll<HTMLElement>('.z-step-btn').forEach(btn => {
+    btn.addEventListener('click', () => setStepZ(parseFloat(btn.textContent!)));
+  });
+
+  // Overrides
+  document.querySelectorAll<HTMLElement>('[data-ovr-reset]').forEach(btn => {
+    btn.addEventListener('click', () => resetOverride(btn.dataset.ovrReset!));
+  });
+  on('ovrFeedSlider', 'input', () => applyOverride('feed', parseInt((document.getElementById('ovrFeedSlider') as HTMLInputElement).value)));
+  on('ovrRapidSlider', 'input', () => applyOverride('rapid', parseInt((document.getElementById('ovrRapidSlider') as HTMLInputElement).value)));
+  on('ovrSpinSlider', 'input', () => applyOverride('spindle', parseInt((document.getElementById('ovrSpinSlider') as HTMLInputElement).value)));
+
+  // Spindle / coolant
+  on('btnSpinCW', 'click', () => setSpindle('CW'));
+  on('btnSpinCCW', 'click', () => setSpindle('CCW'));
+  on('btnSpinOFF', 'click', () => setSpindle('OFF'));
+  on('btnFlood', 'click', () => toggleCoolant('flood'));
+  on('btnMist', 'click', () => toggleCoolant('mist'));
+
+  // Macros
+  document.querySelectorAll<HTMLElement>('.macro-btn[data-cmd]').forEach(btn => {
+    const cmd = btn.dataset.cmd!;
+    btn.addEventListener('click', () => cmd === '$H' ? sendHome() : sendCmd(cmd));
+  });
+
+  // Console
+  on('btnConClear', 'click', () => clearConsole());
+  on('btnKeyboard', 'click', () => toggleTouchKeyboard());
+  on('conInput', 'keydown', e => handleConInput(e));
+  on('conInput', 'input', () => conAutoUpdate());
+  on('btnConSend', 'click', () => sendManual());
+
+  // Limits
+  on('limitsFrameBtn', 'click', () => frameProgram());
+
+  // Tool table
+  on('modTTRefresh', 'click', () => loadToolTable());
+  on('btnTTRefresh', 'click', () => loadToolTable());
+
+  // Bear
+  const bearRefreshBtns = document.querySelectorAll<HTMLElement>('.module-drag-handle .tb-btn');
+  // Bear refresh is the ↻ button in the bear module header — find it by parent
+  const bearMod = document.getElementById('mod-bear');
+  if (bearMod) {
+    const refreshBtn = bearMod.querySelector('.module-drag-handle .tb-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', () => bearRefresh());
+  }
+
+  // Touch keyboard (delegated)
+  const kbd = document.getElementById('touchKbdOverlay');
+  if (kbd) {
+    kbd.addEventListener('click', e => {
+      const key = (e.target as HTMLElement).closest<HTMLElement>('[data-key]');
+      if (key) { kbdPress(e, key.dataset.key!); return; }
+      const action = (e.target as HTMLElement).closest<HTMLElement>('[data-kbd]');
+      if (!action) return;
+      const a = action.dataset.kbd!;
+      if (a === 'backspace') kbdBackspace(e);
+      else if (a === 'send') kbdSend(e);
+      else if (a === 'clear') kbdClear(e);
+      else if (a === 'close') toggleTouchKeyboard();
+    });
+    kbd.addEventListener('touchstart', e => {
+      const key = (e.target as HTMLElement).closest<HTMLElement>('[data-key]');
+      if (key) { e.preventDefault(); kbdPress(e, key.dataset.key!); return; }
+      const action = (e.target as HTMLElement).closest<HTMLElement>('[data-kbd]');
+      if (!action) return;
+      e.preventDefault();
+      const a = action.dataset.kbd!;
+      if (a === 'backspace') kbdBackspace(e);
+      else if (a === 'send') kbdSend(e);
+      else if (a === 'clear') kbdClear(e);
+      else if (a === 'close') toggleTouchKeyboard();
+    }, { passive: false });
+  }
+}
+
+// ── Event wiring (chunk 1: toolbar, tabs, viewport header, SD) ────────────────
+function initChunk1Events(): void {
+  const $ = (id: string) => document.getElementById(id)!;
+  const on = (id: string, evt: string, fn: (e: any) => void) => { const el = document.getElementById(id); if (el) el.addEventListener(evt, fn); };
+
+  // Toolbar row 1
+  on('connectBtn', 'click', () => toggleConnect());
+  on('sdCardBtn', 'click', () => toggleSdPanel());
+  on('tbBtn-uploadOpen', 'click', () => $('uploadFileInput').click());
+  on('uploadFileInput', 'change', (e) => uploadAndOpenFile(e.target as HTMLInputElement));
+  on('tbBtn-reset', 'click', () => sendReset());
+  on('tbBtn-unlock', 'click', () => unlockAlarm());
+
+  // Toolbar row 2
+  on('tbBtn-open', 'click', () => $('fileInput').click());
+  on('fileInput', 'change', (e) => loadFile(e.target as HTMLInputElement));
+  on('btnStart', 'click', () => startJob());
+  on('btnPause', 'click', () => pauseJob());
+  on('btnStop', 'click', () => stopJob());
+  on('tbBtn-home', 'click', () => sendHome());
+
+  // SD panel
+  on('sdRefreshBtn', 'click', () => sdRefreshFiles());
+  on('sdCloseBtn', 'click', () => closeSdPanel());
+  on('sdRunBtn', 'click', () => sdRunSelected());
+
+  // Tab bar
+  document.querySelectorAll<HTMLElement>('.tab-btn[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab!));
+  });
+  on('modLockBtn', 'click', () => toggleModLock());
+
+  // Viewport header
+  document.querySelectorAll<HTMLElement>('.view-btn[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => setView(btn.dataset.view!));
+  });
+  on('btnFitView', 'click', () => fitView());
+  on('btnToolhead', 'click', () => toggleToolhead());
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
+initChunk1Events();
+initChunk2Events();
+initChunk3Events();
 initViewport();
 initJogButtons();
 initKeyboardJog();
