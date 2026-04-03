@@ -3,7 +3,6 @@
 // ═══════════════════════════════════════════════
 
 import { state, SIG_PIN_MAP } from './state';
-import { fmtPos } from './ui';
 import { log } from './console';
 import { updateBufDisplay, _updateHomeBtnHomed } from './connection';
 import { pumpQueue, updateRunButtons } from './streaming';
@@ -51,6 +50,7 @@ export function parseResponse(raw: string): void {
   if (raw.startsWith('ALARM:')) {
     log('alarm', raw);
     setMachineState('ALARM');
+    emit<StatusReport>('status', new Set(['state']), { machineState: 'ALARM' });
     state.running = false; updateRunButtons();
     return;
   }
@@ -96,19 +96,11 @@ function parseStatus(s: string): void {
       state.machineZ = parseFloat(vals[2]) || 0;
       report.mpos = { x: state.machineX, y: state.machineY, z: state.machineZ };
       tags.add('mpos');
-      document.getElementById('droX')!.textContent = fmtPos(vals[0]);
-      document.getElementById('droY')!.textContent = fmtPos(vals[1]);
-      document.getElementById('droZ')!.textContent = fmtPos(vals[2]);
-      const mxEl = document.getElementById('droMX'); if (mxEl) mxEl.textContent = 'M: ' + fmtPos(vals[0]);
-      const myEl = document.getElementById('droMY'); if (myEl) myEl.textContent = 'M: ' + fmtPos(vals[1]);
-      const mzEl = document.getElementById('droMZ'); if (mzEl) mzEl.textContent = 'M: ' + fmtPos(vals[2]);
       toolGroup.position.set(state.machineX, state.machineZ, -state.machineY);
     }
     if (key === 'FS' || key === 'F') {
       report.fs = { feed: vals[0] || '0', spindle: vals[1] || '0' };
       tags.add('fs');
-      document.getElementById('feedVal')!.textContent = report.fs.feed + ' mm/m';
-      document.getElementById('spindleVal')!.textContent = report.fs.spindle + ' RPM';
     }
     if (key === 'T') {
       const tn = parseInt(vals[0]);
@@ -125,14 +117,12 @@ function parseStatus(s: string): void {
       const ln = parseInt(vals[0]);
       report.ln = ln;
       tags.add('ln');
-      document.getElementById('lineVal')!.textContent = String(ln);
       state.segmentIndex = ln;
       updateExecutedPath(state.segmentIndex);
     }
     if (key === 'Bf') {
       report.bf = { blocks: vals[0], bytes: vals[1] };
       tags.add('bf');
-      document.getElementById('bufVal')!.textContent = vals[0] + ' blk / ' + vals[1] + ' B';
     }
     if (key === 'Ov') {
       const feed = parseInt(vals[0]), rapid = parseInt(vals[1]), spin = parseInt(vals[2]);
@@ -162,8 +152,6 @@ function parseStatus(s: string): void {
       const wcs = vals[0] && vals[0].toUpperCase();
       report.wcs = wcs;
       tags.add('wcs');
-      const sel = document.getElementById('wcsSelect') as HTMLSelectElement;
-      if (sel && ['G54', 'G55', 'G56', 'G57', 'G58', 'G59'].includes(wcs)) sel.value = wcs;
     }
     if (key === 'Pn') {
       hasPn = true;
@@ -197,12 +185,7 @@ function updateSignals(pinStr: string): void {
 }
 
 export function setMachineState(s: string): void {
-  const badge = document.getElementById('stateBadge')!;
-  badge.className = 'state-badge';
   const sl = s.toLowerCase().split(':')[0];
-  if (['idle', 'run', 'hold', 'alarm', 'jog', 'home', 'door', 'check', 'sleep'].includes(sl)) badge.classList.add(sl);
-  document.getElementById('stateText')!.textContent = s.toUpperCase();
-
   if (sl === 'alarm') { state.machineHomed = false; _updateHomeBtnHomed(); }
   if (sl === 'idle' && state._prevMachineStateSl === 'home') { state.machineHomed = true; _updateHomeBtnHomed(); }
   state._prevMachineStateSl = sl;

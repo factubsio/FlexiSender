@@ -5,7 +5,7 @@
 import { state, OPT_COLOR_DEFAULTS, OPT_COLOR_CSS_VARS, OPT_LOCKABLE_TABS, TB_BTN_DEFAULTS } from './state';
 import { lsGet, lsSet } from './ui';
 import { log } from './console';
-import { rebuildSteps } from './jog';
+import { rebuildSteps } from './modules/jog';
 
 // ── Connection mode ───────────────────────────────────────────────────────────
 export function optSetConnMode(mode: 'websocket' | 'serial'): void {

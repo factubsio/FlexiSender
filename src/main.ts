@@ -9,7 +9,8 @@ import { toggleConnect, sendCmd } from './connection';
 import { initViewport, setView, fitView, toggleToolhead, vpApply, setProjection } from './viewport';
 import { loadFile, uploadAndOpenFile, frameProgram } from './gcode';
 import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS } from './streaming';
-import { mount as mountJog, initKeyboardJog } from './jog';
+import { mount as mountJog, initKeyboardJog } from './modules/jog';
+import { mount as mountPosition } from './modules/position';
 import { resetOverride, applyOverride, setSpindle, toggleCoolant } from './overrides';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
 import { loadToolTable } from './tooltable';
@@ -187,12 +188,6 @@ function initChunk2Events(): void {
     btn.addEventListener('click', e => setConsoleLines(parseInt(btn.textContent!), e));
   });
 
-  // Position module
-  on('wcsSelect', 'change', () => setWCS((document.getElementById('wcsSelect') as HTMLSelectElement).value));
-  document.querySelectorAll<HTMLElement>('.dro-zero-btn[data-zero]').forEach(btn => {
-    btn.addEventListener('click', () => sendCmd('G10 L20 P1 ' + btn.dataset.zero + '0'));
-  });
-
   // Overrides
   document.querySelectorAll<HTMLElement>('[data-ovr-reset]').forEach(btn => {
     btn.addEventListener('click', () => resetOverride(btn.dataset.ovrReset!));
@@ -309,7 +304,9 @@ initChunk1Events();
 initChunk2Events();
 initChunk3Events();
 initViewport();
-mountJog(document.querySelector('.main') as HTMLElement);
+const mainEl = document.querySelector('.main') as HTMLElement;
+mountPosition(mainEl);
+mountJog(mainEl);
 initKeyboardJog();
 initModDragListeners();
 initSdClickOutside();

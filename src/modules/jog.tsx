@@ -2,13 +2,13 @@
 // Jog engine — click, hold, keyboard
 // ═══════════════════════════════════════════════
 
-import { h } from './jsx';
-import { state, KB_JOG_MAP, KEYBOARD_JOG_DIST } from './state';
-import { isInputFocused } from './ui';
-import { sendCmd, rtSend, setJogging } from './connection';
-import { goToXY0 } from './streaming';
-import { scene, toolGroup } from './viewport';
-import { on as busOn } from './bus';
+import { h } from '../jsx';
+import { state, KB_JOG_MAP, KEYBOARD_JOG_DIST } from '../state';
+import { isInputFocused } from '../ui';
+import { sendCmd, rtSend, setJogging } from '../connection';
+import { goToXY0 } from '../streaming';
+import { scene, toolGroup } from '../viewport';
+import { on as busOn } from '../bus';
 
 declare const THREE: any;
 

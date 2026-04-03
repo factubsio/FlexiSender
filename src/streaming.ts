@@ -97,7 +97,7 @@ export function sendReset(): void {
 
 export function unlockAlarm(): void { import('./connection').then(c => c.sendCmd('$X')); }
 export function sendHome(): void { import('./connection').then(c => c.sendCmd('$H')); }
-export function goToXY0(): void { import('./jog').then(j => j.clearWaypoints()); import('./connection').then(c => c.sendCmd('G0 X0 Y0')); }
+export function goToXY0(): void { import('./modules/jog').then(j => j.clearWaypoints()); import('./connection').then(c => c.sendCmd('G0 X0 Y0')); }
 
 export function setWCS(code: string): void {
   import('./connection').then(c => {

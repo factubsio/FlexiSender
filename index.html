@@ -91,67 +91,7 @@
 <!-- MAIN -->
 <div class="main">
 
-  <!-- ═══ MODULE: MACHINE POSITION ═══ -->
-  <div class="module-card mod-hidden" id="mod-position" data-mod-size="normal" style="top:10px;left:10px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Machine Position</span>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body">
-      <div class="status-wcs-row" style="padding:2px 0 0">
-        <div class="state-badge idle" id="stateBadge"><span id="stateText">IDLE</span></div>
-        <div class="wcs-select-wrap">
-          <span class="wcs-label">WCS</span>
-          <select class="wcs-select" id="wcsSelect">
-            <option value="G54">G54</option>
-            <option value="G55">G55</option>
-            <option value="G56">G56</option>
-            <option value="G57">G57</option>
-            <option value="G58">G58</option>
-            <option value="G59">G59</option>
-          </select>
-        </div>
-      </div>
-      <div class="dro-grid">
-        <div class="dro-axis-card" id="axCard-X">
-          <div class="dro-axis-label">X</div>
-          <div class="dro-axis-values">
-            <div class="dro-axis-wpos" id="droX">0.000</div>
-            <div class="dro-axis-mpos" id="droMX">M: 0.000</div>
-          </div>
-          <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" data-zero="X">ZERO</button>
-        </div>
-        <div class="dro-axis-card" id="axCard-Y">
-          <div class="dro-axis-label">Y</div>
-          <div class="dro-axis-values">
-            <div class="dro-axis-wpos" id="droY">0.000</div>
-            <div class="dro-axis-mpos" id="droMY">M: 0.000</div>
-          </div>
-          <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" data-zero="Y">ZERO</button>
-        </div>
-        <div class="dro-axis-card" id="axCard-Z">
-          <div class="dro-axis-label">Z</div>
-          <div class="dro-axis-values">
-            <div class="dro-axis-wpos" id="droZ">0.000</div>
-            <div class="dro-axis-mpos" id="droMZ">M: 0.000</div>
-          </div>
-          <div class="dro-axis-unit">MM</div>
-          <button class="dro-zero-btn" data-zero="Z">ZERO</button>
-        </div>
-      </div>
-      <div class="dro-sub">
-        <div class="dro-mini"><div class="dro-mini-label">FEED</div><div class="dro-mini-value" id="feedVal">0 mm/m</div></div>
-        <div class="dro-mini"><div class="dro-mini-label">SPINDLE</div><div class="dro-mini-value" id="spindleVal">0 RPM</div></div>
-        <div class="dro-mini"><div class="dro-mini-label">BUF</div><div class="dro-mini-value" id="bufVal">15/15</div></div>
-        <div class="dro-mini"><div class="dro-mini-label">LINE</div><div class="dro-mini-value" id="lineVal">—</div></div>
-      </div>
-    </div>
-  </div>
+  <!-- ═══ MODULE: MACHINE POSITION — mounted by position.tsx ═══ -->
 
   <!-- ═══ MODULE: JOGGING — mounted by jog.tsx ═══ -->
 
