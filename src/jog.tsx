@@ -55,7 +55,14 @@ function removeGhost(ghost: any): void {
 }
 
 export function jogSyncPredicted(): void {
-  // Remove waypoints the head has reached
+  // Always keep predicted in sync when idle
+  if (!_predictedDirty) {
+    _predicted.x = toolGroup.position.x;
+    _predicted.y = toolGroup.position.y;
+    _predicted.z = toolGroup.position.z;
+  }
+
+  // Remove waypoints the head has reached or passed
   while (_waypoints.length > 0) {
     const wp = _waypoints[0];
     const dx = toolGroup.position.x - wp.pos.x;
@@ -69,8 +76,8 @@ export function jogSyncPredicted(): void {
     }
   }
 
-  if (!state._isJogging && _predictedDirty) {
-    // Clear all remaining waypoints when jogging stops
+  // All jog commands drained — clean up everything
+  if (_predictedDirty && state.sentQueue.length === 0 && !state._isJogging) {
     for (const wp of _waypoints) removeGhost(wp.ghost);
     _waypoints.length = 0;
     _predicted.x = toolGroup.position.x;
