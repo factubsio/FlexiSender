@@ -290,6 +290,13 @@ export function stopJog(): void {
   if (!state._isJogging) return;
   rtSend('\x85');
   setJogging(false);
+  // Flush pending jog commands from sentQueue — \x85 cancels them all
+  for (let i = state.sentQueue.length - 1; i >= 0; i--) {
+    if (state.sentQueue[i].line.startsWith('$J=')) {
+      state.rxInFlight = Math.max(0, state.rxInFlight - state.sentQueue[i].bytes);
+      state.sentQueue.splice(i, 1);
+    }
+  }
   clearWaypoints();
 }
 
