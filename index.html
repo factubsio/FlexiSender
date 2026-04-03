@@ -855,6 +855,15 @@
   .tt-status-pill.hand { background: var(--surface3); color: var(--text3); border: 1px solid var(--border2); }
   .tt-status-pill.active { background: rgba(34,197,94,0.18); color: var(--green); border: 1px solid var(--green2); }
 
+  /* ── MR BEAR ──────────────────────────────────────────────────────────── */
+  .bear-status-badge {
+    font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 0.5px;
+    padding: 2px 8px; border-radius: 10px; white-space: nowrap;
+    background: var(--surface3); color: var(--text3); border: 1px solid var(--border2);
+  }
+  .bear-status-badge.active { background: rgba(34,197,94,0.15); color: var(--green); border-color: var(--green2); }
+  .bear-status-badge.in-zone { background: rgba(239,68,68,0.2); color: var(--red); border-color: var(--red2); animation: pulse 0.8s infinite; }
+
   /* ── DOCK SYSTEM ──────────────────────────────────────────────────────── */
   .dock-node { position: relative; }
   .dock-central { background: var(--bg); }
@@ -1628,6 +1637,24 @@
     </div>
   </div>
 
+  <!-- ═══ MODULE: MR BEAR DO NOT TOUCH ═══ -->
+  <div class="module-card mod-hidden" id="mod-bear" data-mod-size="normal" style="top:10px;left:594px">
+    <div class="module-drag-handle"
+         onmousedown="modDragStart(event,'mod-bear')"
+         ontouchstart="modTouchStart(event,'mod-bear')">
+      <span class="module-drag-dots">⠿⠿</span>
+      <span class="module-drag-title">🐻 MR BEAR</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        <span class="bear-status-badge" id="bearStatusBadge">🐻 OFF</span>
+        <button class="tb-btn" style="font-size:10px;padding:2px 8px" onclick="bearRefresh()">↻</button>
+      </div>
+      <button class="module-drag-close" onclick="toggleModule('bear',false)">✕</button>
+    </div>
+    <div class="module-body" id="bearModBody" style="padding:0">
+      <div style="text-align:center;padding:14px;color:var(--text3);font-family:var(--cond);font-size:11px;letter-spacing:1px;text-transform:uppercase">No zones — click ↻ to load</div>
+    </div>
+  </div>
+
 </div><!-- /main -->
 </div><!-- /tab-panel-run -->
 
@@ -1792,6 +1819,22 @@
           <div class="mod-size-row">
             <button class="mod-size-btn active" onclick="setModSize('signals','normal',event)">Normal</button>
             <button class="mod-size-btn" onclick="setModSize('signals','large',event)">Large</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mod-toggle-card" id="modcfg-bear" style="display:none">
+        <div class="mod-toggle-icon">🐻</div>
+        <div class="mod-toggle-info">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="mod-toggle-name" style="flex:1">MR BEAR DO NOT TOUCH</div>
+            <div class="mod-switch" onclick="toggleModule('bear')"></div>
+          </div>
+          <div class="mod-toggle-desc">Zone management for the MR BEAR plugin. Shows exclusion zones in a table and visualizes them as red boxes on the 3D viewport.</div>
+          <div class="mod-size-row">
+            <button class="mod-size-btn active" onclick="setModSize('bear','normal',event)">Normal</button>
+            <button class="mod-size-btn" onclick="setModSize('bear','large',event)">Large</button>
+            <button class="mod-size-btn" onclick="setModSize('bear','xl',event)">XL</button>
           </div>
         </div>
       </div>

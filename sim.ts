@@ -4,12 +4,15 @@ const SIM_TCP_PORT = 23000;
 const WS_PORT = 7000;
 const SIM_PATH = "./Simulator/build/grblHAL_sim";
 const LOG_PATH = "./sim-bridge.log";
+const VERSION = "0.0.2";
+
+console.log(`sim-bridge v${VERSION}`);
 
 const logFile = file(LOG_PATH).writer();
 
-function log(msg: string) {
+function log(msg: string, quiet = false) {
   const line = `[${new Date().toISOString()}] ${msg}\n`;
-  process.stdout.write(line);
+  if (!quiet) process.stdout.write(line);
   logFile.write(line);
   logFile.flush();
 }
@@ -42,7 +45,7 @@ async function connectTcp() {
     socket: {
       data(_socket, data) {
         const text = new TextDecoder().decode(data);
-        log(`sim→ws ${data.length}B: ${preview(text)}`);
+        log(`sim→ws ${data.length}B: ${preview(text)}`, true);
         if (wsClient && wsClient.readyState === 1) {
           wsClient.send(text);  // send as TEXT frame, not binary
         } else {
@@ -86,7 +89,7 @@ const server = Bun.serve({
     },
     message(_ws, msg) {
       const data = typeof msg === "string" ? msg : new TextDecoder().decode(msg);
-      log(`ws→sim ${data.length}B: ${preview(data)}`);
+      log(`ws→sim ${data.length}B: ${preview(data)}`, true);
       if (tcpSocket) {
         tcpSocket.write(data);
       } else {

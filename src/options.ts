@@ -23,6 +23,7 @@ export function optSaveConnSettings(): void {
   try {
     localStorage.setItem('fs-opt-conn', JSON.stringify({
       mode: state.connMode,
+      wsUrl: (document.getElementById('wsUrl') as HTMLInputElement).value,
       baud: (document.getElementById('optBaudRate') as HTMLSelectElement).value,
       dataBits: (document.getElementById('optDataBits') as HTMLSelectElement).value,
       stopBits: (document.getElementById('optStopBits') as HTMLSelectElement).value,
@@ -34,6 +35,7 @@ export function optSaveConnSettings(): void {
 export function optLoadConnSettings(): void {
   try {
     const s = JSON.parse(localStorage.getItem('fs-opt-conn') || '{}');
+    if (s.wsUrl) (document.getElementById('wsUrl') as HTMLInputElement).value = s.wsUrl;
     if (s.baud) (document.getElementById('optBaudRate') as HTMLSelectElement).value = s.baud;
     if (s.dataBits) (document.getElementById('optDataBits') as HTMLSelectElement).value = s.dataBits;
     if (s.stopBits) (document.getElementById('optStopBits') as HTMLSelectElement).value = s.stopBits;

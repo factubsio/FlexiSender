@@ -18,6 +18,7 @@ import { kbdPress, kbdBackspace, kbdClear, kbdSend, toggleTouchKeyboard } from '
 import { toggleModule, setModSize, setConsoleLines, modInitPositions, toggleModLock, modDragStart, modTouchStart, initModDragListeners } from './modules';
 import { initDock, dockModule, undockModule } from './dock';
 import { optSetConnMode, optSaveConnSettings, optLoadConnSettings, optLoadColors, optLoadTabLocks, optBuildTabLockList, initToolbarOptions, saveTbOpt, optApplyColor, optHexChange, optResetColor, optResetAllColors } from './options';
+import { bearRefresh, bearCheckPlugin, bearIntercept, bearParseStatus, bearShowAddForm, bearEditZone, bearSaveZone, bearDeleteZone, bearCancelEdit } from './bear';
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
 export function switchTab(tab: string): void {
@@ -138,6 +139,14 @@ w.optResetAllColors = optResetAllColors;
 // Frame
 w.frameProgram = frameProgram;
 
+// Bear
+w.bearRefresh = bearRefresh;
+w.bearShowAddForm = bearShowAddForm;
+w.bearEditZone = bearEditZone;
+w.bearSaveZone = bearSaveZone;
+w.bearDeleteZone = bearDeleteZone;
+w.bearCancelEdit = bearCancelEdit;
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 initViewport();
 initJogButtons();
@@ -163,6 +172,9 @@ window.addEventListener('load', () => {
   }
   optLoadConnSettings();
   optLoadColors();
+  // Save WS URL on change
+  const wsInput = document.getElementById('wsUrl') as HTMLInputElement | null;
+  if (wsInput) wsInput.addEventListener('change', () => optSaveConnSettings());
   optLoadTabLocks();
   optBuildTabLockList();
   initToolbarOptions();

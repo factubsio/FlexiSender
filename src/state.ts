@@ -181,6 +181,7 @@ export const MOD_DEFAULTS: Record<string, { x: number; y: number; enabled: boole
   tooltable: { x: 10,  y: 10,  enabled: false, size: 'xl' },
   limits:    { x: 302, y: 10,  enabled: false, size: 'normal' },
   signals:   { x: 594, y: 10,  enabled: false, size: 'normal' },
+  bear:      { x: 594, y: 10,  enabled: false, size: 'normal' },
 };
 
 export const MODULE_DEFS = [
@@ -193,6 +194,7 @@ export const MODULE_DEFS = [
   { id: 'tooltable', icon: '🔩', name: 'Tool Table' },
   { id: 'limits',    icon: '📐', name: 'Program Limits' },
   { id: 'signals',   icon: '🔴', name: 'Signals' },
+  { id: 'bear',      icon: '🐻', name: 'MR BEAR' },
 ];
 
 export const OPT_COLOR_DEFAULTS: Record<string, string> = {

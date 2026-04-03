@@ -11,6 +11,7 @@ import { updateExecutedPath, toolGroup } from './viewport';
 import { settingsIntercept, tryInterceptValue, onSettingWriteOk, onSettingWriteErr, tryParseSettingLine } from './settings';
 import { toolTableIntercept, renderToolTable, renderModTT } from './tooltable';
 import { updateOvrDisplay } from './overrides';
+import { bearCheckPlugin, bearIntercept, bearParseStatus } from './bear';
 
 export function parseResponse(raw: string): void {
   if (raw.startsWith('<') && raw.endsWith('>')) { parseStatus(raw.slice(1, -1)); return; }
@@ -18,6 +19,8 @@ export function parseResponse(raw: string): void {
   if (state.esPhase !== 'idle' && settingsIntercept(raw)) return;
 
   if (state.ttPhase === 'loading' && toolTableIntercept(raw)) return;
+
+  if (bearIntercept(raw)) return;
 
   if (raw === 'ok' || raw.startsWith('error:')) {
     const sent = state.sentQueue.shift();
@@ -68,6 +71,7 @@ export function parseResponse(raw: string): void {
   if (raw.match(/^\$\d+=/)) { tryParseSettingLine(raw); log('rx', raw); return; }
 
   if (raw.startsWith('[') || raw.startsWith('Grbl') || raw.startsWith('GrblHAL') || raw.startsWith('>')) {
+    bearCheckPlugin(raw);
     log('info', raw); return;
   }
   log('rx', raw);
@@ -138,6 +142,9 @@ function parseStatus(s: string): void {
     if (key === 'Pn') {
       hasPn = true;
       updateSignals(vals[0] || '');
+    }
+    if (key === 'BEAR') {
+      bearParseStatus(vals[0] || '');
     }
   }
   if (!hasPn) updateSignals('');
