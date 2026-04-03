@@ -101,7 +101,8 @@ export function bearRefresh(): void {
 }
 
 export function bearIntercept(line: string): boolean {
-  if (!_loading && !line.startsWith('[BEAR:') && !line.startsWith('[ZONE:')) return false;
+  if (!_pluginDetected) return false;
+  if (!_loading && !line.startsWith('[BEAR:')) return false;
 
   if (line.startsWith('[BEAR:')) {
     _loading = true;

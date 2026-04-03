@@ -2,7 +2,7 @@
 // Dock tree — imgui-style docking for modules
 // ═══════════════════════════════════════════════
 
-import { MOD_SIZES } from './state';
+import { MOD_SIZES, MODULE_DEFS } from './state';
 
 // ── Data structures ───────────────────────────────────────────────────────────
 
@@ -31,7 +31,6 @@ export type DockNode = DockSplitNode | DockLeafNode | DockCentralNode;
 
 let _root: DockNode = { type: 'central' };
 let _container: HTMLElement | null = null;
-let _floatingIds: Set<string> = new Set();
 
 export function dockRoot(): DockNode { return _root; }
 
@@ -251,7 +250,6 @@ export function dockModule(moduleId: string, side: 'left' | 'right' | 'top' | 'b
     _root = { type: 'split', direction, ratio, children: [first, second] };
   }
 
-  _floatingIds.delete(moduleId);
   dockRender();
   dockSave();
 }
@@ -268,7 +266,6 @@ function replaceNode(tree: DockNode, target: DockNode, replacement: DockNode): D
 export function undockModule(moduleId: string): void {
   undockModuleFromTree(moduleId);
   _root = collapseTree(_root);
-  _floatingIds.add(moduleId);
 
   // Restore floating style and reparent back to .main
   const card = document.getElementById('mod-' + moduleId) as HTMLElement | null;
@@ -318,12 +315,7 @@ function collapseTree(node: DockNode): DockNode {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function moduleLabel(id: string): string {
-  const labels: Record<string, string> = {
-    position: 'Position', jogging: 'Jogging', overrides: 'Overrides',
-    spindle: 'Spindle', macros: 'Macros', console: 'Console',
-    tooltable: 'Tool Table', limits: 'Limits', signals: 'Signals',
-  };
-  return labels[id] || id;
+  return MODULE_DEFS.find(m => m.id === id)?.name || id;
 }
 
 export function isModuleDocked(moduleId: string): boolean {
@@ -455,7 +447,6 @@ function findLeafNode(node: DockNode, moduleId: string): DockLeafNode | null {
 
 function dockSave(): void {
   try {
-    localStorage.setItem('fs-dock-tree', JSON.stringify({ root: _root, floating: [..._floatingIds] }));
   } catch (_) {}
 }
 
@@ -465,7 +456,6 @@ function dockLoad(): void {
     if (raw) {
       const d = JSON.parse(raw);
       if (d.root) _root = d.root;
-      if (d.floating) _floatingIds = new Set(d.floating);
     }
   } catch (_) {}
 }

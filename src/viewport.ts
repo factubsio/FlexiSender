@@ -113,12 +113,15 @@ export function updateCamera(): void {
   const x = target.x + spherical.radius * sp * st;
   const y = target.y + spherical.radius * cp;
   const z = target.z + spherical.radius * sp * ct;
-  perspCamera.position.set(x, y, z);
-  perspCamera.lookAt(target);
-  orthoCamera.position.set(x, y, z);
-  orthoCamera.up.set(0, 1, 0);
-  orthoCamera.lookAt(target);
-  syncOrthoFrustum();
+  if (state.vpOrtho) {
+    orthoCamera.position.set(x, y, z);
+    orthoCamera.up.set(0, 1, 0);
+    orthoCamera.lookAt(target);
+    syncOrthoFrustum();
+  } else {
+    perspCamera.position.set(x, y, z);
+    perspCamera.lookAt(target);
+  }
 }
 
 function syncOrthoFrustum(): void {
