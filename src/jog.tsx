@@ -8,6 +8,7 @@ import { isInputFocused } from './ui';
 import { sendCmd, rtSend, setJogging } from './connection';
 import { goToXY0 } from './streaming';
 import { scene, toolGroup } from './viewport';
+import { on as busOn } from './bus';
 
 declare const THREE: any;
 
@@ -400,6 +401,8 @@ export function mount(parent: HTMLElement): void {
   ) as HTMLElement;
 
   parent.appendChild(card);
+
+  busOn('status', ['mpos'], () => jogSyncPredicted());
 }
 
 // ── Keyboard jog ──────────────────────────────────────────────────────────────
