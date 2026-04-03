@@ -79,10 +79,9 @@ export function jogSyncPredicted(): void {
 }
 
 function jogCheckIdle(machineState: string): void {
-  // Machine is idle/alarm with stale waypoints — jog was blocked or completed
   if (!_predictedDirty) return;
   const sl = machineState.toLowerCase().split(':')[0];
-  if ((sl === 'idle' || sl === 'alarm') && state.sentQueue.length === 0) {
+  if (sl === 'idle' || sl === 'alarm') {
     for (const wp of _waypoints) removeGhost(wp.ghost);
     _waypoints.length = 0;
     _predicted.x = toolGroup.position.x;
