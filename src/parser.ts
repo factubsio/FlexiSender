@@ -13,6 +13,7 @@ import { toolTableIntercept, renderToolTable, renderModTT } from './tooltable';
 import { updateOvrDisplay } from './overrides';
 import { jogSyncPredicted } from './jog';
 import { bearCheckPlugin, bearIntercept, bearParseStatus } from './bear';
+import { emit, type StatusReport } from './bus';
 
 export function parseResponse(raw: string): void {
   if (raw.startsWith('<') && raw.endsWith('>')) { parseStatus(raw.slice(1, -1)); return; }
@@ -80,6 +81,9 @@ export function parseResponse(raw: string): void {
 
 function parseStatus(s: string): void {
   const parts = s.split('|');
+  const report: StatusReport = { machineState: parts[0] };
+  const tags = new Set<string>(['state']);
+
   setMachineState(parts[0]);
   let hasPn = false;
   for (let i = 1; i < parts.length; i++) {
@@ -91,6 +95,8 @@ function parseStatus(s: string): void {
       state.machineX = parseFloat(vals[0]) || 0;
       state.machineY = parseFloat(vals[1]) || 0;
       state.machineZ = parseFloat(vals[2]) || 0;
+      report.mpos = { x: state.machineX, y: state.machineY, z: state.machineZ };
+      tags.add('mpos');
       document.getElementById('droX')!.textContent = fmtPos(vals[0]);
       document.getElementById('droY')!.textContent = fmtPos(vals[1]);
       document.getElementById('droZ')!.textContent = fmtPos(vals[2]);
@@ -101,55 +107,82 @@ function parseStatus(s: string): void {
       jogSyncPredicted();
     }
     if (key === 'FS' || key === 'F') {
-      document.getElementById('feedVal')!.textContent = (vals[0] || '0') + ' mm/m';
-      document.getElementById('spindleVal')!.textContent = (vals[1] || '0') + ' RPM';
+      report.fs = { feed: vals[0] || '0', spindle: vals[1] || '0' };
+      tags.add('fs');
+      document.getElementById('feedVal')!.textContent = report.fs.feed + ' mm/m';
+      document.getElementById('spindleVal')!.textContent = report.fs.spindle + ' RPM';
     }
     if (key === 'T') {
       const tn = parseInt(vals[0]);
-      if (!isNaN(tn) && tn !== state.currentToolNumber) {
-        state.currentToolNumber = tn;
-        if (state.ttEntries.length) renderToolTable();
+      if (!isNaN(tn)) {
+        report.tool = tn;
+        tags.add('tool');
+        if (tn !== state.currentToolNumber) {
+          state.currentToolNumber = tn;
+          if (state.ttEntries.length) renderToolTable();
+        }
       }
     }
     if (key === 'Ln') {
       const ln = parseInt(vals[0]);
+      report.ln = ln;
+      tags.add('ln');
       document.getElementById('lineVal')!.textContent = String(ln);
       state.segmentIndex = ln;
       updateExecutedPath(state.segmentIndex);
     }
     if (key === 'Bf') {
+      report.bf = { blocks: vals[0], bytes: vals[1] };
+      tags.add('bf');
       document.getElementById('bufVal')!.textContent = vals[0] + ' blk / ' + vals[1] + ' B';
     }
     if (key === 'Ov') {
       const feed = parseInt(vals[0]), rapid = parseInt(vals[1]), spin = parseInt(vals[2]);
-      if (!isNaN(feed)) updateOvrDisplay('feed', feed);
-      if (!isNaN(rapid)) updateOvrDisplay('rapid', rapid);
-      if (!isNaN(spin)) updateOvrDisplay('spindle', spin);
+      if (!isNaN(feed) && !isNaN(rapid) && !isNaN(spin)) {
+        report.ov = { feed, rapid, spindle: spin };
+        tags.add('ov');
+        updateOvrDisplay('feed', feed);
+        updateOvrDisplay('rapid', rapid);
+        updateOvrDisplay('spindle', spin);
+      }
     }
     if (key === 'Ct') {
       const ct = parseInt(vals[0]);
-      if (!isNaN(ct) && ct !== state.currentToolNumber) {
-        state.currentToolNumber = ct;
-        if (document.getElementById('tabpanel-tooltable')!.classList.contains('active')) {
-          renderToolTable();
+      if (!isNaN(ct)) {
+        report.tool = ct;
+        tags.add('tool');
+        if (ct !== state.currentToolNumber) {
+          state.currentToolNumber = ct;
+          if (document.getElementById('tabpanel-tooltable')!.classList.contains('active')) {
+            renderToolTable();
+          }
+          renderModTT();
         }
-        renderModTT();
       }
     }
     if (key === 'WCS') {
       const wcs = vals[0] && vals[0].toUpperCase();
+      report.wcs = wcs;
+      tags.add('wcs');
       const sel = document.getElementById('wcsSelect') as HTMLSelectElement;
       if (sel && ['G54', 'G55', 'G56', 'G57', 'G58', 'G59'].includes(wcs)) sel.value = wcs;
     }
     if (key === 'Pn') {
       hasPn = true;
-      updateSignals(vals[0] || '');
+      report.pins = vals[0] || '';
+      tags.add('pins');
+      updateSignals(report.pins);
     }
     if (key === 'BEAR') {
-      bearParseStatus(vals[0] || '');
+      report.bear = vals[0] || '';
+      tags.add('bear');
+      bearParseStatus(report.bear);
     }
   }
-  if (!hasPn) updateSignals('');
+  if (!hasPn) { report.pins = ''; tags.add('pins'); updateSignals(''); }
+
+  emit('status', tags, report);
+
   document.getElementById('vpStats')!.innerHTML =
     `X: ${state.machineX.toFixed(3)}&nbsp;&nbsp;Y: ${state.machineY.toFixed(3)}&nbsp;&nbsp;Z: ${state.machineZ.toFixed(3)}<br>` +
     `RX: ${state.rxInFlight}/${state.RX_BUFFER_SIZE}B&nbsp;&nbsp;QUEUE: ${state.sentQueue.length}`;
