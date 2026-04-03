@@ -323,11 +323,11 @@ function wireJogBtn(btn: HTMLElement, dir: string): void {
 
   btn.addEventListener('click', () => { if (!state.jogHoldMode) startJog(dir); });
 
-  btn.addEventListener('mousedown', e => { if (!state.jogHoldMode) return; e.preventDefault(); state._jogHoldActive = true; startJog(dir); });
+  btn.addEventListener('mousedown', e => { if (!state.jogHoldMode || state._jogHoldActive) return; e.preventDefault(); state._jogHoldActive = true; startJog(dir); });
   btn.addEventListener('mouseup', e => _jogBtnUp(e));
   btn.addEventListener('mouseleave', e => _jogBtnUp(e));
 
-  btn.addEventListener('touchstart', e => { if (!state.jogHoldMode) return; e.preventDefault(); state._jogHoldActive = true; startJog(dir); }, { passive: false });
+  btn.addEventListener('touchstart', e => { if (!state.jogHoldMode || state._jogHoldActive) return; e.preventDefault(); state._jogHoldActive = true; startJog(dir); }, { passive: false });
   btn.addEventListener('touchend', e => { if (state.jogHoldMode) { e.preventDefault(); _jogBtnUp(e); } }, { passive: false });
   btn.addEventListener('touchcancel', e => { if (state.jogHoldMode) { e.preventDefault(); _jogBtnUp(e); } }, { passive: false });
 }
