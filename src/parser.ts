@@ -11,6 +11,7 @@ import { updateExecutedPath, toolGroup } from './viewport';
 import { settingsIntercept, tryInterceptValue, onSettingWriteOk, onSettingWriteErr, tryParseSettingLine } from './settings';
 import { toolTableIntercept, renderToolTable, renderModTT } from './tooltable';
 import { updateOvrDisplay } from './overrides';
+import { jogSyncPredicted } from './jog';
 import { bearCheckPlugin, bearIntercept, bearParseStatus } from './bear';
 
 export function parseResponse(raw: string): void {
@@ -97,6 +98,7 @@ function parseStatus(s: string): void {
       const myEl = document.getElementById('droMY'); if (myEl) myEl.textContent = 'M: ' + fmtPos(vals[1]);
       const mzEl = document.getElementById('droMZ'); if (mzEl) mzEl.textContent = 'M: ' + fmtPos(vals[2]);
       toolGroup.position.set(state.machineX, state.machineZ, -state.machineY);
+      jogSyncPredicted();
     }
     if (key === 'FS' || key === 'F') {
       document.getElementById('feedVal')!.textContent = (vals[0] || '0') + ' mm/m';

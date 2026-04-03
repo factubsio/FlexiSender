@@ -22,8 +22,27 @@ let _zStepContainer: HTMLElement;
 // ── Jog preview in 3D ────────────────────────────────────────────────────────
 let _jogPreview: any = null;
 let _jogPreviewLine: any = null;
+let _previewAnimId: number = 0;
+let _previewTarget: any = null;  // THREE.Vector3 — ghost position
+let _previewColor: number = 0;
+
+// Predicted position in Three.js coords (accounts for queued click-mode jogs)
+let _predicted = { x: 0, y: 0, z: 0 };
+let _predictedDirty = false;
+
+export function jogSyncPredicted(): void {
+  if (!state._isJogging && !_predictedDirty) return;
+  if (!state._isJogging) {
+    _predicted.x = toolGroup.position.x;
+    _predicted.y = toolGroup.position.y;
+    _predicted.z = toolGroup.position.z;
+    _predictedDirty = false;
+  }
+}
 
 function clearJogPreview(): void {
+  if (_previewAnimId) { cancelAnimationFrame(_previewAnimId); _previewAnimId = 0; }
+  _previewTarget = null;
   if (_jogPreview) {
     scene.remove(_jogPreview);
     _jogPreview.traverse?.((c: any) => { c.geometry?.dispose(); c.material?.dispose(); });
@@ -43,29 +62,28 @@ function jogDirToVec(dir: string): { x: number; y: number; z: number } {
 function showJogPreview(dir: string): void {
   clearJogPreview();
   const v = jogDirToVec(dir);
-  const pos = toolGroup.position;
   const color = v.z !== 0 ? 0x3399ff : v.x !== 0 && v.y !== 0 ? 0xffaa00 : v.x !== 0 ? 0xff3333 : 0x33ff66;
+  _previewColor = color;
 
   if (state.jogHoldMode) {
+    const pos = toolGroup.position;
     const len = 30;
     const arrowDir = new THREE.Vector3(v.x, v.z, -v.y).normalize();
     const arrow = new THREE.ArrowHelper(arrowDir, pos.clone(), len, color, len * 0.3, len * 0.15);
     scene.add(arrow);
     _jogPreview = arrow;
   } else {
+    // Compute target from predicted position (accounts for queued jogs)
     const stepX = v.x * (v.z !== 0 ? 0 : state.jogStepXY);
     const stepY = v.y * (v.z !== 0 ? 0 : state.jogStepXY);
     const stepZ = v.z * state.jogStepZ;
-    const tx = pos.x + stepX;
-    const ty = pos.y + stepZ;
-    const tz = pos.z - stepY;
+    const tx = _predicted.x + stepX;
+    const ty = _predicted.y + stepZ;
+    const tz = _predicted.z - stepY;
 
-    const pts = [pos.clone(), new THREE.Vector3(tx, ty, tz)];
-    const geo = new THREE.BufferGeometry().setFromPoints(pts);
-    _jogPreviewLine = new THREE.Line(geo, new THREE.LineDashedMaterial({ color, dashSize: 3, gapSize: 2, transparent: true, opacity: 0.8 }));
-    _jogPreviewLine.computeLineDistances();
-    scene.add(_jogPreviewLine);
+    _previewTarget = new THREE.Vector3(tx, ty, tz);
 
+    // Ghost toolhead at target
     const ghostMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3, depthWrite: false });
     const ghost = new THREE.Group();
     const cone = new THREE.Mesh(new THREE.CylinderGeometry(0, 1.5, 4, 8), ghostMat);
@@ -75,10 +93,34 @@ function showJogPreview(dir: string): void {
     const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 6, 8), ghostMat);
     body.position.y = 7;
     ghost.add(body);
-    ghost.position.set(tx, ty, tz);
+    ghost.position.copy(_previewTarget);
     scene.add(ghost);
     _jogPreview = ghost;
+
+    // Start live dashed line update
+    updatePreviewLine();
+    startPreviewAnim();
   }
+}
+
+function updatePreviewLine(): void {
+  if (!_previewTarget) return;
+  if (_jogPreviewLine) { scene.remove(_jogPreviewLine); _jogPreviewLine.geometry?.dispose(); _jogPreviewLine.material?.dispose(); }
+  const pts = [toolGroup.position.clone(), _previewTarget.clone()];
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  _jogPreviewLine = new THREE.Line(geo, new THREE.LineDashedMaterial({ color: _previewColor, dashSize: 3, gapSize: 2, transparent: true, opacity: 0.8 }));
+  _jogPreviewLine.computeLineDistances();
+  scene.add(_jogPreviewLine);
+}
+
+function startPreviewAnim(): void {
+  if (_previewAnimId) return;
+  const tick = () => {
+    if (!_previewTarget) return;
+    updatePreviewLine();
+    _previewAnimId = requestAnimationFrame(tick);
+  };
+  _previewAnimId = requestAnimationFrame(tick);
 }
 
 // ── Step sizes ────────────────────────────────────────────────────────────────
@@ -115,10 +157,22 @@ export function startJog(dir: string): void {
   const f = jogFeedValue();
   const step = state.jogStepXY;
 
+  // Sync predicted to actual if stale
+  if (!_predictedDirty) {
+    _predicted.x = toolGroup.position.x;
+    _predicted.y = toolGroup.position.y;
+    _predicted.z = toolGroup.position.z;
+  }
+
   const diagMatch = dir.match(/^(X[+-])(Y[+-])$/);
   if (diagMatch) {
     const xSign = diagMatch[1][1] === '+' ? '' : '-';
     const ySign = diagMatch[2][1] === '+' ? '' : '-';
+    if (!state.jogHoldMode) {
+      _predicted.x += (xSign === '-' ? -step : step);
+      _predicted.z += (ySign === '-' ? step : -step);  // Three.js Z = -machineY
+      _predictedDirty = true;
+    }
     setJogging(true);
     sendCmd('$J=G91 X' + xSign + step + ' Y' + ySign + step + ' F' + f);
     return;
@@ -126,6 +180,13 @@ export function startJog(dir: string): void {
 
   const axis = dir[0], sign = dir[1] === '+' ? '' : '-';
   const axisStep = axis === 'Z' ? state.jogStepZ : state.jogStepXY;
+  if (!state.jogHoldMode) {
+    const delta = sign === '-' ? -axisStep : axisStep;
+    if (axis === 'X') _predicted.x += delta;
+    else if (axis === 'Y') _predicted.z -= delta;  // Three.js Z = -machineY
+    else if (axis === 'Z') _predicted.y += delta;   // Three.js Y = machineZ
+    _predictedDirty = true;
+  }
   setJogging(true);
   sendCmd('$J=G91 ' + axis + sign + axisStep + ' F' + f);
 }
