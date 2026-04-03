@@ -1233,7 +1233,7 @@
             <button class="jog-btn" data-dir="Y+">↑</button>
             <button class="jog-btn diag" data-dir="X+Y+">↗</button>
             <button class="jog-btn" data-dir="X-">←</button>
-            <button class="jog-btn center" onclick="goToXY0()">XY0</button>
+            <button class="jog-btn danger" onclick="stopJog()" style="font-size:11px;font-family:var(--cond);letter-spacing:1px">■ STOP</button>
             <button class="jog-btn" data-dir="X+">→</button>
             <button class="jog-btn diag" data-dir="X-Y-">↙</button>
             <button class="jog-btn" data-dir="Y-">↓</button>
@@ -1242,6 +1242,7 @@
           <div class="jog-z-col">
             <button class="jog-btn z-up" style="width:48px;height:48px" data-dir="Z+">Z↑</button>
             <button class="jog-btn z-down" style="width:48px;height:48px" data-dir="Z-">Z↓</button>
+            <button class="jog-btn" onclick="goToXY0()" style="width:48px;height:48px;font-size:10px;font-family:var(--cond);letter-spacing:0.5px">XY0</button>
           </div>
         </div>
       </div>
@@ -1651,7 +1652,6 @@
       <button class="module-drag-close" onclick="toggleModule('bear',false)">✕</button>
     </div>
     <div class="module-body" id="bearModBody" style="padding:0">
-      <div style="text-align:center;padding:14px;color:var(--text3);font-family:var(--cond);font-size:11px;letter-spacing:1px;text-transform:uppercase">No zones — click ↻ to load</div>
     </div>
   </div>
 

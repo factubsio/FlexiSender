@@ -110,6 +110,7 @@ export function toggleModLock(): void {
 export function modDragStart(e: MouseEvent, modId: string): void {
   if (state.modLocked) return;
   if (e.button !== 0) return;
+  if ((e.target as HTMLElement).closest('button, input, select, label')) return;
   const card = document.getElementById(modId)!;
 
   // If docked, undock first
@@ -136,6 +137,7 @@ export function modDragStart(e: MouseEvent, modId: string): void {
 export function modTouchStart(e: TouchEvent, modId: string): void {
   if (state.modLocked) return;
   if (e.touches.length !== 1) return;
+  if ((e.target as HTMLElement).closest('button, input, select, label')) return;
   const t = e.touches[0];
   const card = document.getElementById(modId)!;
 

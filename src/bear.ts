@@ -66,9 +66,9 @@ export function bearCheckPlugin(line: string): void {
   if (line.includes('[PLUGIN:MR BEAR DO NOT TOUCH')) {
     _pluginDetected = true;
     log('info', '🐻 MR BEAR DO NOT TOUCH detected');
-    // Show the module config card
     const cfg = document.getElementById('modcfg-bear');
     if (cfg) cfg.style.display = '';
+    renderBearModule(); // init the form DOM
   }
 }
 
@@ -122,7 +122,7 @@ export function bearIntercept(line: string): boolean {
     parseZoneList(_loadLines);
     renderBearModule();
     rebuildZoneMeshes();
-    return true;
+    return false; // let parser handle ok normally (rxInFlight, sentQueue)
   }
 
   return false;
@@ -149,65 +149,82 @@ function parseZoneList(lines: string[]): void {
 
 // ── Module UI ─────────────────────────────────────────────────────────────────
 
+function ensureFormExists(body: HTMLElement): void {
+  if (document.getElementById('bearEditForm')) return;
+
+  // Table container
+  const tableDiv = document.createElement('div');
+  tableDiv.id = 'bearTableWrap';
+  body.appendChild(tableDiv);
+
+  // Add zone button
+  const addDiv = document.createElement('div');
+  addDiv.style.cssText = 'padding:6px 8px;border-top:1px solid var(--border);';
+  addDiv.innerHTML = '<button class="tb-btn success" style="width:100%;font-size:11px;padding:8px" onclick="bearShowAddForm()">+ ADD ZONE</button>';
+  body.appendChild(addDiv);
+
+  // Edit form — created once, never destroyed
+  const form = document.createElement('div');
+  form.id = 'bearEditForm';
+  form.style.cssText = 'display:none;padding:8px;border-top:1px solid var(--border);background:var(--surface2);';
+  form.innerHTML =
+    '<div style="font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px" id="bearFormTitle">NEW ZONE</div>' +
+    '<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;font-family:var(--mono);font-size:11px;">' +
+    '<span style="color:var(--text3)">Slot</span><input id="bearSlot" type="number" min="0" max="15" value="0" class="limits-safe-input" style="width:100%">' +
+    '</div>' +
+    '<div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;font-family:var(--mono);font-size:11px;">' +
+    '<div style="display:flex;align-items:center;gap:6px"><span style="color:var(--text3);width:14px;font-weight:700">X</span><input id="bearXMin" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="min"><span style="color:var(--text3)">—</span><input id="bearXMax" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="max"></div>' +
+    '<div style="display:flex;align-items:center;gap:6px"><span style="color:var(--text3);width:14px;font-weight:700">Y</span><input id="bearYMin" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="min"><span style="color:var(--text3)">—</span><input id="bearYMax" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="max"></div>' +
+    '<div style="display:flex;align-items:center;gap:6px"><span style="color:var(--text3);width:14px;font-weight:700">Z</span><input id="bearZMin" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="min"><span style="color:var(--text3)">—</span><input id="bearZMax" type="number" step="0.01" value="0" class="limits-safe-input" style="flex:1" placeholder="max"></div>' +
+    '</div>' +
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">' +
+    '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagEn" checked> Enabled</label>' +
+    '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagGcode"> Allow G-code</label>' +
+    '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagJog"> Allow Jog</label>' +
+    '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagTool"> Allow Tool Chg</label>' +
+    '</div>' +
+    '<div style="display:flex;gap:6px;margin-top:8px;">' +
+    '<button class="tb-btn primary" style="flex:1" onclick="bearSaveZone()">SAVE</button>' +
+    '<button class="tb-btn" style="flex:1" onclick="bearCancelEdit()">CANCEL</button>' +
+    '</div>';
+  body.appendChild(form);
+}
+
 export function renderBearModule(): void {
   const body = document.getElementById('bearModBody');
   if (!body) return;
 
-  let html = '';
+  ensureFormExists(body);
 
-  if (_zones.length > 0) {
-    html += '<table style="width:100%;border-collapse:collapse;">';
-    html += '<tr style="background:var(--surface2);">';
-    html += '<th class="tt-th">#</th><th class="tt-th">MIN</th><th class="tt-th">MAX</th><th class="tt-th">BAN</th><th class="tt-th"></th>';
-    html += '</tr>';
+  const tableWrap = document.getElementById('bearTableWrap');
+  if (!tableWrap) return;
 
-    for (const z of _zones) {
-      const en = flagEnabled(z.flags);
-      const rowBg = en ? '' : 'opacity:0.4;';
-      html += `<tr style="${rowBg}border-bottom:1px solid var(--border);">`;
-      html += `<td class="tt-td" style="font-weight:700;color:var(--text)">${z.slot}</td>`;
-      html += `<td class="tt-td" style="font-size:10px">${z.xmin}, ${z.ymin}, ${z.zmin}</td>`;
-      html += `<td class="tt-td" style="font-size:10px">${z.xmax}, ${z.ymax}, ${z.zmax}</td>`;
-      html += `<td class="tt-td" style="font-size:16px">${bannedIcons(z.flags)}</td>`;
-      html += `<td class="tt-td" style="white-space:nowrap">`;
-      html += `<button class="dro-axis-btn" onclick="bearEditZone(${z.slot})">✏️</button> `;
-      html += `<button class="dro-axis-btn" onclick="bearDeleteZone(${z.slot})" style="color:var(--red)">🗑</button>`;
-      html += `</td></tr>`;
-    }
-    html += '</table>';
-  } else {
-    html += '<div style="text-align:center;padding:14px;color:var(--text3);font-family:var(--cond);font-size:11px;letter-spacing:1px;text-transform:uppercase">No zones — click ↻ to load</div>';
+  if (_zones.length === 0) {
+    tableWrap.innerHTML = '<div style="text-align:center;padding:14px;color:var(--text3);font-family:var(--cond);font-size:11px;letter-spacing:1px;text-transform:uppercase">No zones — click ↻ to load</div>';
+    return;
   }
 
-  // Add zone button
-  html += '<div style="padding:6px 8px;border-top:1px solid var(--border);">';
-  html += '<button class="tb-btn success" style="width:100%;font-size:11px;padding:8px" onclick="bearShowAddForm()">+ ADD ZONE</button>';
-  html += '</div>';
+  let html = '<table style="width:100%;border-collapse:collapse;">';
+  html += '<tr style="background:var(--surface2);">';
+  html += '<th class="tt-th">#</th><th class="tt-th">MIN</th><th class="tt-th">MAX</th><th class="tt-th">BAN</th><th class="tt-th"></th>';
+  html += '</tr>';
 
-  // Edit form (hidden by default, shown by bearEditZone / bearShowAddForm)
-  html += '<div id="bearEditForm" style="display:none;padding:8px;border-top:1px solid var(--border);background:var(--surface2);">';
-  html += '<div style="font-family:var(--cond);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px" id="bearFormTitle">NEW ZONE</div>';
-  html += '<div style="display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:center;font-family:var(--mono);font-size:11px;">';
-  html += '<span style="color:var(--text3)">Slot</span><input id="bearSlot" type="number" min="0" max="15" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">X min</span><input id="bearXMin" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">Y min</span><input id="bearYMin" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">Z min</span><input id="bearZMin" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">X max</span><input id="bearXMax" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">Y max</span><input id="bearYMax" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '<span style="color:var(--text3)">Z max</span><input id="bearZMax" type="number" step="0.01" value="0" class="limits-safe-input" style="width:100%">';
-  html += '</div>';
-  html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">';
-  html += '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagEn" checked> Enabled</label>';
-  html += '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagGcode"> Allow G-code</label>';
-  html += '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagJog"> Allow Jog</label>';
-  html += '<label style="display:flex;align-items:center;gap:4px;font-family:var(--cond);font-size:10px;color:var(--text2);cursor:pointer"><input type="checkbox" id="bearFlagTool"> Allow Tool Chg</label>';
-  html += '</div>';
-  html += '<div style="display:flex;gap:6px;margin-top:8px;">';
-  html += '<button class="tb-btn primary" style="flex:1" onclick="bearSaveZone()">SAVE</button>';
-  html += '<button class="tb-btn" style="flex:1" onclick="bearCancelEdit()">CANCEL</button>';
-  html += '</div></div>';
+  for (const z of _zones) {
+    const en = flagEnabled(z.flags);
+    const rowBg = en ? '' : 'opacity:0.4;';
+    html += `<tr style="${rowBg}border-bottom:1px solid var(--border);">`;
+    html += `<td class="tt-td" style="font-weight:700;color:var(--text)">${z.slot}</td>`;
+    html += `<td class="tt-td" style="font-size:10px">${z.xmin}, ${z.ymin}, ${z.zmin}</td>`;
+    html += `<td class="tt-td" style="font-size:10px">${z.xmax}, ${z.ymax}, ${z.zmax}</td>`;
+    html += `<td class="tt-td" style="font-size:16px">${bannedIcons(z.flags)}</td>`;
+    html += `<td class="tt-td" style="white-space:nowrap">`;
+    html += `<button class="dro-axis-btn" onclick="bearEditZone(${z.slot})">✏️</button> `;
+    html += `<button class="dro-axis-btn" onclick="bearDeleteZone(${z.slot})" style="color:var(--red)">🗑</button>`;
+    html += `</td></tr>`;
+  }
+  html += '</table>';
 
-  body.innerHTML = html;
+  tableWrap.innerHTML = html;
 }
 
 export function bearShowAddForm(): void {

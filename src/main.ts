@@ -8,7 +8,7 @@ import { toggleConnect, sendCmd } from './connection';
 import { initViewport, setView, fitView, toggleToolhead, vpApply, setProjection } from './viewport';
 import { loadFile, uploadAndOpenFile, frameProgram } from './gcode';
 import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS, sendManual, handleConInput } from './streaming';
-import { setStepXY, setStepZ, setJogHoldMode, initJogButtons, initKeyboardJog } from './jog';
+import { setStepXY, setStepZ, setJogHoldMode, stopJog, initJogButtons, initKeyboardJog } from './jog';
 import { resetOverride, applyOverride, setSpindle, toggleCoolant } from './overrides';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
 import { loadToolTable } from './tooltable';
@@ -62,6 +62,7 @@ w.setProjection = setProjection;
 w.setStepXY = setStepXY;
 w.setStepZ = setStepZ;
 w.setJogHoldMode = setJogHoldMode;
+w.stopJog = stopJog;
 w.goToXY0 = goToXY0;
 
 // Overrides

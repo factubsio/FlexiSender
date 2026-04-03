@@ -106,22 +106,22 @@ function animate(): void {
 }
 
 export function updateCamera(): void {
-  // Position both cameras identically
-  const x = target.x + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
-  const y = target.y + spherical.radius * Math.cos(spherical.phi);
-  const z = target.z + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+  const sp = Math.sin(spherical.phi), cp = Math.cos(spherical.phi);
+  const st = Math.sin(spherical.theta), ct = Math.cos(spherical.theta);
+  const x = target.x + spherical.radius * sp * st;
+  const y = target.y + spherical.radius * cp;
+  const z = target.z + spherical.radius * sp * ct;
   perspCamera.position.set(x, y, z);
   perspCamera.lookAt(target);
   orthoCamera.position.set(x, y, z);
+  orthoCamera.up.set(0, 1, 0);
   orthoCamera.lookAt(target);
   syncOrthoFrustum();
 }
 
 function syncOrthoFrustum(): void {
-  const wrap = _canvas.parentElement!;
-  const w = wrap.clientWidth || 1, h = wrap.clientHeight || 1;
-  const aspect = w / h;
-  // Use spherical.radius to derive the ortho frustum size so zoom feels consistent
+  const size = renderer.getSize(new THREE.Vector2());
+  const aspect = (size.x || 1) / (size.y || 1);
   const halfH = spherical.radius * 0.5;
   const halfW = halfH * aspect;
   orthoCamera.left = -halfW;

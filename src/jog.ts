@@ -5,6 +5,76 @@
 import { state, KB_JOG_MAP, KEYBOARD_JOG_DIST } from './state';
 import { isInputFocused } from './ui';
 import { sendCmd, rtSend, setJogging } from './connection';
+import { scene, toolGroup } from './viewport';
+
+declare const THREE: any;
+
+// ── Jog preview in 3D ────────────────────────────────────────────────────────
+let _jogPreview: any = null;  // marker or arrow
+let _jogPreviewLine: any = null;
+
+function clearJogPreview(): void {
+  if (_jogPreview) {
+    scene.remove(_jogPreview);
+    _jogPreview.traverse?.((c: any) => { c.geometry?.dispose(); c.material?.dispose(); });
+    _jogPreview = null;
+  }
+  if (_jogPreviewLine) { scene.remove(_jogPreviewLine); _jogPreviewLine.geometry?.dispose(); _jogPreviewLine.material?.dispose(); _jogPreviewLine = null; }
+}
+
+function jogDirToVec(dir: string): { x: number; y: number; z: number } {
+  let x = 0, y = 0, z = 0;
+  if (dir.includes('X+')) x = 1; if (dir.includes('X-')) x = -1;
+  if (dir.includes('Y+')) y = 1; if (dir.includes('Y-')) y = -1;
+  if (dir.includes('Z+')) z = 1; if (dir.includes('Z-')) z = -1;
+  return { x, y, z };
+}
+
+function showJogPreview(dir: string): void {
+  clearJogPreview();
+  const v = jogDirToVec(dir);
+  const pos = toolGroup.position;
+  // Color based on dominant axis
+  const color = v.z !== 0 ? 0x3399ff : v.x !== 0 && v.y !== 0 ? 0xffaa00 : v.x !== 0 ? 0xff3333 : 0x33ff66;
+
+  if (state.jogHoldMode) {
+    // Arrow showing direction
+    const len = 30;
+    const arrowDir = new THREE.Vector3(v.x, v.z, -v.y).normalize();
+    const arrow = new THREE.ArrowHelper(arrowDir, pos.clone(), len, color, len * 0.3, len * 0.15);
+    scene.add(arrow);
+    _jogPreview = arrow;
+  } else {
+    // Ghost toolhead at target position
+    const stepX = v.x * (v.z !== 0 ? 0 : state.jogStepXY);
+    const stepY = v.y * (v.z !== 0 ? 0 : state.jogStepXY);
+    const stepZ = v.z * state.jogStepZ;
+    const tx = pos.x + stepX;
+    const ty = pos.y + stepZ;
+    const tz = pos.z - stepY;
+
+    // Dashed line from current to target
+    const pts = [pos.clone(), new THREE.Vector3(tx, ty, tz)];
+    const geo = new THREE.BufferGeometry().setFromPoints(pts);
+    _jogPreviewLine = new THREE.Line(geo, new THREE.LineDashedMaterial({ color, dashSize: 3, gapSize: 2, transparent: true, opacity: 0.8 }));
+    _jogPreviewLine.computeLineDistances();
+    scene.add(_jogPreviewLine);
+
+    // Ghost head — same shape as toolhead but translucent
+    const ghostMat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.3, depthWrite: false });
+    const ghost = new THREE.Group();
+    const cone = new THREE.Mesh(new THREE.CylinderGeometry(0, 1.5, 4, 8), ghostMat);
+    cone.rotation.x = Math.PI;
+    cone.position.y = 2;
+    ghost.add(cone);
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 6, 8), ghostMat);
+    body.position.y = 7;
+    ghost.add(body);
+    ghost.position.set(tx, ty, tz);
+    scene.add(ghost);
+    _jogPreview = ghost;
+  }
+}
 
 export function setStepXY(v: number): void {
   state.jogStepXY = v;
@@ -60,6 +130,17 @@ function _jogBtnUp(e: Event): void {
 export function initJogButtons(): void {
   document.querySelectorAll<HTMLElement>('.jog-btn[data-dir]').forEach(btn => {
     const dir = btn.dataset.dir!;
+
+    // Color by axis
+    const v = jogDirToVec(dir);
+    if (v.z !== 0) { btn.style.color = '#5588ff'; btn.style.background = 'rgba(55,88,255,0.15)'; }
+    else if (v.x !== 0 && v.y === 0) { btn.style.color = '#ff5555'; }
+    else if (v.y !== 0 && v.x === 0) { btn.style.color = '#55ff77'; }
+    else if (v.x !== 0 && v.y !== 0) { btn.style.color = '#ffaa44'; }
+
+    // Hover → show 3D preview
+    btn.addEventListener('mouseenter', () => { showJogPreview(dir); });
+    btn.addEventListener('mouseleave', () => { clearJogPreview(); });
 
     btn.addEventListener('click', () => {
       if (state.jogHoldMode) return;
