@@ -279,6 +279,29 @@ function initChunk1Events(): void {
   });
   on('btnFitView', 'click', () => fitView());
   on('btnToolhead', 'click', () => toggleToolhead());
+  on('vpCopyBtn', 'click', () => copyDebugStats());
+}
+
+// ── Debug stats clipboard ─────────────────────────────────────────────────────
+function copyDebugStats(): void {
+  const snap = {
+    ts: new Date().toISOString(),
+    connected: state.connected,
+    connMode: state.connMode,
+    machineState: state._prevMachineStateSl,
+    homed: state.machineHomed,
+    pos: { x: state.machineX, y: state.machineY, z: state.machineZ },
+    rx: { inFlight: state.rxInFlight, bufSize: state.RX_BUFFER_SIZE },
+    sentQueue: { length: state.sentQueue.length, cmds: state.sentQueue.map(s => s.line) },
+    job: { running: state.running, paused: state.paused, lineHead: state.lineHead, totalLines: state.gcodeLines.length },
+    jog: { isJogging: state._isJogging, holdMode: state.jogHoldMode, stepXY: state.jogStepXY, stepZ: state.jogStepZ },
+    overrides: state.ovrCurrent,
+    axes: state.controllerAxes,
+  };
+  navigator.clipboard.writeText(JSON.stringify(snap, null, 2)).then(() => {
+    const btn = document.getElementById('vpCopyBtn');
+    if (btn) { btn.classList.add('copied'); btn.textContent = '✓'; setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📋'; }, 1500); }
+  });
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
