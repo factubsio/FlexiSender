@@ -8,7 +8,7 @@ import { isInputFocused } from '../ui';
 import { sendCmd, rtSend, setJogging } from '../connection';
 import { goToXY0 } from '../streaming';
 import { scene, toolGroup } from '../viewport';
-import { on as busOn } from '../bus';
+import { on as busOn, type StatusReport } from '../bus';
 
 declare const THREE: any;
 
@@ -76,9 +76,13 @@ export function jogSyncPredicted(): void {
       break;
     }
   }
+}
 
-  // All jog commands drained — clean up everything
-  if (_predictedDirty && state.sentQueue.length === 0 && !state._isJogging) {
+function jogCheckIdle(machineState: string): void {
+  // Machine is idle/alarm with stale waypoints — jog was blocked or completed
+  if (!_predictedDirty) return;
+  const sl = machineState.toLowerCase().split(':')[0];
+  if ((sl === 'idle' || sl === 'alarm') && state.sentQueue.length === 0) {
     for (const wp of _waypoints) removeGhost(wp.ghost);
     _waypoints.length = 0;
     _predicted.x = toolGroup.position.x;
@@ -403,6 +407,7 @@ export function mount(parent: HTMLElement): void {
   parent.appendChild(card);
 
   busOn('status', ['mpos'], () => jogSyncPredicted());
+  busOn<StatusReport>('status', ['state'], (r) => jogCheckIdle(r.machineState));
 }
 
 // ── Keyboard jog ──────────────────────────────────────────────────────────────
