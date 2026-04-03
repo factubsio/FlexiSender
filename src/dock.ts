@@ -400,7 +400,7 @@ function hitTestDockZone(clientX: number, clientY: number): DockHit | null {
   const inContainer = clientX >= cr.left && clientX <= cr.right && clientY >= cr.top && clientY <= cr.bottom;
   if (!inContainer) return null;
 
-  // Test against existing dock leaves — side splits only (no center/tab)
+  // Test against existing dock leaves — side splits + center for tabs
   const leaves = _container.querySelectorAll('.dock-leaf');
   for (const leaf of leaves) {
     const lr = leaf.getBoundingClientRect();
@@ -414,10 +414,13 @@ function hitTestDockZone(clientX: number, clientY: number): DockHit | null {
     const fracX = (clientX - lr.left) / lr.width;
     const fracY = (clientY - lr.top) / lr.height;
 
-    if (fracY < 0.3) return { side: 'top', targetNode: leafNode, rect: { left: lr.left, top: lr.top, width: lr.width, height: lr.height * 0.5 } };
-    if (fracY > 0.7) return { side: 'bottom', targetNode: leafNode, rect: { left: lr.left, top: lr.top + lr.height * 0.5, width: lr.width, height: lr.height * 0.5 } };
-    // Don't offer left/right splits on leaves — they're already side-docked
-    return null;
+    // Edge zones → split the leaf
+    if (fracX < 0.2) return { side: 'left', targetNode: leafNode, rect: { left: lr.left, top: lr.top, width: lr.width * 0.5, height: lr.height } };
+    if (fracX > 0.8) return { side: 'right', targetNode: leafNode, rect: { left: lr.left + lr.width * 0.5, top: lr.top, width: lr.width * 0.5, height: lr.height } };
+    if (fracY < 0.2) return { side: 'top', targetNode: leafNode, rect: { left: lr.left, top: lr.top, width: lr.width, height: lr.height * 0.5 } };
+    if (fracY > 0.8) return { side: 'bottom', targetNode: leafNode, rect: { left: lr.left, top: lr.top + lr.height * 0.5, width: lr.width, height: lr.height * 0.5 } };
+    // Center zone → tab into
+    return { side: 'center', targetNode: leafNode, rect: { left: lr.left, top: lr.top, width: lr.width, height: lr.height } };
   }
 
   // Test against the central node — side docks only
@@ -432,12 +435,10 @@ function hitTestDockZone(clientX: number, clientY: number): DockHit | null {
     }
   }
 
-  // Root edge zones
+  // Root edge zones — left/right only
   const edgeSize = 60;
   if (clientX - cr.left < edgeSize) return { side: 'left', rect: { left: cr.left, top: cr.top, width: cr.width * 0.25, height: cr.height } };
   if (cr.right - clientX < edgeSize) return { side: 'right', rect: { left: cr.left + cr.width * 0.75, top: cr.top, width: cr.width * 0.25, height: cr.height } };
-  if (clientY - cr.top < edgeSize) return { side: 'top', rect: { left: cr.left, top: cr.top, width: cr.width, height: cr.height * 0.25 } };
-  if (cr.bottom - clientY < edgeSize) return { side: 'bottom', rect: { left: cr.left, top: cr.top + cr.height * 0.75, width: cr.width, height: cr.height * 0.25 } };
 
   return null;
 }
