@@ -855,6 +855,31 @@
   .tt-status-pill.hand { background: var(--surface3); color: var(--text3); border: 1px solid var(--border2); }
   .tt-status-pill.active { background: rgba(34,197,94,0.18); color: var(--green); border: 1px solid var(--green2); }
 
+  /* ── CONSOLE AUTOCOMPLETE ─────────────────────────────────────────────── */
+  .con-autocomplete {
+    position: absolute; bottom: 100%; left: 0; right: 0;
+    background: var(--surface); border: 1px solid var(--accent2);
+    border-bottom: none; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    max-height: 180px; overflow-y: auto; display: none; z-index: 300;
+  }
+  .con-autocomplete.visible { display: block; }
+  .con-ac-item {
+    padding: 5px 12px; font-family: var(--mono); font-size: 11px; color: var(--text2);
+    cursor: pointer; display: flex; justify-content: space-between; gap: 10px;
+  }
+  .con-ac-item:hover, .con-ac-item.selected { background: var(--accent2); color: #fff; }
+  .con-ac-id { color: var(--text3); font-size: 10px; }
+  .con-ac-item:hover .con-ac-id, .con-ac-item.selected .con-ac-id { color: rgba(255,255,255,0.6); }
+
+  .con-param-hint {
+    position: fixed; display: none; z-index: 9999;
+    background: var(--surface2); border: 1px solid var(--accent2); border-radius: var(--radius-sm);
+    padding: 4px 10px; font-family: var(--cond); font-size: 11px; letter-spacing: 0.5px;
+    color: var(--accent); white-space: nowrap; pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  .con-param-hint.visible { display: block; }
+
   /* ── MR BEAR ──────────────────────────────────────────────────────────── */
   .bear-status-badge {
     font-family: var(--cond); font-weight: 700; font-size: 10px; letter-spacing: 0.5px;
@@ -1019,15 +1044,21 @@
   /* X / Y / Z limits — amber */
   .sig-item.active[data-sig="xlim"] .sig-dot,
   .sig-item.active[data-sig="ylim"] .sig-dot,
-  .sig-item.active[data-sig="zlim"] .sig-dot {
+  .sig-item.active[data-sig="zlim"] .sig-dot,
+  .sig-item.active[data-sig="alim"] .sig-dot,
+  .sig-item.active[data-sig="blim"] .sig-dot {
     background: var(--yellow); border-color: var(--yellow2); box-shadow: 0 0 8px rgba(245,158,11,0.7);
   }
   .sig-item.active[data-sig="xlim"],
   .sig-item.active[data-sig="ylim"],
-  .sig-item.active[data-sig="zlim"] { border-color: var(--yellow2); }
+  .sig-item.active[data-sig="zlim"],
+  .sig-item.active[data-sig="alim"],
+  .sig-item.active[data-sig="blim"] { border-color: var(--yellow2); }
   .sig-item.active[data-sig="xlim"] .sig-label,
   .sig-item.active[data-sig="ylim"] .sig-label,
-  .sig-item.active[data-sig="zlim"] .sig-label { color: var(--yellow); }
+  .sig-item.active[data-sig="zlim"] .sig-label,
+  .sig-item.active[data-sig="alim"] .sig-label,
+  .sig-item.active[data-sig="blim"] .sig-label { color: var(--yellow); }
   /* Probe — blue */
   .sig-item.active[data-sig="probe"] .sig-dot {
     background: var(--blue); border-color: var(--blue2); box-shadow: 0 0 8px rgba(59,130,246,0.7);
@@ -1376,9 +1407,10 @@
     <div class="module-body">
       <div class="right-console-wrap" style="border:none;border-radius:0">
         <div class="console-out" id="consoleOut"></div>
-        <div class="console-input-row">
+        <div class="console-input-row" style="position:relative">
+          <div class="con-autocomplete" id="conAutocomplete"></div>
           <span class="con-prompt">›</span>
-          <input class="con-input" id="conInput" placeholder="Send G-code command..." onkeydown="handleConInput(event)" />
+          <input class="con-input" id="conInput" placeholder="Send G-code command..." onkeydown="handleConInput(event)" oninput="conAutoUpdate()" autocomplete="off" />
           <button class="con-send" onclick="sendManual()">SEND</button>
         </div>
       </div>
@@ -1630,6 +1662,8 @@
         <div class="sig-item" data-sig="xlim"      id="sig-xlim">      <div class="sig-dot"></div><div class="sig-label">X Limit</div></div>
         <div class="sig-item" data-sig="ylim"      id="sig-ylim">      <div class="sig-dot"></div><div class="sig-label">Y Limit</div></div>
         <div class="sig-item" data-sig="zlim"      id="sig-zlim">      <div class="sig-dot"></div><div class="sig-label">Z Limit</div></div>
+        <div class="sig-item" data-sig="alim"      id="sig-alim">      <div class="sig-dot"></div><div class="sig-label">A Limit</div></div>
+        <div class="sig-item" data-sig="blim"      id="sig-blim">      <div class="sig-dot"></div><div class="sig-label">B Limit</div></div>
         <div class="sig-item" data-sig="probe"     id="sig-probe">     <div class="sig-dot"></div><div class="sig-label">Probe</div></div>
         <div class="sig-item" data-sig="toolsetter"id="sig-toolsetter"><div class="sig-dot"></div><div class="sig-label">Toolsetter</div></div>
         <div class="sig-item" data-sig="door"      id="sig-door">      <div class="sig-dot"></div><div class="sig-label">Door</div></div>
@@ -2058,6 +2092,20 @@
         </div>
       </div>
 
+      <!-- ── AUTO-LOAD SETTINGS ── -->
+      <div class="options-card">
+        <div class="options-card-icon">⚡</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Auto-load Settings on Connect</div>
+          <div class="options-card-desc">Automatically fetch GrblHAL settings when connecting. Enables console autocomplete for setting names.</div>
+          <div style="margin-top:10px;">
+            <label class="tb-opt-toggle" style="padding:8px 14px;">
+              <input type="checkbox" id="optAutoLoadSettings" onchange="localStorage.setItem('fs-opt-autoload-settings',this.checked?'1':'0')"> Enable
+            </label>
+          </div>
+        </div>
+      </div>
+
       <!-- ── 3D VIEWPORT EXTENTS ── -->
       <div class="options-card">
         <div class="options-card-icon">🗺️</div>
@@ -2184,6 +2232,81 @@
                 <label class="tb-opt-toggle" data-btn="tbBtn-home"><input type="checkbox" onchange="saveTbOpt(this)"> ⌂ Home</label>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── JOG STEP SIZES ── -->
+
+      <!-- ── BEAR ZONE COLOURS ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🐻</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Bear Zone Colours</div>
+          <div class="options-card-desc">Colours for zone boxes in the 3D viewport based on what the zone blocks. Applied on next zone refresh.</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+            <div class="opt-color-row">
+              <span class="opt-color-label">Blocks All</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optBearColorAll" class="opt-color-picker" value="#ff2222" oninput="optSaveBearColors()" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorAll').click()" style="background:#ff2222"></div>
+              </div>
+            </div>
+            <div class="opt-color-row">
+              <span class="opt-color-label">Blocks G-code</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optBearColorGcode" class="opt-color-picker" value="#ff6600" oninput="optSaveBearColors()" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorGcode').click()" style="background:#ff6600"></div>
+              </div>
+            </div>
+            <div class="opt-color-row">
+              <span class="opt-color-label">Blocks Jog</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optBearColorJog" class="opt-color-picker" value="#ffcc00" oninput="optSaveBearColors()" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorJog').click()" style="background:#ffcc00"></div>
+              </div>
+            </div>
+            <div class="opt-color-row">
+              <span class="opt-color-label">Blocks Tool Chg</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optBearColorTool" class="opt-color-picker" value="#cc44ff" oninput="optSaveBearColors()" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorTool').click()" style="background:#cc44ff"></div>
+              </div>
+            </div>
+            <div class="opt-color-row">
+              <span class="opt-color-label">Allows All</span>
+              <div class="opt-color-swatch-wrap">
+                <input type="color" id="optBearColorSafe" class="opt-color-picker" value="#22cc66" oninput="optSaveBearColors()" />
+                <div class="opt-color-swatch" onclick="document.getElementById('optBearColorSafe').click()" style="background:#22cc66"></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+              <div class="opt-field-label">Icon Scale</div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <input type="range" class="feed-slider" min="0.02" max="0.3" step="0.005" value="0.0875" id="optBearScale" oninput="optSaveBearColors();document.getElementById('optBearScaleVal').textContent=parseFloat(this.value).toFixed(3)" />
+                <span class="feed-val" id="optBearScaleVal" style="width:50px">0.088</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── JOG STEP SIZES ── -->
+      <div class="options-card">
+        <div class="options-card-icon">🕹</div>
+        <div class="options-card-body">
+          <div class="options-card-title">Jog Step Sizes</div>
+          <div class="options-card-desc">Configure the step size presets for XY and Z jog buttons. Comma-separated values in mm.</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+            <div>
+              <div class="opt-field-label">XY Steps (mm)</div>
+              <input class="opt-input" type="text" id="optJogStepsXY" value="0.01, 0.1, 1, 10, 50" oninput="optSaveJogSteps()" spellcheck="false" />
+            </div>
+            <div>
+              <div class="opt-field-label">Z Steps (mm)</div>
+              <input class="opt-input" type="text" id="optJogStepsZ" value="0.01, 0.1, 1, 5, 10" oninput="optSaveJogSteps()" spellcheck="false" />
+            </div>
+            <button class="opt-action-btn" onclick="optApplyJogSteps()">↺ Apply &amp; Rebuild Buttons</button>
           </div>
         </div>
       </div>

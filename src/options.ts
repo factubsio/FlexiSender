@@ -212,3 +212,101 @@ function _updateRow2Visibility(): void {
   const homeSep = document.getElementById('tbSep-row2-home');
   if (homeSep) homeSep.classList.toggle('tb-item-hidden', !homeVis);
 }
+
+// ── Jog step sizes ────────────────────────────────────────────────────────────
+export function optSaveJogSteps(): void {
+  try {
+    localStorage.setItem('fs-opt-jogsteps', JSON.stringify({
+      xy: (document.getElementById('optJogStepsXY') as HTMLInputElement).value,
+      z: (document.getElementById('optJogStepsZ') as HTMLInputElement).value,
+    }));
+  } catch (_) {}
+}
+
+export function optLoadJogSteps(): void {
+  try {
+    const s = JSON.parse(localStorage.getItem('fs-opt-jogsteps') || '{}');
+    if (s.xy) (document.getElementById('optJogStepsXY') as HTMLInputElement).value = s.xy;
+    if (s.z) (document.getElementById('optJogStepsZ') as HTMLInputElement).value = s.z;
+  } catch (_) {}
+}
+
+function parseSteps(raw: string): number[] {
+  return raw.split(',').map(s => parseFloat(s.trim())).filter(n => !isNaN(n) && n > 0);
+}
+
+export function optApplyJogSteps(): void {
+  const xySteps = parseSteps((document.getElementById('optJogStepsXY') as HTMLInputElement).value);
+  const zSteps = parseSteps((document.getElementById('optJogStepsZ') as HTMLInputElement).value);
+  if (xySteps.length === 0 || zSteps.length === 0) return;
+
+  // Rebuild XY step buttons
+  document.querySelectorAll('.jog-step-axis-btns').forEach((container, idx) => {
+    const steps = idx === 0 ? xySteps : zSteps;
+    const cls = idx === 0 ? 'xy-step-btn' : 'z-step-btn';
+    const defaultStep = idx === 0 ? 10 : 1;
+    container.innerHTML = '';
+    steps.forEach(v => {
+      const btn = document.createElement('button');
+      btn.className = 'step-btn ' + cls + (v === defaultStep ? ' active' : '');
+      btn.textContent = String(v);
+      btn.onclick = () => {
+        if (idx === 0) {
+          (window as any).setStepXY(v);
+        } else {
+          (window as any).setStepZ(v);
+        }
+      };
+      container.appendChild(btn);
+    });
+  });
+
+  optSaveJogSteps();
+}
+
+// ── Bear zone colours ─────────────────────────────────────────────────────────
+const BEAR_COLOR_IDS = ['optBearColorAll', 'optBearColorGcode', 'optBearColorJog', 'optBearColorTool', 'optBearColorSafe'];
+
+export function optSaveBearColors(): void {
+  try {
+    const c: Record<string, string> = {};
+    BEAR_COLOR_IDS.forEach(id => { c[id] = (document.getElementById(id) as HTMLInputElement).value; });
+    c['optBearScale'] = (document.getElementById('optBearScale') as HTMLInputElement).value;
+    localStorage.setItem('fs-opt-bearcolors', JSON.stringify(c));
+  } catch (_) {}
+}
+
+export function optLoadBearColors(): void {
+  try {
+    const c = JSON.parse(localStorage.getItem('fs-opt-bearcolors') || '{}');
+    BEAR_COLOR_IDS.forEach(id => {
+      if (c[id]) {
+        const inp = document.getElementById(id) as HTMLInputElement;
+        if (inp) { inp.value = c[id]; const swatch = inp.nextElementSibling as HTMLElement; if (swatch) swatch.style.background = c[id]; }
+      }
+    });
+    if (c['optBearScale']) {
+      const sl = document.getElementById('optBearScale') as HTMLInputElement;
+      const disp = document.getElementById('optBearScaleVal');
+      if (sl) sl.value = c['optBearScale'];
+      if (disp) disp.textContent = parseFloat(c['optBearScale']).toFixed(3);
+    }
+  } catch (_) {}
+}
+
+export function optGetBearScale(): number {
+  const el = document.getElementById('optBearScale') as HTMLInputElement | null;
+  return el ? parseFloat(el.value) || 0.0875 : 0.0875;
+}
+
+export function optGetBearColor(flags: number): string {
+  const en = !!(flags & 8);
+  if (!en) return '#444444';
+  const blocksGcode = !(flags & 1), blocksJog = !(flags & 2), blocksTool = !(flags & 4);
+  if (!blocksGcode && !blocksJog && !blocksTool) return (document.getElementById('optBearColorSafe') as HTMLInputElement)?.value || '#22cc66';
+  if (blocksGcode && blocksJog && blocksTool) return (document.getElementById('optBearColorAll') as HTMLInputElement)?.value || '#ff2222';
+  if (blocksGcode) return (document.getElementById('optBearColorGcode') as HTMLInputElement)?.value || '#ff6600';
+  if (blocksJog) return (document.getElementById('optBearColorJog') as HTMLInputElement)?.value || '#ffcc00';
+  if (blocksTool) return (document.getElementById('optBearColorTool') as HTMLInputElement)?.value || '#cc44ff';
+  return (document.getElementById('optBearColorAll') as HTMLInputElement)?.value || '#ff2222';
+}

@@ -158,6 +158,8 @@ export const SIG_PIN_MAP: Record<string, string> = {
   'X': 'sig-xlim',
   'Y': 'sig-ylim',
   'Z': 'sig-zlim',
+  'A': 'sig-alim',
+  'B': 'sig-blim',
   'P': 'sig-probe',
   'T': 'sig-toolsetter',
   'D': 'sig-door',

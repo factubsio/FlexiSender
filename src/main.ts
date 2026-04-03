@@ -7,7 +7,7 @@ import { log, clearConsole } from './console';
 import { toggleConnect, sendCmd } from './connection';
 import { initViewport, setView, fitView, toggleToolhead, vpApply, setProjection } from './viewport';
 import { loadFile, uploadAndOpenFile, frameProgram } from './gcode';
-import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS, sendManual, handleConInput } from './streaming';
+import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS, sendManual, handleConInput, conAutoUpdate } from './streaming';
 import { setStepXY, setStepZ, setJogHoldMode, stopJog, initJogButtons, initKeyboardJog } from './jog';
 import { resetOverride, applyOverride, setSpindle, toggleCoolant } from './overrides';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
@@ -17,7 +17,7 @@ import { initCameraTab, selectCamera, startCamera, stopCamera, measureOffset, go
 import { kbdPress, kbdBackspace, kbdClear, kbdSend, toggleTouchKeyboard } from './keyboard';
 import { toggleModule, setModSize, setConsoleLines, modInitPositions, toggleModLock, modDragStart, modTouchStart, initModDragListeners } from './modules';
 import { initDock, dockModule, undockModule } from './dock';
-import { optSetConnMode, optSaveConnSettings, optLoadConnSettings, optLoadColors, optLoadTabLocks, optBuildTabLockList, initToolbarOptions, saveTbOpt, optApplyColor, optHexChange, optResetColor, optResetAllColors } from './options';
+import { optSetConnMode, optSaveConnSettings, optLoadConnSettings, optLoadColors, optLoadTabLocks, optBuildTabLockList, initToolbarOptions, saveTbOpt, optApplyColor, optHexChange, optResetColor, optResetAllColors, optSaveJogSteps, optLoadJogSteps, optApplyJogSteps, optSaveBearColors, optLoadBearColors } from './options';
 import { bearRefresh, bearCheckPlugin, bearIntercept, bearParseStatus, bearShowAddForm, bearEditZone, bearSaveZone, bearDeleteZone, bearCancelEdit } from './bear';
 
 // ── Tab switching ─────────────────────────────────────────────────────────────
@@ -124,6 +124,7 @@ w.switchTab = switchTab;
 w.clearConsole = clearConsole;
 w.sendManual = sendManual;
 w.handleConInput = handleConInput;
+w.conAutoUpdate = conAutoUpdate;
 
 // WCS
 w.setWCS = setWCS;
@@ -136,6 +137,9 @@ w.optApplyColor = optApplyColor;
 w.optHexChange = optHexChange;
 w.optResetColor = optResetColor;
 w.optResetAllColors = optResetAllColors;
+w.optSaveJogSteps = optSaveJogSteps;
+w.optApplyJogSteps = optApplyJogSteps;
+w.optSaveBearColors = optSaveBearColors;
 
 // Frame
 w.frameProgram = frameProgram;
@@ -179,6 +183,11 @@ window.addEventListener('load', () => {
   optLoadTabLocks();
   optBuildTabLockList();
   initToolbarOptions();
+  optLoadJogSteps();
+  optApplyJogSteps();
+  optLoadBearColors();
+  // Restore auto-load settings toggle
+  try { const al = document.getElementById('optAutoLoadSettings') as HTMLInputElement; if (al) al.checked = localStorage.getItem('fs-opt-autoload-settings') === '1'; } catch (_) {}
   // Sync projection toggle
   const projPersp = document.getElementById('projBtnPersp');
   const projOrtho = document.getElementById('projBtnOrtho');

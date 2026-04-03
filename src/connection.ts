@@ -141,6 +141,9 @@ function onOpen(): void {
   setPollRate(POLL_NORM);
   rtSend('\x18');
   setTimeout(() => { state.sentQueue.length = 0; state.rxInFlight = 0; cmdSend('$I+'); }, 600);
+  setTimeout(() => {
+    try { if (localStorage.getItem('fs-opt-autoload-settings') === '1') import('./settings').then(s => s.loadSettings()); } catch (_) {}
+  }, 1500);
   const fb = document.getElementById('limitsFrameBtn') as HTMLButtonElement | null;
   if (fb && state.progLimits) fb.disabled = false;
 }

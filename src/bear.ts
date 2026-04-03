@@ -6,6 +6,7 @@ import { state } from './state';
 import { log } from './console';
 import { sendCmd } from './connection';
 import { scene } from './viewport';
+import { optGetBearColor, optGetBearScale } from './options';
 
 declare const THREE: any;
 
@@ -25,6 +26,7 @@ let _insideZone = false;
 let _loading = false;
 let _loadLines: string[] = [];
 let _zoneMeshes: any[] = [];
+let _zoneSprites: any[] = [];
 
 export function bearZones(): BearZone[] { return _zones; }
 export function bearDetected(): boolean { return _pluginDetected; }
@@ -68,7 +70,8 @@ export function bearCheckPlugin(line: string): void {
     log('info', '🐻 MR BEAR DO NOT TOUCH detected');
     const cfg = document.getElementById('modcfg-bear');
     if (cfg) cfg.style.display = '';
-    renderBearModule(); // init the form DOM
+    renderBearModule();
+    setTimeout(() => bearRefresh(), 300);
   }
 }
 
@@ -308,6 +311,7 @@ function rebuildZoneMeshes(): void {
     if (m.material) m.material.dispose();
   }
   _zoneMeshes = [];
+  _zoneSprites = [];
 
   for (const z of _zones) {
     if (!flagEnabled(z.flags)) continue;
@@ -320,11 +324,13 @@ function rebuildZoneMeshes(): void {
     const cy = z.zmin + sy / 2;
     const cz = -(z.ymin + sz / 2);
 
+    const zoneColor = new THREE.Color(optGetBearColor(z.flags));
+
     // Wireframe box
     const geo = new THREE.BoxGeometry(sx, sy, sz);
     const edges = new THREE.EdgesGeometry(geo);
     const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({
-      color: 0xff2222, transparent: true, opacity: 0.7,
+      color: zoneColor, transparent: true, opacity: 0.7,
     }));
     line.position.set(cx, cy, cz);
     scene.add(line);
@@ -332,7 +338,7 @@ function rebuildZoneMeshes(): void {
 
     // Translucent fill
     const fillMat = new THREE.MeshBasicMaterial({
-      color: 0xff0000, transparent: true, opacity: 0.08, side: THREE.DoubleSide,
+      color: zoneColor, transparent: true, opacity: 0.08, side: THREE.DoubleSide,
     });
     const fill = new THREE.Mesh(geo.clone(), fillMat);
     fill.position.set(cx, cy, cz);
@@ -340,20 +346,47 @@ function rebuildZoneMeshes(): void {
     _zoneMeshes.push(fill);
 
     // Sprite label with banned icons
+    const icons: { emoji: string; blocked: boolean }[] = [];
+    if (flagEnabled(z.flags)) {
+      icons.push({ emoji: '🤖', blocked: !flagAllowGcode(z.flags) });
+      icons.push({ emoji: '🕹', blocked: !flagAllowJog(z.flags) });
+      icons.push({ emoji: '🔧', blocked: !flagAllowToolchg(z.flags) });
+    } else {
+      icons.push({ emoji: '💤', blocked: false });
+    }
+    const iconSize = 50;
+    const pad = 6;
+    const totalW = icons.length * (iconSize + pad) - pad;
+    const canvasW = Math.max(256, totalW + 20);
+    const canvasH = 64;
     const canvas = document.createElement('canvas');
-    canvas.width = 256; canvas.height = 64;
+    canvas.width = canvasW; canvas.height = canvasH;
     const ctx = canvas.getContext('2d')!;
-    ctx.font = '40px sans-serif';
+    ctx.font = `${iconSize - 4}px sans-serif`;
     ctx.textAlign = 'center';
-    ctx.fillText(bannedIcons(z.flags), 128, 48);
+    ctx.textBaseline = 'middle';
+    const startX = (canvasW - totalW) / 2 + iconSize / 2;
+    for (let i = 0; i < icons.length; i++) {
+      const ix = startX + i * (iconSize + pad);
+      const iy = canvasH / 2;
+      ctx.fillText(icons[i].emoji, ix, iy);
+      if (icons[i].blocked) {
+        ctx.strokeStyle = '#ff2222';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(ix - iconSize * 0.35, iy - iconSize * 0.35);
+        ctx.lineTo(ix + iconSize * 0.35, iy + iconSize * 0.35);
+        ctx.stroke();
+      }
+    }
     const tex = new THREE.CanvasTexture(canvas);
     const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
     const sprite = new THREE.Sprite(spriteMat);
-    const labelScale = Math.max(sx, sz) * 0.4;
-    sprite.scale.set(labelScale, labelScale * 0.25, 1);
     sprite.position.set(cx, z.zmax + 3, cz);
     scene.add(sprite);
     _zoneMeshes.push(sprite);
+    _zoneSprites.push(sprite);
   }
 }
 
@@ -364,4 +397,12 @@ export function bearClearViz(): void {
     if (m.material) m.material.dispose();
   }
   _zoneMeshes = [];
+  _zoneSprites = [];
+}
+
+export function bearUpdateSpriteScales(radius: number): void {
+  const s = radius * optGetBearScale() * (window.devicePixelRatio || 1);
+  for (const sp of _zoneSprites) {
+    sp.scale.set(s, s * 0.25, 1);
+  }
 }

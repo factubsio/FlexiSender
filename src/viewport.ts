@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════
 
 import { state, VP_STORAGE_KEY } from './state';
+import { bearUpdateSpriteScales } from './bear';
 
 declare const THREE: any;
 
@@ -102,6 +103,7 @@ function animate(): void {
   requestAnimationFrame(animate);
   const t = Date.now() * 0.002;
   if (ringMat) ringMat.opacity = 0.2 + 0.2 * Math.sin(t);
+  bearUpdateSpriteScales(spherical.radius);
   renderer.render(scene, camera);
 }
 
