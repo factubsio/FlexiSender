@@ -9,7 +9,7 @@ import { toggleConnect, sendCmd } from './connection';
 import { initViewport, setView, fitView, toggleToolhead, vpApply, setProjection } from './viewport';
 import { loadFile, uploadAndOpenFile, frameProgram } from './gcode';
 import { startJob, pauseJob, stopJob, updateRunButtons, sendReset, unlockAlarm, sendHome, goToXY0, setWCS } from './streaming';
-import { setStepXY, setStepZ, setJogHoldMode, stopJog, initJogButtons, initKeyboardJog } from './jog';
+import { mount as mountJog, initKeyboardJog } from './jog';
 import { resetOverride, applyOverride, setSpindle, toggleCoolant } from './overrides';
 import { loadSettings, filterSettings, writeAllDirty } from './settings';
 import { loadToolTable } from './tooltable';
@@ -193,18 +193,6 @@ function initChunk2Events(): void {
     btn.addEventListener('click', () => sendCmd('G10 L20 P1 ' + btn.dataset.zero + '0'));
   });
 
-  // Jog module
-  on('jogHoldToggle', 'change', () => setJogHoldMode((document.getElementById('jogHoldToggle') as HTMLInputElement).checked));
-  on('jogStopBtn', 'click', () => stopJog());
-  on('jogXY0Btn', 'click', () => goToXY0());
-  on('jogFeed', 'input', () => { document.getElementById('jogFeedVal')!.textContent = (document.getElementById('jogFeed') as HTMLInputElement).value; });
-  document.querySelectorAll<HTMLElement>('.xy-step-btn').forEach(btn => {
-    btn.addEventListener('click', () => setStepXY(parseFloat(btn.textContent!)));
-  });
-  document.querySelectorAll<HTMLElement>('.z-step-btn').forEach(btn => {
-    btn.addEventListener('click', () => setStepZ(parseFloat(btn.textContent!)));
-  });
-
   // Overrides
   document.querySelectorAll<HTMLElement>('[data-ovr-reset]').forEach(btn => {
     btn.addEventListener('click', () => resetOverride(btn.dataset.ovrReset!));
@@ -321,7 +309,7 @@ initChunk1Events();
 initChunk2Events();
 initChunk3Events();
 initViewport();
-initJogButtons();
+mountJog(document.querySelector('.main') as HTMLElement);
 initKeyboardJog();
 initModDragListeners();
 initSdClickOutside();

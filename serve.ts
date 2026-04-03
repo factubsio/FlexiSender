@@ -45,26 +45,35 @@ Bun.serve({
       });
     }
 
-    if (path === "/app.js") {
-      const result = await Bun.build({
-        entrypoints: [`${srcDir}/main.ts`],
-        format: "esm",
-        minify: false,
-      });
-      if (!result.success) {
-        const errors = result.logs.map(l => l.message).join("\n");
-        console.error("[build error]", errors);
-        return new Response("// BUILD ERROR\n" + errors, {
+    if (path === "/bundle.js") {
+      try {
+        const result = await Bun.build({
+          entrypoints: [`${srcDir}/main.ts`],
+          format: "esm",
+          minify: false,
+        });
+        if (!result.success) {
+          const errors = result.logs.map(l => l.message).join("\n");
+          console.error("[build error]", errors);
+          return new Response("// BUILD ERROR\n" + errors, {
+            headers: { "content-type": "application/javascript" },
+            status: 500,
+          });
+        }
+        const js = await result.outputs[0].text();
+        return new Response(js, {
+          headers: { "content-type": "application/javascript" },
+        });
+      } catch (e: any) {
+        console.error("[app.js exception]", e);
+        return new Response("// EXCEPTION: " + e.message, {
           headers: { "content-type": "application/javascript" },
           status: 500,
         });
       }
-      const js = await result.outputs[0].text();
-      return new Response(js, {
-        headers: { "content-type": "application/javascript" },
-      });
     }
 
+    console.warn(`[404] ${path}`);
     return new Response("not found", { status: 404 });
   },
   websocket: {

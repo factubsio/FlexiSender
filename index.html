@@ -153,72 +153,7 @@
     </div>
   </div>
 
-  <!-- ═══ MODULE: JOGGING ═══ -->
-  <div class="module-card mod-hidden" id="mod-jogging" data-mod-size="normal" style="top:10px;left:302px">
-    <div class="module-drag-handle"
-        
-        >
-      <span class="module-drag-dots">⠿⠿</span>
-      <span class="module-drag-title">Jogging</span>
-      <div class="jog-mode-toggle">
-        <span class="jog-mode-label" id="jogModeClickLabel" style="color:var(--accent)">CLICK</span>
-        <label class="jog-mode-switch-wrap" title="Toggle: Click (step) vs Hold (stop on release)">
-          <input type="checkbox" id="jogHoldToggle">
-          <span class="jog-mode-slider"></span>
-        </label>
-        <span class="jog-mode-label" id="jogModeHoldLabel">HOLD</span>
-      </div>
-      <button class="module-drag-close">✕</button>
-    </div>
-    <div class="module-body">
-      <div class="jog-section" style="border:none;padding:4px 0;background:transparent">
-        <div class="jog-row">
-          <div class="jog-grid">
-            <button class="jog-btn diag" data-dir="X-Y+">↖</button>
-            <button class="jog-btn" data-dir="Y+">↑</button>
-            <button class="jog-btn diag" data-dir="X+Y+">↗</button>
-            <button class="jog-btn" data-dir="X-">←</button>
-            <button class="jog-btn danger" id="jogStopBtn" style="font-size:11px;font-family:var(--cond);letter-spacing:1px">■ STOP</button>
-            <button class="jog-btn" data-dir="X+">→</button>
-            <button class="jog-btn diag" data-dir="X-Y-">↙</button>
-            <button class="jog-btn" data-dir="Y-">↓</button>
-            <button class="jog-btn diag" data-dir="X+Y-">↘</button>
-          </div>
-          <div class="jog-z-col">
-            <button class="jog-btn z-up" style="width:48px;height:48px" data-dir="Z+">Z↑</button>
-            <button class="jog-btn z-down" style="width:48px;height:48px" data-dir="Z-">Z↓</button>
-            <button class="jog-btn" id="jogXY0Btn" style="width:48px;height:48px;font-size:10px;font-family:var(--cond);letter-spacing:0.5px">XY0</button>
-          </div>
-        </div>
-      </div>
-      <div class="feed-row" style="margin-top:2px">
-        <span class="feed-label">JOG F</span>
-        <input type="range" class="feed-slider" min="100" max="3000" value="1000" id="jogFeed"
-          />
-        <span class="feed-val" id="jogFeedVal">1000</span>
-      </div>
-      <div class="jog-step-axis-row">
-        <span class="jog-step-axis-label">XY</span>
-        <div class="jog-step-axis-btns">
-          <button class="step-btn xy-step-btn">0.01</button>
-          <button class="step-btn xy-step-btn">0.1</button>
-          <button class="step-btn xy-step-btn">1</button>
-          <button class="step-btn xy-step-btn active">10</button>
-          <button class="step-btn xy-step-btn">50</button>
-        </div>
-      </div>
-      <div class="jog-step-axis-row">
-        <span class="jog-step-axis-label">Z</span>
-        <div class="jog-step-axis-btns">
-          <button class="step-btn z-step-btn">0.01</button>
-          <button class="step-btn z-step-btn">0.1</button>
-          <button class="step-btn z-step-btn active">1</button>
-          <button class="step-btn z-step-btn">5</button>
-          <button class="step-btn z-step-btn">10</button>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- ═══ MODULE: JOGGING — mounted by jog.tsx ═══ -->
 
   <!-- ═══ MODULE: OVERRIDES ═══ -->
   <div class="module-card mod-hidden" id="mod-overrides" data-mod-size="normal" style="top:10px;left:594px">
@@ -1291,7 +1226,7 @@
 </div><!-- /tab-panel-tooltable -->
 
 
-<script src="/app.js" type="module"></script>
+<script src="/bundle.js" type="module"></script>
 <!-- DEV-RELOAD -->
 <script>
 (function(){const ws=new WebSocket('ws://'+location.host+'/ws');ws.onmessage=()=>location.reload();ws.onclose=()=>setTimeout(()=>location.reload(),1000);})();

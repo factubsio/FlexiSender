@@ -5,6 +5,7 @@
 import { state, OPT_COLOR_DEFAULTS, OPT_COLOR_CSS_VARS, OPT_LOCKABLE_TABS, TB_BTN_DEFAULTS } from './state';
 import { lsGet, lsSet } from './ui';
 import { log } from './console';
+import { rebuildSteps } from './jog';
 
 // ── Connection mode ───────────────────────────────────────────────────────────
 export function optSetConnMode(mode: 'websocket' | 'serial'): void {
@@ -225,28 +226,7 @@ export function optApplyJogSteps(): void {
   const xySteps = parseSteps((document.getElementById('optJogStepsXY') as HTMLInputElement).value);
   const zSteps = parseSteps((document.getElementById('optJogStepsZ') as HTMLInputElement).value);
   if (xySteps.length === 0 || zSteps.length === 0) return;
-
-  // Rebuild XY step buttons
-  document.querySelectorAll('.jog-step-axis-btns').forEach((container, idx) => {
-    const steps = idx === 0 ? xySteps : zSteps;
-    const cls = idx === 0 ? 'xy-step-btn' : 'z-step-btn';
-    const defaultStep = idx === 0 ? 10 : 1;
-    container.innerHTML = '';
-    steps.forEach(v => {
-      const btn = document.createElement('button');
-      btn.className = 'step-btn ' + cls + (v === defaultStep ? ' active' : '');
-      btn.textContent = String(v);
-      btn.onclick = () => {
-        if (idx === 0) {
-          (window as any).setStepXY(v);
-        } else {
-          (window as any).setStepZ(v);
-        }
-      };
-      container.appendChild(btn);
-    });
-  });
-
+  rebuildSteps(xySteps, zSteps);
   optSaveJogSteps();
 }
 

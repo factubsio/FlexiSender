@@ -23,7 +23,7 @@ const css = readFileSync(resolve(rootDir, "style.css"), "utf-8");
 // Inline CSS and JS for single-file distribution
 const out = html
   .replace(/<link rel="stylesheet" href="\/style\.css">/, `<style>${css}</style>`)
-  .replace(/<script src="\/app\.js" type="module"><\/script>/, `<script type="module">${js}</script>`)
+  .replace(/<script src="\/bundle\.js" type="module"><\/script>/, `<script type="module">${js}</script>`)
   .replace(/<!-- DEV-RELOAD -->[\s\S]*?<!-- \/DEV-RELOAD -->/, '')
   .replace(/<!-- CSS extracted to style\.css[^>]*-->/, '');
 
